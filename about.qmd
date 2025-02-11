@@ -1,6 +1,6 @@
 ---
 title: "About"
-image: profile.jpg
+image: profile_new.jpg
 about:
   template: jolla
   links:
@@ -16,4 +16,4 @@ about:
 
 ---
 
-About this blog
+Middlebury College CSCI 0451A (S25) Blog - Col McDermott
