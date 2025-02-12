@@ -1,5 +1,5 @@
 ---
-title: "My Awesome CSCI 0451 Blog"
+title: "CSCI 0451A Blog (S25) - Col McDermott"
 listing:
   contents: posts
   sort: "date desc"
