@@ -1,5 +1,5 @@
 ---
-title: "CSCI 0451A Blog (S25) - Col McDermott"
+title: "CSCI 0451A Blog - Spring 2025"
 listing:
   contents: posts
   sort: "date desc"

@@ -1,6 +1,5 @@
 ---
-title: "About"
-image: profile_new.jpg
+title: "Blog Info"
 about:
   template: jolla
   links:
@@ -10,7 +9,13 @@ about:
     - icon: github
       text: Github
       href: https://github.com/Col-McDermott
-
 ---
 
-Middlebury College CSCI 0451A (S25) Blog - Col McDermott
+<div class="quarto-about-jolla">
+<h1>Middlebury College CSCI 0451A Blog - Col McDermott</h1>
+<img src="profile_new.jpg" class="about-image
+  round " style="height: 15em; width: 15em;">
+<p> Check out my completed assignments from </p>
+<p> CSCI 0451 Machine Learning </p>
+<p> with Professor Phil Chodrow </p>
+</div>
