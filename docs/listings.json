@@ -3,8 +3,7 @@
     "listing": "/index.html",
     "items": [
       "/posts/post_1/index.html",
-      "/posts/new-test-post/index.html",
-      "/posts/new-new-test-post/index.html"
+      "/posts/post_2/index.html"
     ]
   }
 ]
