@@ -7,7 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Col McDermott">
-<meta name="dcterms.date" content="2025-02-17">
 <meta name="description" content="An introductory analysis of an automated decision model in the context of credit-risk prediction">
 
 <title>Post 2 - Exploring Automated Decision Models – Middlebury College CSCI 0451 Blog - Col McDermott</title>
@@ -188,7 +187,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 17, 2025</p>
+        <p class="date">Invalid Date</p>
       </div>
     </div>
     
@@ -211,25 +210,27 @@ background-size: cover;
 <h1>Introduction</h1>
 <section id="accessing-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="accessing-the-data">Accessing the Data</h3>
-<div id="cell-3" class="cell" data-execution_count="1">
+<div id="cell-3" class="cell" data-execution_count="228">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Includuing all additional imports</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> cross_val_score</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_selection <span class="im">import</span> SelectKBest</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> ListedColormap</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Patch</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>train <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/credit-risk/train.csv"</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>train.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> cross_val_score, train_test_split</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_selection <span class="im">import</span> SelectKBest</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> ListedColormap</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Patch</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>train <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/credit-risk/train.csv"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>train.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="228">
 <div>
 
 
@@ -339,22 +340,23 @@ background-size: cover;
 <h2 class="anchored" data-anchor-id="exploring-the-data">Exploring the Data</h2>
 <section id="preliminary-visualizations" class="level3">
 <h3 class="anchored" data-anchor-id="preliminary-visualizations">Preliminary Visualizations</h3>
-<div id="cell-6" class="cell" data-execution_count="251">
+<div id="cell-6" class="cell" data-execution_count="229">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data modification</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>train_viz <span class="op">=</span> train.copy()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>loan_status_recode <span class="op">=</span> {<span class="dv">0</span>: <span class="st">'Paid in Full'</span>, <span class="dv">1</span>: <span class="st">'Defaulted'</span>}</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>train_viz[<span class="st">'Loan Repayment'</span>] <span class="op">=</span> train_viz[<span class="st">'loan_status'</span>].<span class="bu">map</span>(loan_status_recode)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>train_viz <span class="op">=</span> train_viz.dropna()</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Subsetting data by loan status</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>default <span class="op">=</span> train_viz[train_viz[<span class="st">'loan_status'</span>] <span class="op">==</span> <span class="dv">1</span>].copy().dropna()</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>repaid <span class="op">=</span> train_viz[train_viz[<span class="st">'loan_status'</span>] <span class="op">==</span> <span class="dv">0</span>].copy().dropna()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>train_viz[<span class="st">'loan_repayment'</span>] <span class="op">=</span> train_viz[<span class="st">'loan_status'</span>].<span class="bu">map</span>(loan_status_recode)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>train_viz.loc[train_viz[<span class="st">"person_age"</span>] <span class="op">&gt;=</span> <span class="dv">100</span>, <span class="st">"person_age"</span>] <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>train_viz <span class="op">=</span> train_viz.dropna()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Subsetting data by loan status</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>default <span class="op">=</span> train_viz[train_viz[<span class="st">'loan_status'</span>] <span class="op">==</span> <span class="dv">1</span>].copy().dropna()</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>repaid <span class="op">=</span> train_viz[train_viz[<span class="st">'loan_status'</span>] <span class="op">==</span> <span class="dv">0</span>].copy().dropna()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p><em>Modifying training data for visualization</em></p>
-<div id="cell-8" class="cell" data-execution_count="252">
+<div id="cell-8" class="cell" data-execution_count="230">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating linear regression models and calculating R^2 values</span></span>
@@ -375,7 +377,7 @@ background-size: cover;
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>rs2 <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> (ssr2 <span class="op">/</span> sst2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="cell-9" class="cell" data-execution_count="253">
+<div id="cell-9" class="cell" data-execution_count="231">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
@@ -388,12 +390,12 @@ background-size: cover;
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yscale(<span class="st">'log'</span>, base <span class="op">=</span> <span class="dv">2</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">''</span>)</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xticks([<span class="dv">0</span>, <span class="dv">5000</span>, <span class="dv">10000</span>, <span class="dv">15000</span>, <span class="dv">20000</span>, <span class="dv">25000</span>, <span class="dv">30000</span>, <span class="dv">35000</span>])</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xticklabels([<span class="st">'$0'</span>, <span class="st">'$5000'</span>, <span class="st">'$10000'</span>, <span class="st">'$15000'</span>, <span class="st">'$20000'</span>, <span class="st">'$25000'</span>, <span class="st">'$30000'</span>, <span class="st">'$35000'</span>], rotation<span class="op">=</span><span class="dv">30</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="ss">f'Borrower</span><span class="ch">\'</span><span class="ss">s Income ($\log_2$ scale)'</span>, fontsize <span class="op">=</span> <span class="dv">14</span>, labelpad <span class="op">=</span> <span class="dv">15</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yticks([<span class="dv">2</span><span class="op">**</span><span class="dv">12</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">13</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">14</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">15</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">17</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">18</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">19</span>])</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yticklabels([<span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">12</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">13</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">14</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">15</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">16</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">17</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">18</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">19</span><span class="ch">}}</span><span class="ss">$'</span>])</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">'Defaulted Loans'</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].text(<span class="dv">27000</span>, <span class="dv">12288</span>, <span class="ss">f'     $R^2 = </span><span class="sc">{</span>rs1<span class="sc">:.3f}</span><span class="ss">$'</span>, ha <span class="op">=</span> <span class="st">'center'</span>, va <span class="op">=</span> <span class="st">'center'</span>, fontsize <span class="op">=</span> <span class="dv">9</span>, </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xticklabels([<span class="st">'$0'</span>, <span class="st">'$5000'</span>, <span class="st">'$10000'</span>, <span class="st">'$15000'</span>, <span class="st">'$20000'</span>, <span class="st">'$25000'</span>, <span class="st">'$30000'</span>, <span class="st">'$35000'</span>], rotation <span class="op">=</span> <span class="dv">30</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="ss">f'Borrower</span><span class="ch">\'</span><span class="ss">s Income ($\log_2$ scale)'</span>, fontsize <span class="op">=</span> <span class="dv">16</span>, labelpad <span class="op">=</span> <span class="dv">15</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yticks([<span class="dv">2</span><span class="op">**</span><span class="dv">12</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">13</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">14</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">15</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">17</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">18</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">19</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">20</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">21</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">22</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">23</span>])</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yticklabels([<span class="st">"&gt;$4000"</span>, <span class="st">"&gt;$8000"</span>, <span class="st">"&gt;$16000"</span>, <span class="st">"&gt;$32000"</span>, <span class="st">"&gt;$64000"</span>, <span class="st">"&gt;$128000"</span>, <span class="st">"&gt;$256000"</span>, <span class="st">"&gt;$512000"</span>, <span class="st">"&gt;$1024000"</span>, <span class="st">"&gt;$2048000"</span>, <span class="st">"&gt;$4096000"</span>, <span class="st">"&lt;$8192000"</span>], rotation <span class="op">=</span> <span class="dv">15</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">'Defaulted Loans'</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].text(<span class="dv">27000</span>, <span class="dv">12288</span>, <span class="ss">f'     $R^2 = </span><span class="sc">{</span>rs1<span class="sc">:.3f}</span><span class="ss">$'</span>, ha <span class="op">=</span> <span class="st">'center'</span>, va <span class="op">=</span> <span class="st">'center'</span>, fontsize <span class="op">=</span> <span class="dv">10</span>, </span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        bbox <span class="op">=</span> <span class="bu">dict</span>(facecolor <span class="op">=</span> <span class="st">'white'</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, edgecolor <span class="op">=</span> <span class="st">'gray'</span>, boxstyle <span class="op">=</span> <span class="st">'round,pad=0.3'</span>))</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].text(<span class="dv">24000</span>, <span class="dv">12288</span>, <span class="st">'</span><span class="ch">\u2013</span><span class="st">'</span>, color<span class="op">=</span><span class="st">'darkorange'</span>, ha<span class="op">=</span><span class="st">'left'</span>, va<span class="op">=</span><span class="st">'center'</span>, fontsize<span class="op">=</span><span class="dv">15</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
@@ -403,40 +405,47 @@ background-size: cover;
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yscale(<span class="st">'log'</span>, base <span class="op">=</span> <span class="dv">2</span>)</span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">''</span>)</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xticks([<span class="dv">0</span>, <span class="dv">5000</span>, <span class="dv">10000</span>, <span class="dv">15000</span>, <span class="dv">20000</span>, <span class="dv">25000</span>, <span class="dv">30000</span>, <span class="dv">35000</span>])</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xticklabels([<span class="st">'$0'</span>, <span class="st">'$5000'</span>, <span class="st">'$10000'</span>, <span class="st">'$15000'</span>, <span class="st">'$20000'</span>, <span class="st">'$25000'</span>, <span class="st">'$30000'</span>, <span class="st">'$35000'</span>], rotation<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xticklabels([<span class="st">'$0'</span>, <span class="st">'$5000'</span>, <span class="st">'$10000'</span>, <span class="st">'$15000'</span>, <span class="st">'$20000'</span>, <span class="st">'$25000'</span>, <span class="st">'$30000'</span>, <span class="st">'$35000'</span>], rotation<span class="op">=</span><span class="dv">30</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">''</span>)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yticks([<span class="dv">2</span><span class="op">**</span><span class="dv">14</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">18</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">20</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">22</span>])</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yticklabels([<span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">14</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">16</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">18</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">20</span><span class="ch">}}</span><span class="ss">$'</span>, <span class="ss">f'\$$2^</span><span class="ch">{{</span><span class="ss">22</span><span class="ch">}}</span><span class="ss">$'</span>])</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">'Repaid Loans'</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].text(<span class="dv">27000</span>, <span class="dv">12288</span>, <span class="ss">f'     $R^2 = </span><span class="sc">{</span>rs2<span class="sc">:.3f}</span><span class="ss">$'</span>, ha <span class="op">=</span> <span class="st">'center'</span>, va <span class="op">=</span> <span class="st">'center'</span>, fontsize <span class="op">=</span> <span class="dv">9</span>, </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yticks([<span class="dv">2</span><span class="op">**</span><span class="dv">12</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">13</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">14</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">15</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">17</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">18</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">19</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">20</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">21</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">22</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">23</span>])</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yticklabels([<span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>, <span class="st">""</span>], rotation <span class="op">=</span> <span class="dv">15</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">'Repaid Loans'</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].text(<span class="dv">27000</span>, <span class="dv">12288</span>, <span class="ss">f'     $R^2 = </span><span class="sc">{</span>rs2<span class="sc">:.3f}</span><span class="ss">$'</span>, ha <span class="op">=</span> <span class="st">'center'</span>, va <span class="op">=</span> <span class="st">'center'</span>, fontsize <span class="op">=</span> <span class="dv">10</span>, </span>
 <span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        bbox <span class="op">=</span> <span class="bu">dict</span>(facecolor <span class="op">=</span> <span class="st">'white'</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, edgecolor <span class="op">=</span> <span class="st">'gray'</span>, boxstyle <span class="op">=</span> <span class="st">'round,pad=0.3'</span>))</span>
 <span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].text(<span class="dv">24000</span>, <span class="dv">12288</span>, <span class="st">'</span><span class="ch">\u2013</span><span class="st">'</span>, color<span class="op">=</span><span class="st">'purple'</span>, ha<span class="op">=</span><span class="st">'left'</span>, va<span class="op">=</span><span class="st">'center'</span>, fontsize<span class="op">=</span><span class="dv">15</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
 <span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">'Borrower</span><span class="ch">\'</span><span class="st">s Income by Loan Amount Displayed by Loan Repayment Status'</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>fig.text(<span class="fl">0.475</span>, <span class="fl">0.05</span>, <span class="st">'Loan Amount'</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">'Borrower</span><span class="ch">\'</span><span class="st">s Income by Loan Amount Displayed by Loan Repayment Status'</span>, fontsize <span class="op">=</span> <span class="dv">20</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>fig.text(<span class="fl">0.47</span>, <span class="fl">0.025</span>, <span class="st">'Loan Amount'</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>plt.subplots_adjust(wspace<span class="op">=</span><span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="253">
-<pre><code>Text(0.475, 0.05, 'Loan Amount')</code></pre>
-</div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-5-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-10" class="cell" data-execution_count="263">
+<div id="cell-10" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Additional figure</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating subplots of loan-percent-income by person age (for each loan grade)</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fig, ax = plt.subplots(1, 1, figsize = (3, 3))</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>sns.relplot(train_viz, x <span class="op">=</span> <span class="st">'person_age'</span>, y <span class="op">=</span> <span class="st">'loan_percent_income'</span>, col <span class="op">=</span> <span class="st">'loan_grade'</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subsetting data to the three most common loan intents</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>common_loan_intents <span class="op">=</span> train_viz.copy()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>common_loan_intents <span class="op">=</span> train_viz[train_viz[<span class="st">"loan_intent"</span>].isin([<span class="st">"EDUCATION"</span>, <span class="st">"MEDICAL"</span>, <span class="st">"VENTURE"</span>])].copy()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>common_loan_intents.dropna()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating Boxen Plot</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="fl">7.5</span>, <span class="fl">7.5</span>))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> sns.boxenplot(common_loan_intents, x <span class="op">=</span> <span class="st">"loan_intent"</span>, y <span class="op">=</span> <span class="st">"person_age"</span>, hue <span class="op">=</span> <span class="st">"loan_repayment"</span>, palette <span class="op">=</span> [<span class="st">"darkorange"</span>, <span class="st">"purple"</span>])</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>p.set_xlabel(<span class="st">"Intention for Loan"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>p.set_ylabel(<span class="st">"Borrower</span><span class="ch">\'</span><span class="st">s Age"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>p.set_xticks([<span class="st">"EDUCATION"</span>, <span class="st">"MEDICAL"</span>, <span class="st">"VENTURE"</span>])</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>p.set_xticklabels([<span class="st">"Education"</span>, <span class="st">"Medical"</span>, <span class="st">"Venture"</span>])</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>p.legend(title <span class="op">=</span> <span class="st">"Loan Status"</span>, frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>p.set_title(<span class="st">"Distribution of Borrower</span><span class="ch">\'</span><span class="st">s Age for Top Three Loan Intents</span><span class="ch">\n</span><span class="st">Grouped by Loan Repayment Status"</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -451,15 +460,259 @@ background-size: cover;
 </section>
 <section id="table-of-general-summary-statistics" class="level3">
 <h3 class="anchored" data-anchor-id="table-of-general-summary-statistics">Table of General Summary Statistics</h3>
-<div id="cell-13" class="cell" data-execution_count="255">
+<div id="cell-13" class="cell" data-execution_count="233">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary Statistics</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper method to calculate coefficient of variation (%)</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cv(col):</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (col.std() <span class="op">/</span> col.mean()) <span class="op">*</span> <span class="dv">100</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary Statistics</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper method to calculate coefficient of variation (%)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cv(col):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (col.std() <span class="op">/</span> col.mean()) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a table grouped by penguin species and sex, showing general summary stats for several quantitative variables</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>sum_stats <span class="op">=</span> train_viz.rename(columns <span class="op">=</span> {<span class="st">"loan_repayment"</span>: <span class="st">"Loan Repayment"</span>, <span class="st">"loan_amnt"</span>: <span class="st">"Loan Amount"</span>, <span class="st">"person_income"</span>: <span class="st">"Borrower</span><span class="ch">\'</span><span class="st">s Income"</span>, <span class="st">"loan_intent"</span>: <span class="st">"Loan Intent"</span>, <span class="st">"person_age"</span>: <span class="st">"Borrower</span><span class="ch">\'</span><span class="st">s Age"</span>, <span class="st">"loan_percent_income"</span>: <span class="st">"Loan Percent Income"</span>}).copy()</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>sum_stats <span class="op">=</span> sum_stats.groupby([<span class="st">"Loan Repayment"</span>, <span class="st">"Loan Intent"</span>]).aggregate({<span class="st">"Loan Amount"</span> : [<span class="st">"mean"</span>, <span class="st">"std"</span>, cv], </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                                                             <span class="st">"Borrower</span><span class="ch">\'</span><span class="st">s Income"</span> : [<span class="st">"mean"</span>, <span class="st">"std"</span>, cv], <span class="st">"Loan Percent Income"</span>: [<span class="st">"mean"</span>, <span class="st">"std"</span>, cv], </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                                                             <span class="st">"Borrower</span><span class="ch">\'</span><span class="st">s Age"</span>: [<span class="st">"mean"</span>, <span class="st">"std"</span>, cv]})</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>sum_stats <span class="op">=</span> sum_stats.rename(columns <span class="op">=</span> {<span class="st">'mean'</span>: <span class="st">'Mean'</span>, <span class="st">'std'</span>: <span class="st">'STD'</span>, <span class="st">'cv'</span>: <span class="st">'CV (%)'</span>})</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>sum_stats <span class="op">=</span> sum_stats.<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>sum_stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display" data-execution_count="233">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">Loan Amount</th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">Borrower's Income</th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">Loan Percent Income</th>
+<th colspan="3" data-quarto-table-cell-role="th" data-halign="left">Borrower's Age</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Mean</th>
+<th data-quarto-table-cell-role="th">STD</th>
+<th data-quarto-table-cell-role="th">CV (%)</th>
+<th data-quarto-table-cell-role="th">Mean</th>
+<th data-quarto-table-cell-role="th">STD</th>
+<th data-quarto-table-cell-role="th">CV (%)</th>
+<th data-quarto-table-cell-role="th">Mean</th>
+<th data-quarto-table-cell-role="th">STD</th>
+<th data-quarto-table-cell-role="th">CV (%)</th>
+<th data-quarto-table-cell-role="th">Mean</th>
+<th data-quarto-table-cell-role="th">STD</th>
+<th data-quarto-table-cell-role="th">CV (%)</th>
+</tr>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Loan Repayment</th>
+<th data-quarto-table-cell-role="th">Loan Intent</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="6" data-quarto-table-cell-role="th" data-valign="top">Defaulted</td>
+<td data-quarto-table-cell-role="th">DEBTCONSOLIDATION</td>
+<td>11283.45</td>
+<td>7357.29</td>
+<td>65.20</td>
+<td>54553.15</td>
+<td>37624.33</td>
+<td>68.97</td>
+<td>0.24</td>
+<td>0.13</td>
+<td>57.00</td>
+<td>27.76</td>
+<td>6.52</td>
+<td>23.49</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">EDUCATION</td>
+<td>10912.82</td>
+<td>6979.08</td>
+<td>63.95</td>
+<td>47283.67</td>
+<td>30264.34</td>
+<td>64.01</td>
+<td>0.26</td>
+<td>0.13</td>
+<td>51.90</td>
+<td>27.09</td>
+<td>6.10</td>
+<td>22.50</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">HOMEIMPROVEMENT</td>
+<td>10035.04</td>
+<td>7324.85</td>
+<td>72.99</td>
+<td>49794.13</td>
+<td>33062.93</td>
+<td>66.40</td>
+<td>0.22</td>
+<td>0.13</td>
+<td>57.24</td>
+<td>27.62</td>
+<td>6.04</td>
+<td>21.86</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">MEDICAL</td>
+<td>11438.49</td>
+<td>7190.60</td>
+<td>62.86</td>
+<td>52477.12</td>
+<td>44092.21</td>
+<td>84.02</td>
+<td>0.24</td>
+<td>0.13</td>
+<td>54.74</td>
+<td>27.70</td>
+<td>6.31</td>
+<td>22.78</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">PERSONAL</td>
+<td>10459.89</td>
+<td>6884.86</td>
+<td>65.82</td>
+<td>46965.14</td>
+<td>39080.81</td>
+<td>83.21</td>
+<td>0.25</td>
+<td>0.13</td>
+<td>51.99</td>
+<td>27.24</td>
+<td>6.09</td>
+<td>22.37</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">VENTURE</td>
+<td>11115.68</td>
+<td>6695.34</td>
+<td>60.23</td>
+<td>44439.34</td>
+<td>27743.83</td>
+<td>62.43</td>
+<td>0.28</td>
+<td>0.13</td>
+<td>47.39</td>
+<td>26.74</td>
+<td>5.45</td>
+<td>20.38</td>
+</tr>
+<tr class="odd">
+<td rowspan="6" data-quarto-table-cell-role="th" data-valign="top">Paid in Full</td>
+<td data-quarto-table-cell-role="th">DEBTCONSOLIDATION</td>
+<td>9050.14</td>
+<td>5810.33</td>
+<td>64.20</td>
+<td>72388.92</td>
+<td>61644.36</td>
+<td>85.16</td>
+<td>0.14</td>
+<td>0.08</td>
+<td>58.11</td>
+<td>27.54</td>
+<td>5.66</td>
+<td>20.56</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">EDUCATION</td>
+<td>9206.44</td>
+<td>6010.44</td>
+<td>65.29</td>
+<td>67866.15</td>
+<td>41045.51</td>
+<td>60.48</td>
+<td>0.15</td>
+<td>0.09</td>
+<td>57.71</td>
+<td>26.43</td>
+<td>5.49</td>
+<td>20.79</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">HOMEIMPROVEMENT</td>
+<td>10518.51</td>
+<td>6398.11</td>
+<td>60.83</td>
+<td>82499.92</td>
+<td>50452.00</td>
+<td>61.15</td>
+<td>0.14</td>
+<td>0.09</td>
+<td>61.15</td>
+<td>29.47</td>
+<td>5.48</td>
+<td>18.60</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">MEDICAL</td>
+<td>8570.88</td>
+<td>5645.54</td>
+<td>65.87</td>
+<td>65116.70</td>
+<td>51476.94</td>
+<td>79.05</td>
+<td>0.15</td>
+<td>0.08</td>
+<td>56.46</td>
+<td>27.96</td>
+<td>6.17</td>
+<td>22.07</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">PERSONAL</td>
+<td>9441.60</td>
+<td>6133.81</td>
+<td>64.97</td>
+<td>72343.94</td>
+<td>54121.45</td>
+<td>74.81</td>
+<td>0.15</td>
+<td>0.09</td>
+<td>57.83</td>
+<td>28.49</td>
+<td>7.42</td>
+<td>26.03</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">VENTURE</td>
+<td>9307.47</td>
+<td>6064.40</td>
+<td>65.16</td>
+<td>70493.68</td>
+<td>58762.60</td>
+<td>83.36</td>
+<td>0.15</td>
+<td>0.09</td>
+<td>59.45</td>
+<td>27.74</td>
+<td>5.98</td>
+<td>21.57</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
 </div>
 <p><em>In creating the table above, I looked up how to calculate the CV for each of the columns to more easily interpret the STD and created the helper method</em></p>
 <p>Analysis of the summary statistics table.</p>
@@ -470,6 +723,191 @@ background-size: cover;
 <h1>Model Construction</h1>
 <section id="feature-selection" class="level2">
 <h2 class="anchored" data-anchor-id="feature-selection">Feature Selection</h2>
+<div id="cell-16" class="cell" data-execution_count="248">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Splitting the training data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> train.drop([<span class="st">"loan_status"</span>, <span class="st">"loan_grade"</span>], axis <span class="op">=</span> <span class="dv">1</span>, errors <span class="op">=</span> <span class="st">"ignore"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> train[<span class="st">"loan_status"</span>]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">## Creating one-hot encodings for qualitative variables</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> pd.get_dummies(X, drop_first <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Train/test split</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size <span class="op">=</span> <span class="fl">0.2</span>, random_state <span class="op">=</span> <span class="dv">69</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>X_train <span class="op">=</span> X_train.dropna()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>X_test <span class="op">=</span> X_test.dropna()</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> y_train.dropna()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> y_test.dropna()</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Realigning dataset sizes</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> y_train.head(X_train.shape[<span class="dv">0</span>])</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>y_test <span class="op">=</span> y_test.head(X_test.shape[<span class="dv">0</span>])</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Identifying quantitative and qualitative variables in the data</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>quant_vars <span class="op">=</span> [<span class="st">"person_age"</span>, <span class="st">"person_income"</span>, <span class="st">"person_emp_length"</span>, <span class="st">"loan_amnt"</span>, <span class="st">"loan_int_rate"</span>, <span class="st">"loan_percent_income"</span>, <span class="st">"cb_person_cred_hist_length"</span>]</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>qual_vars <span class="op">=</span> X_train.drop(quant_vars, axis <span class="op">=</span> <span class="dv">1</span>).columns</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial model</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>LR <span class="op">=</span> LogisticRegression(random_state <span class="op">=</span> <span class="dv">69</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>LR.fit(X_train, y_train)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>LR.score(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="248">
+<pre><code>0.7801124270043115</code></pre>
+</div>
+</div>
+<div id="cell-17" class="cell" data-execution_count="243">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>X_train.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="243">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">person_age</th>
+<th data-quarto-table-cell-role="th">person_income</th>
+<th data-quarto-table-cell-role="th">person_emp_length</th>
+<th data-quarto-table-cell-role="th">loan_amnt</th>
+<th data-quarto-table-cell-role="th">loan_int_rate</th>
+<th data-quarto-table-cell-role="th">loan_percent_income</th>
+<th data-quarto-table-cell-role="th">cb_person_cred_hist_length</th>
+<th data-quarto-table-cell-role="th">person_home_ownership_MORTGAGE</th>
+<th data-quarto-table-cell-role="th">person_home_ownership_OTHER</th>
+<th data-quarto-table-cell-role="th">person_home_ownership_OWN</th>
+<th data-quarto-table-cell-role="th">person_home_ownership_RENT</th>
+<th data-quarto-table-cell-role="th">loan_intent_DEBTCONSOLIDATION</th>
+<th data-quarto-table-cell-role="th">loan_intent_EDUCATION</th>
+<th data-quarto-table-cell-role="th">loan_intent_HOMEIMPROVEMENT</th>
+<th data-quarto-table-cell-role="th">loan_intent_MEDICAL</th>
+<th data-quarto-table-cell-role="th">loan_intent_PERSONAL</th>
+<th data-quarto-table-cell-role="th">loan_intent_VENTURE</th>
+<th data-quarto-table-cell-role="th">cb_person_default_on_file_N</th>
+<th data-quarto-table-cell-role="th">cb_person_default_on_file_Y</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25751</td>
+<td>25</td>
+<td>51996</td>
+<td>6.0</td>
+<td>8000</td>
+<td>10.37</td>
+<td>0.15</td>
+<td>2</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6402</td>
+<td>27</td>
+<td>240000</td>
+<td>1.0</td>
+<td>35000</td>
+<td>7.90</td>
+<td>0.15</td>
+<td>7</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6433</td>
+<td>43</td>
+<td>90000</td>
+<td>5.0</td>
+<td>10400</td>
+<td>11.49</td>
+<td>0.12</td>
+<td>14</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13693</td>
+<td>40</td>
+<td>45600</td>
+<td>20.0</td>
+<td>7000</td>
+<td>6.62</td>
+<td>0.15</td>
+<td>17</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3115</td>
+<td>24</td>
+<td>44000</td>
+<td>5.0</td>
+<td>22800</td>
+<td>17.27</td>
+<td>0.52</td>
+<td>3</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>True</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
 <p><em>Code Description</em></p>
 <p>Analysis of feature selection.</p>
 </section>
