@@ -112,12 +112,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       .quarto-title-block .quarto-title-banner h5,
       .quarto-title-block .quarto-title-banner h6
       {
-        color: white;
+        color: black;
       }
 
       .quarto-title-block .quarto-title-banner {
-        color: white;
-background: img/landscape.png;
+        color: black;
+background-image: url(../../img/landscape.png);
+background-size: cover;
       }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
@@ -240,7 +241,7 @@ window.Quarto = {
 <p>In this blog post, I’m taking on an introductory-level machine learning classification task. This task, classifying penguin species, is a ternary classification problem as there are three species options for which I am trying to construct a classifier model to correctly identify. The data for this task comes from the Palmer Station and was collected by Dr.&nbsp;Kristen Gorman. The following analysis begins with some preliminary data visualizations and summary statistics interpretation. From the preliminary visualizations and statistics table, I’m able to make some initial observations about the difference in penguin features across each species. The next sections show the initial model and feature selection as well as model refinement to improve the chosen model. While completing this analysis, I experimented with several different models: a logistic regression model, a decision tree classifier, and a random forest classifier. I ultimately decided to choose proceed with the random forest classifier model (see the third section in this post). For feature selection, I initially took an exhaustive search approach. However, after running into many bugs and difficulties with this approach, I opted to incorporate the use of prebuilt feature selection tools (see second section in this post). Following a thorough feature selection and cross-validation/model refinement process, I was able to produce a model with nearly <span class="math inline">\(100\%\)</span> testing accuracy. That is, my model was able to correctly identify all but a single observation from unseen test data (i.e.&nbsp;it made 1 classification error). In the following sections of this post are more in-depth explanations and analyses of my steps taken in accomplishing this classification task.</p>
 <section id="accessing-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="accessing-the-data">Accessing the Data</h3>
-<div id="cell-3" class="cell">
+<div id="cell-3" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder</span>
@@ -267,7 +268,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>The <code>prepare_data(...)</code> function above was provided by Prof.&nbsp;Chodrow</em></p>
-<div id="cell-5" class="cell">
+<div id="cell-5" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Includuing all additional imports</span></span>
@@ -281,21 +282,9 @@ window.Quarto = {
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">AttributeError</span>                            Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[4], line 12</span>
-<span class="ansi-green-fg ansi-bold">      9</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">numpy</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,135,0)">as</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">np</span>
-<span class="ansi-green-fg ansi-bold">     10</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">seaborn</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,135,0)">as</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">sns</span>
-<span class="ansi-green-fg">---&gt; 12</span> <span class="ansi-yellow-bg">y_train</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">head</span>()
-
-<span class="ansi-red-fg">AttributeError</span>: 'numpy.ndarray' object has no attribute 'head'</pre>
-</div>
-</div>
 </div>
 <p><em>Including all additional imports</em></p>
-<div id="cell-7" class="cell" data-execution_count="5">
+<div id="cell-7" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a modified dataset for visualization and summary statistics</span></span>
@@ -319,7 +308,7 @@ Cell <span class="ansi-green-fg">In[4], line 12</span>
 </section>
 <section id="summary-statistics-and-preliminary-visualizations" class="level2">
 <h2 class="anchored" data-anchor-id="summary-statistics-and-preliminary-visualizations">Summary Statistics and Preliminary Visualizations</h2>
-<div id="cell-10" class="cell" data-execution_count="6">
+<div id="cell-10" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating linear regression models and calculating r^2 values</span></span>
@@ -350,7 +339,7 @@ Cell <span class="ansi-green-fg">In[4], line 12</span>
 </details>
 </div>
 <p><em>Above, I’m creating a linear regression model of flipper length by body mass for each species (using <code>np.polyfit</code>). I’m also extracting the <span class="math inline">\(R^2\)</span> values (using predictions from <code>np.polyval</code> to calculate residuals) for each regression model to include in my plots below. I searched online how to use these two functions.</em></p>
-<div id="cell-12" class="cell" data-execution_count="9">
+<div id="cell-12" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
@@ -674,7 +663,7 @@ Cell <span class="ansi-green-fg">In[4], line 12</span>
 </ul>
 <p>**I also tried setting <code>max_depth</code> to <code>None</code> to see if no specified value would be optimal. This turned out not to be the case*</p>
 <p>After this process, I created one last <code>RandomForestClassifier</code> model named <code>rfc_refined</code> with the optimal <code>max_depth</code> value. I then trained and scored this model with the training data and it too displayed nearly <span class="math inline">\(100\%\)</span> (<span class="math inline">\(99.609\%\)</span>) accuracy.</p>
-<div id="cell-21" class="cell">
+<div id="cell-21" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base model - no parameter tuning or overfitting guarding</span></span>
@@ -708,13 +697,14 @@ Cell <span class="ansi-green-fg">In[4], line 12</span>
 <span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Refined (cross-validated) Model Training Accuracy: </span><span class="sc">{</span>refined_score <span class="op">*</span> <span class="dv">100</span><span class="sc">: .3f}</span><span class="ss">%'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Base Model Training Accuracy:  100.000%</code></pre>
+<pre><code>Base Model Training Accuracy:  100.000%
+Refined (cross-validated) Model Training Accuracy:  99.609%</code></pre>
 </div>
 </div>
 <section id="testing-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="testing-the-model">Testing the Model</h2>
 <p>After refining my model, I then tested it on the testing data. To my excitement, the model dispayed a <span class="math inline">\(98.529\%\)</span> testing accuracy.</p>
-<div id="cell-24" class="cell">
+<div id="cell-24" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Accessing test data</span></span>
@@ -732,7 +722,7 @@ Cell <span class="ansi-green-fg">In[4], line 12</span>
 </div>
 </div>
 <p>Below are the decision regions determined by the model for both the training and testing data. Visually, the decision regions for the training and testing data appear to be extremely similar. Additionally, I feel that it is reasonable to state that the decision regions for both the training and testing data do not display a high degree of model-overfitting.</p>
-<div id="cell-26" class="cell">
+<div id="cell-26" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Decision region plotting - code provided by Prof. Chodrow</span></span>
@@ -816,7 +806,7 @@ Cell <span class="ansi-green-fg">In[4], line 12</span>
 <section id="confusion-matrix-for-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="confusion-matrix-for-the-model">Confusion Matrix for the Model</h2>
 <p>Below is the confusion matrix to evaluate the model’s testing performance. As expected with <span class="math inline">\(&lt; 100\%\)</span> (<span class="math inline">\(98.529\%\)</span>) testing accuracy, the confusion matrix has at least some (in this case exactly 1) non-zero entries off the diagonal. This indicates that the model made 1 misclassification. That is, all Adelie penguins and Chinstrap penguins were correctly classified, but there was one Gentoo penguin who was misclassified as an Adelie penguin (shucks).</p>
-<div id="cell-30" class="cell">
+<div id="cell-30" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Establishing model predictions for the test data</span></span>

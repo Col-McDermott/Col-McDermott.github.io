@@ -5,7 +5,7 @@ project:
 website:
   title: "Middlebury College CSCI 0451 Blog - Col McDermott"
   navbar:
-    background: "#112a39"
+    background: "black"
     right:
       - about.qmd
       - icon: github
