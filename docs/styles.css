@@ -1,5 +1,24 @@
 /* css styles */
-.global {
+.quarto-title-banner h1 {
+    color: white;
+    /* Change this to your desired color */
+}
+
+.navbar-brand {
+    color: white;
+}
+
+head {
+    color: white;
+}
+
+body {
+    background-color: white;
+    /* Dark background */
     color: black;
-    background-color: black;
+    /* Light text for readability */
+}
+
+a {
+    color: #A020F0;
 }

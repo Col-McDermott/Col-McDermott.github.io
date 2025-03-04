@@ -14,7 +14,7 @@ website:
 format:
   html:
     title-block-banner: img/landscape.png
-    title-block-banner-color: black
+    title-block-banner-color: white
     theme: cosmo
     css: styles.css
 

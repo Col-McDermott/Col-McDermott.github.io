@@ -15,7 +15,7 @@ about:
 <h1>Middlebury College CSCI 0451A Blog - Col McDermott</h1>
 <img src="profile_new.jpg" class="about-image
   round " style="height: 15em; width: 15em;">
-<p> Check out my completed assignments from </p>
+<p> Check out my completed blog posts from </p>
 <p> CSCI 0451 Machine Learning </p>
 <p> with Professor Phil Chodrow </p>
 </div>
