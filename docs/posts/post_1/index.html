@@ -241,7 +241,7 @@ window.Quarto = {
 <p>In this blog post, I’m taking on an introductory-level machine learning classification task. This task, classifying penguin species, is a ternary classification problem as there are three species options for which I am trying to construct a classifier model to correctly identify. The data for this task comes from the Palmer Station and was collected by Dr.&nbsp;Kristen Gorman. The following analysis begins with some preliminary data visualizations and summary statistics interpretation. From the preliminary visualizations and statistics table, I’m able to make some initial observations about the difference in penguin features across each species. The next sections show the initial model and feature selection as well as model refinement to improve the chosen model. While completing this analysis, I experimented with several different models: a logistic regression model, a decision tree classifier, and a random forest classifier. I ultimately decided to choose proceed with the random forest classifier model (see the third section in this post). For feature selection, I initially took an exhaustive search approach. However, after running into many bugs and difficulties with this approach, I opted to incorporate the use of prebuilt feature selection tools (see second section in this post). Following a thorough feature selection and cross-validation/model refinement process, I was able to produce a model with nearly <span class="math inline">\(100\%\)</span> testing accuracy. That is, my model was able to correctly identify all but a single observation from unseen test data (i.e.&nbsp;it made 1 classification error). In the following sections of this post are more in-depth explanations and analyses of my steps taken in accomplishing this classification task.</p>
 <section id="accessing-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="accessing-the-data">Accessing the Data</h3>
-<div id="cell-3" class="cell" data-execution_count="1">
+<div id="cell-3" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder</span>
@@ -268,7 +268,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>The <code>prepare_data(...)</code> function above was provided by Prof.&nbsp;Chodrow</em></p>
-<div id="cell-5" class="cell" data-execution_count="2">
+<div id="cell-5" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Includuing all additional imports</span></span>
@@ -284,7 +284,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>Including all additional imports</em></p>
-<div id="cell-7" class="cell" data-execution_count="3">
+<div id="cell-7" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a modified dataset for visualization and summary statistics</span></span>
@@ -308,7 +308,7 @@ window.Quarto = {
 </section>
 <section id="summary-statistics-and-preliminary-visualizations" class="level2">
 <h2 class="anchored" data-anchor-id="summary-statistics-and-preliminary-visualizations">Summary Statistics and Preliminary Visualizations</h2>
-<div id="cell-10" class="cell" data-execution_count="4">
+<div id="cell-10" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating linear regression models and calculating r^2 values</span></span>
@@ -339,7 +339,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>Above, I’m creating a linear regression model of flipper length by body mass for each species (using <code>np.polyfit</code>). I’m also extracting the <span class="math inline">\(R^2\)</span> values (using predictions from <code>np.polyval</code> to calculate residuals) for each regression model to include in my plots below. I searched online how to use these two functions.</em></p>
-<div id="cell-12" class="cell" data-execution_count="5">
+<div id="cell-12" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
@@ -393,7 +393,7 @@ window.Quarto = {
 <p>The figure to the right displays the general distribution of the <code>Culmen Ratio (L/D)</code> feature across penguin sex and penguin species. The <code>Culmen Ratio (L/D)</code> is the ratio of culmen length (mm) to culmen depth (mm). With no prior knowledge about culmen size and dimensions in penguins, I thought it would be interesting to compute the length-depth ratio for each penguin and see how this ratio differed by sex and across each species. Observing the comparison of the culmen ratio between male and female penguins, there does not appear to be as much visually obvious information. However, to me, there appears to be minimal distribution overlap in the culmen ratio across each species. I believe this suggests that the culmen ratio or related features (culmen length and culmen depth) could be useful in model construction to successfully complete this classification task.</p>
 <section id="table-of-general-statistics" class="level4">
 <h4 class="anchored" data-anchor-id="table-of-general-statistics">Table of General Statistics</h4>
-<div id="cell-15" class="cell" data-execution_count="6">
+<div id="cell-15" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary Statistics</span></span>
@@ -410,7 +410,7 @@ window.Quarto = {
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>sum_stats <span class="op">=</span> sum_stats.<span class="bu">round</span>(<span class="dv">2</span>)</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>sum_stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="30">
 <div>
 
 
@@ -629,7 +629,7 @@ window.Quarto = {
 <h1>Feature Selection</h1>
 <p>Per the guidelines of this post, I conducted a feature selection process to pick the two “best” quantitative features and the single “best” qualitative feature. I used the <code>SelectKBest(...)</code> feature selection method from the <code>sklearn.feature_selection</code> package. For the quantitative feature selection, I identified all the quantitative columns in the training data and used <code>SelectKBest(...)</code> on a quantitative-column-only subset of the training data using <span class="math inline">\(k = 2\)</span> (the number of features to select). I repeated this process to select the best qualitative feature. For the qualitative feature selection, I set <span class="math inline">\(k = 3\)</span> to account for cases of several qualitative columns technically being part of the same feature. For example, in my case, <code>Island</code> was the selected qualitative feature, but in the training data, there are three <code>Island</code> columns: <code>Island_Biscoe</code>, <code>Island_Dream</code>, and <code>Island_Torgersen</code>. Setting <span class="math inline">\(k = 3\)</span> allowed the selection process to include all three <code>Island</code> columns.</p>
 <p><em>Note: I experimented with values for k during the qual feature selection. I found that if k &lt; 3, only 1 or 2 (depending on k) of the island cols were selected. If k &gt; 3, all three island cols were selected and then other qual features were selected for the remaining (k - 3) features. Thus I concluded that <code>Island</code> was the best qual feature and set k = 3 to collect all three <code>Island</code> cols.</em></p>
-<div id="cell-19" class="cell" data-execution_count="7">
+<div id="cell-19" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Identifying all quantitative and qualitative columns</span></span>
@@ -663,7 +663,7 @@ window.Quarto = {
 </ul>
 <p>**I also tried setting <code>max_depth</code> to <code>None</code> to see if no specified value would be optimal. This turned out not to be the case*</p>
 <p>After this process, I created one last <code>RandomForestClassifier</code> model named <code>rfc_refined</code> with the optimal <code>max_depth</code> value. I then trained and scored this model with the training data and it too displayed nearly <span class="math inline">\(100\%\)</span> (<span class="math inline">\(99.609\%\)</span>) accuracy.</p>
-<div id="cell-21" class="cell" data-execution_count="8">
+<div id="cell-21" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base model - no parameter tuning or overfitting guarding</span></span>
@@ -704,7 +704,7 @@ Refined (cross-validated) Model Training Accuracy:  99.609%</code></pre>
 <section id="testing-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="testing-the-model">Testing the Model</h2>
 <p>After refining my model, I then tested it on the testing data. To my excitement, the model dispayed a <span class="math inline">\(98.529\%\)</span> testing accuracy.</p>
-<div id="cell-24" class="cell" data-execution_count="9">
+<div id="cell-24" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Accessing test data</span></span>
@@ -722,7 +722,7 @@ Refined (cross-validated) Model Training Accuracy:  99.609%</code></pre>
 </div>
 </div>
 <p>Below are the decision regions determined by the model for both the training and testing data. Visually, the decision regions for the training and testing data appear to be extremely similar. Additionally, I feel that it is reasonable to state that the decision regions for both the training and testing data do not display a high degree of model-overfitting.</p>
-<div id="cell-26" class="cell" data-execution_count="10">
+<div id="cell-26" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Decision region plotting - code provided by Prof. Chodrow</span></span>
@@ -806,7 +806,7 @@ Refined (cross-validated) Model Training Accuracy:  99.609%</code></pre>
 <section id="confusion-matrix-for-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="confusion-matrix-for-the-model">Confusion Matrix for the Model</h2>
 <p>Below is the confusion matrix to evaluate the model’s testing performance. As expected with <span class="math inline">\(&lt; 100\%\)</span> (<span class="math inline">\(98.529\%\)</span>) testing accuracy, the confusion matrix has at least some (in this case exactly 1) non-zero entries off the diagonal. This indicates that the model made 1 misclassification. That is, all Adelie penguins and Chinstrap penguins were correctly classified, but there was one Gentoo penguin who was misclassified as an Adelie penguin (shucks).</p>
-<div id="cell-30" class="cell" data-execution_count="11">
+<div id="cell-30" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Establishing model predictions for the test data</span></span>
