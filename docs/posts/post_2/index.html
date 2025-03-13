@@ -242,7 +242,7 @@ window.Quarto = {
 <p>The general methodologies for this study involve an initial exploration of the data, constructing a model using certain features, and determining an optimal threshold based on a defined scoring function. It is necessary to observe some general patterns and trends present in the data before building a model. After the preliminary visualization and preprocessing steps, an initial model will be constructed and further refined using an iterative feature selection process supported by cross-validation. After an improved (by training accuracy) model is obtained, a scoring function will be defined using the weights determined by the best model version. With this scoring function, an optimal threshold can then be examined and set to maximize desirable values such as model accuracy and bank profit. Finally, with an optimal threshold selected and a refined model, the behavior of this model on unseen data can be evaluated. Following the final model’s evaluation this study concludes with a discussion of the implications behind automated decision algorithms with respect to general “fairness” from the perspective of all stakeholders (model designers, model users, and all impacted individuals, and etc.).</p>
 <section id="accessing-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="accessing-the-data">Accessing the Data</h3>
-<div id="cell-3" class="cell" data-execution_count="175">
+<div id="cell-3" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Includuing all additional imports</span></span>
@@ -266,7 +266,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="exploring-the-data">Exploring the Data</h2>
 <section id="preliminary-visualizations" class="level3">
 <h3 class="anchored" data-anchor-id="preliminary-visualizations">Preliminary Visualizations</h3>
-<div id="cell-6" class="cell" data-execution_count="176">
+<div id="cell-6" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data modification</span></span>
@@ -285,7 +285,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>Modifying training data for visualization</em></p>
-<div id="cell-8" class="cell" data-execution_count="177">
+<div id="cell-8" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating linear regression models and calculating R^2 values</span></span>
@@ -307,7 +307,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>Creating linear regression models and calculating R^2 values for subsets of defaulted and fully repaid loans</em></p>
-<div id="cell-10" class="cell" data-execution_count="178">
+<div id="cell-10" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
@@ -358,7 +358,7 @@ window.Quarto = {
 </div>
 <p><strong>Figure 1</strong></p>
 <p>The plots above display the relationship between a borrower’s income and the loan amount borrowed for both defaulted and fully repaid loans. To assist the visualization of the data points, the dependent variable <code>person_income</code> is adjusted using a <span class="math inline">\(\log_2\)</span> scale. With this scale in place and for both defaulted and fully repaid loans, there appears to be a transformed linear relationship between a borrower’s income and the loan amount borrowed. Additionally, this transformed linear relationship appears to be positive and moderately strong (given both <span class="math inline">\(R^2\)</span> values &gt; 0.6). For both borrowers who defaulted on loans and borrowers who fully repaid their loans, it appears that as the loan amount increases, a borrower’s income increases (adjusted by a <span class="math inline">\(\log_2\)</span> scale). Considering this observed relationship, it is reasonable to assert that bigger loans are borrowed by individuals with higher income levels, regardless of whether or not those individuals defaulted or fully repaid their loans.</p>
-<div id="cell-12" class="cell" data-execution_count="179">
+<div id="cell-12" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subsetting data to the three most common loan intents</span></span>
@@ -393,7 +393,7 @@ window.Quarto = {
 </section>
 <section id="table-of-general-summary-statistics" class="level3">
 <h3 class="anchored" data-anchor-id="table-of-general-summary-statistics">Table of General Summary Statistics</h3>
-<div id="cell-15" class="cell" data-execution_count="180">
+<div id="cell-15" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary Statistics</span></span>
@@ -411,7 +411,7 @@ window.Quarto = {
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>sum_stats <span class="op">=</span> sum_stats.<span class="bu">round</span>(<span class="dv">2</span>)</span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>sum_stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="180">
+<div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 
 
@@ -689,7 +689,7 @@ window.Quarto = {
 <h1>Model Construction</h1>
 <section id="feature-selection" class="level2">
 <h2 class="anchored" data-anchor-id="feature-selection">Feature Selection</h2>
-<div id="cell-18" class="cell" data-execution_count="181">
+<div id="cell-18" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Modifying the training data</span></span>
@@ -781,7 +781,7 @@ window.Quarto = {
 </section>
 <section id="creating-a-scoring-function" class="level2">
 <h2 class="anchored" data-anchor-id="creating-a-scoring-function">Creating a Scoring Function</h2>
-<div id="cell-21" class="cell" data-execution_count="182">
+<div id="cell-21" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to compute the score for each observation</span></span>
@@ -794,45 +794,41 @@ window.Quarto = {
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Normalizing the scores</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> (scores <span class="op">-</span> scores.<span class="bu">min</span>()) <span class="op">/</span> (scores.<span class="bu">max</span>() <span class="op">-</span> scores.<span class="bu">min</span>())</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Observing confusion matrix for the training data</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>LR_pred <span class="op">=</span> LR.predict(X_train[best_vars])</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> confusion_matrix(y_train, LR_pred)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Establishing model predictions for the train data</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>y_train_pred <span class="op">=</span> LR.predict(X_train[best_vars])</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> confusion_matrix(y_train, y_train_pred)</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>loan_status <span class="op">=</span> [<span class="st">"Fully Repaid"</span>, <span class="st">"Defaulted"</span>]</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a heatmap for better confusion matrix visualization</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="fl">7.5</span>, <span class="fl">7.5</span>))</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>mask1 <span class="op">=</span> np.zeros_like(C, dtype<span class="op">=</span><span class="bu">bool</span>)</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>mask1[:, <span class="dv">1</span>] <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>mask2 <span class="op">=</span> np.zeros_like(C, dtype<span class="op">=</span><span class="bu">bool</span>)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>mask2[:, <span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>purples <span class="op">=</span> LinearSegmentedColormap.from_list(<span class="st">"purple_gradient"</span>, [<span class="st">"#ce93d8"</span>, <span class="st">"#4a148c"</span>])</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>darkoranges <span class="op">=</span> LinearSegmentedColormap.from_list(<span class="st">"darkorange_gradient"</span>, [<span class="st">"#FFD580"</span>, <span class="st">"darkorange"</span>])</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the first column with purple gradient</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> sns.heatmap(C, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span>purples, </span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>                mask<span class="op">=</span>mask1, cbar<span class="op">=</span><span class="va">False</span>, xticklabels<span class="op">=</span>[<span class="st">"Fully Repaid"</span>, <span class="st">"Defaulted"</span>],</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                yticklabels<span class="op">=</span>loan_status)</span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the second column with orange gradient</span></span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> sns.heatmap(C, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span>darkoranges, </span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>                mask<span class="op">=</span>mask2, cbar<span class="op">=</span><span class="va">False</span>, xticklabels<span class="op">=</span>[<span class="st">"Fully Repaid"</span>, <span class="st">"Defaulted"</span>],</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>                yticklabels<span class="op">=</span>loan_status)</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Setting labels and title</span></span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Predicted Loan Status"</span>)</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"True Loan Status"</span>)</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Lending Data Classification Confusion Matrix"</span>)</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Printing confusion matrix results</span></span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">}</span><span class="ss"> fully repaid loan(s) that were predicted to be fully repaid."</span>)</span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">}</span><span class="ss"> fully repaid loan(s) that were predicted to be defaulted."</span>)</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">1</span>, <span class="dv">0</span>]<span class="sc">}</span><span class="ss"> defaulted loan(s) that were predicted to be fully repaid."</span>)</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">1</span>, <span class="dv">1</span>]<span class="sc">}</span><span class="ss"> defaulted loan(s) that were predicted to be defaulted."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Establishing model predictions for the train data</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>y_train_pred <span class="op">=</span> LR.predict(X_train[best_vars])</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> confusion_matrix(y_train, y_train_pred)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>loan_status <span class="op">=</span> [<span class="st">"Fully Repaid"</span>, <span class="st">"Defaulted"</span>]</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a heatmap for better confusion matrix visualization</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="fl">7.5</span>, <span class="fl">7.5</span>))</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>mask1 <span class="op">=</span> np.zeros_like(C, dtype<span class="op">=</span><span class="bu">bool</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>mask1[:, <span class="dv">1</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>mask2 <span class="op">=</span> np.zeros_like(C, dtype<span class="op">=</span><span class="bu">bool</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>mask2[:, <span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>purples <span class="op">=</span> LinearSegmentedColormap.from_list(<span class="st">"purple_gradient"</span>, [<span class="st">"#ce93d8"</span>, <span class="st">"#4a148c"</span>])</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>darkoranges <span class="op">=</span> LinearSegmentedColormap.from_list(<span class="st">"darkorange_gradient"</span>, [<span class="st">"#FFD580"</span>, <span class="st">"darkorange"</span>])</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the first column with purple gradient</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> sns.heatmap(C, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span>purples, </span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>                mask<span class="op">=</span>mask1, cbar<span class="op">=</span><span class="va">False</span>, xticklabels<span class="op">=</span>[<span class="st">"Fully Repaid"</span>, <span class="st">"Defaulted"</span>],</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>                yticklabels<span class="op">=</span>loan_status)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the second column with orange gradient</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> sns.heatmap(C, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span>darkoranges, </span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                mask<span class="op">=</span>mask2, cbar<span class="op">=</span><span class="va">False</span>, xticklabels<span class="op">=</span>[<span class="st">"Fully Repaid"</span>, <span class="st">"Defaulted"</span>],</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>                yticklabels<span class="op">=</span>loan_status)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Setting labels and title</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Predicted Loan Status"</span>)</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"True Loan Status"</span>)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Lending Data Classification Confusion Matrix"</span>)</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Printing confusion matrix results</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">}</span><span class="ss"> fully repaid loan(s) that were predicted to be fully repaid."</span>)</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">}</span><span class="ss"> fully repaid loan(s) that were predicted to be defaulted."</span>)</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">1</span>, <span class="dv">0</span>]<span class="sc">}</span><span class="ss"> defaulted loan(s) that were predicted to be fully repaid."</span>)</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There were </span><span class="sc">{</span>C[<span class="dv">1</span>, <span class="dv">1</span>]<span class="sc">}</span><span class="ss"> defaulted loan(s) that were predicted to be defaulted."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -853,7 +849,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 <p>For this analysis, a linear scoring function is used. Specifically, the linear scoring function computes the score of each data observation by taking the dot product of each observation with the weights vector <code>w</code>. To ensure that all scores are values on the interval [0, 1], the scores are normalized after they are calculated (i.e.&nbsp;the scores are updated to be the difference between each raw score and the minimum raw score divided by the range of raw scores). Additionally, the confusion matrix for the model’s performance is displayed above. The model’s false positive rate is approximately <span class="math inline">\(1.55\%\)</span> while the true positive rate is approximately <span class="math inline">\(36.34\%\)</span>. Conversely, the model’s false negative rate is approximately <span class="math inline">\(63.66\%\)</span> while the true negative rate is approximately <span class="math inline">\(98.45\%\)</span>. With this information, it appears that the model rarely misclassifies fully repaid loans as defaulted (low FPR). However, the model frequently (moderately high FNR) misclassifies defaulted loans as being fully repaid. In general, with a very high TNR, the model is very accurate at detecting truly fully repaid loans but much less accurate (low TPR) at recognizing truly defaulted loans. It is important to note here that the initial objective for this model was to accurately predict if a prospective borrower will default on a loan, thus suggesting that perhaps the model and or the scoring function should be slightly redesigned to increase the TPR. However, given the introductory nature of this brief study, the analysis will continue with the current model as is.</p>
 <section id="plotting-distribution-of-scores" class="level3">
 <h3 class="anchored" data-anchor-id="plotting-distribution-of-scores">Plotting Distribution of Scores</h3>
-<div id="cell-24" class="cell" data-execution_count="183">
+<div id="cell-24" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of Scores - Code Provided by Prof. Chodrow</span></span>
@@ -879,7 +875,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </section>
 <section id="choosing-a-threshold" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-a-threshold">Choosing a Threshold</h2>
-<div id="cell-27" class="cell" data-execution_count="184">
+<div id="cell-27" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Threshold selection based on model accuracy</span></span>
@@ -911,7 +907,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </div>
 <p><strong>Figure 5</strong></p>
 <p>Shown above is the trend in overall model accuracy as the threshold <span class="math inline">\(t\)</span> increases from <span class="math inline">\(0: 1\)</span>. As outlined in the plot, the peak model accuracy (<span class="math inline">\(\approx 85\%\)</span>) is achieved using a threshold of <span class="math inline">\(t = 0.505\)</span>. However, what is likely more interesting (especially for the bank) is how the profit-per-borrower can be maximized through selecting a value for <span class="math inline">\(t\)</span>. Below is an examination of thresholding for profit maximization.</p>
-<div id="cell-29" class="cell" data-execution_count="185">
+<div id="cell-29" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Threshold selection based on profit for the bank created by the model</span></span>
@@ -967,7 +963,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 <h1>Model Evaluation</h1>
 <section id="perspective-of-the-bank" class="level2">
 <h2 class="anchored" data-anchor-id="perspective-of-the-bank">Perspective of the Bank</h2>
-<div id="cell-32" class="cell" data-execution_count="186">
+<div id="cell-32" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reading in and modifying the test data</span></span>
@@ -1024,7 +1020,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 <h2 class="anchored" data-anchor-id="perspective-of-the-borrower">Perspective of the Borrower</h2>
 <section id="loan-approval-and-borrower-age" class="level4">
 <h4 class="anchored" data-anchor-id="loan-approval-and-borrower-age">Loan Approval and Borrower Age</h4>
-<div id="cell-35" class="cell" data-execution_count="187">
+<div id="cell-35" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to convert numerical ages to age categories</span></span>
@@ -1125,7 +1121,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </section>
 <section id="loan-approval-and-loan-intent" class="level4">
 <h4 class="anchored" data-anchor-id="loan-approval-and-loan-intent">Loan Approval and Loan Intent</h4>
-<div id="cell-38" class="cell" data-execution_count="188">
+<div id="cell-38" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Independent and dependent variables for bar chart</span></span>
@@ -1243,7 +1239,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </section>
 <section id="loan-approval-and-borrower-income" class="level4">
 <h4 class="anchored" data-anchor-id="loan-approval-and-borrower-income">Loan Approval and Borrower Income</h4>
-<div id="cell-41" class="cell" data-execution_count="189">
+<div id="cell-41" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding high/low score indicator col</span></span>
