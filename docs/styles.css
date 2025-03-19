@@ -8,15 +8,17 @@
     color: white;
 }
 
+text {
+    color: white;
+}
+
 head {
     color: white;
 }
 
 body {
-    background-color: white;
-    /* Dark background */
-    color: black;
-    /* Light text for readability */
+    background-color: black;
+    color: white;
 }
 
 a {
