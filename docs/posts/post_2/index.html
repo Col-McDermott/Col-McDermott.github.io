@@ -242,7 +242,7 @@ window.Quarto = {
 <p>The general methodologies for this study involve an initial exploration of the data, constructing a model using certain features, and determining an optimal threshold based on a defined scoring function. It is necessary to observe some general patterns and trends present in the data before building a model. After the preliminary visualization and preprocessing steps, an initial model will be constructed and further refined using an iterative feature selection process supported by cross-validation. After an improved (by training accuracy) model is obtained, a scoring function will be defined using the weights determined by the best model version. With this scoring function, an optimal threshold can then be examined and set to maximize desirable values such as model accuracy and bank profit. Finally, with an optimal threshold selected and a refined model, the behavior of this model on unseen data can be evaluated. Following the final model’s evaluation this study concludes with a discussion of the implications behind automated decision algorithms with respect to general “fairness” from the perspective of all stakeholders (model designers, model users, and all impacted individuals, and etc.).</p>
 <section id="accessing-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="accessing-the-data">Accessing the Data</h3>
-<div id="cell-3" class="cell" data-execution_count="4">
+<div id="cell-3" class="cell" data-execution_count="61">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Includuing all additional imports</span></span>
@@ -258,192 +258,6 @@ window.Quarto = {
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>train <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/credit-risk/train.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">SSLCertVerificationError</span>                  Traceback (most recent call last)
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/request.py:1346</span>, in <span class="ansi-cyan-fg">AbstractHTTPHandler.do_open</span><span class="ansi-blue-fg">(self, http_class, req, **http_conn_args)</span>
-<span class="ansi-green-fg ansi-bold">   1345</span> <span style="font-weight:bold;color:rgb(0,135,0)">try</span>:
-<span class="ansi-green-fg">-&gt; 1346</span>     <span class="ansi-yellow-bg">h</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">request</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">req</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">get_method</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">req</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">selector</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">req</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">data</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">headers</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1347</span> <span class="ansi-yellow-bg">              </span><span class="ansi-yellow-bg">encode_chunked</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">req</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">has_header</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">'</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">Transfer-encoding</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">'</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">   1348</span> <span style="font-weight:bold;color:rgb(0,135,0)">except</span> <span style="font-weight:bold;color:rgb(215,95,95)">OSError</span> <span style="font-weight:bold;color:rgb(0,135,0)">as</span> err: <span style="font-style:italic;color:rgb(95,135,135)"># timeout error</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/http/client.py:1285</span>, in <span class="ansi-cyan-fg">HTTPConnection.request</span><span class="ansi-blue-fg">(self, method, url, body, headers, encode_chunked)</span>
-<span class="ansi-green-fg ansi-bold">   1284</span> <span style="font-style:italic;color:rgb(175,0,0)">"""Send a complete request to the server."""</span>
-<span class="ansi-green-fg">-&gt; 1285</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_send_request</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">method</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">url</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">body</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">headers</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">encode_chunked</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/http/client.py:1331</span>, in <span class="ansi-cyan-fg">HTTPConnection._send_request</span><span class="ansi-blue-fg">(self, method, url, body, headers, encode_chunked)</span>
-<span class="ansi-green-fg ansi-bold">   1330</span>     body <span style="color:rgb(98,98,98)">=</span> _encode(body, <span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">body</span><span style="color:rgb(175,0,0)">'</span>)
-<span class="ansi-green-fg">-&gt; 1331</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">endheaders</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">body</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">encode_chunked</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">encode_chunked</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/http/client.py:1280</span>, in <span class="ansi-cyan-fg">HTTPConnection.endheaders</span><span class="ansi-blue-fg">(self, message_body, encode_chunked)</span>
-<span class="ansi-green-fg ansi-bold">   1279</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> CannotSendHeader()
-<span class="ansi-green-fg">-&gt; 1280</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_send_output</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">message_body</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">encode_chunked</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">encode_chunked</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/http/client.py:1040</span>, in <span class="ansi-cyan-fg">HTTPConnection._send_output</span><span class="ansi-blue-fg">(self, message_body, encode_chunked)</span>
-<span class="ansi-green-fg ansi-bold">   1039</span> <span style="font-weight:bold;color:rgb(0,135,0)">del</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>_buffer[:]
-<span class="ansi-green-fg">-&gt; 1040</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">send</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">msg</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">   1042</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> message_body <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg ansi-bold">   1043</span> 
-<span class="ansi-green-fg ansi-bold">   1044</span>     <span style="font-style:italic;color:rgb(95,135,135)"># create a consistent interface to message_body</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/http/client.py:980</span>, in <span class="ansi-cyan-fg">HTTPConnection.send</span><span class="ansi-blue-fg">(self, data)</span>
-<span class="ansi-green-fg ansi-bold">    979</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>auto_open:
-<span class="ansi-green-fg">--&gt; 980</span>     <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">connect</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">    981</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span>:
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/http/client.py:1454</span>, in <span class="ansi-cyan-fg">HTTPSConnection.connect</span><span class="ansi-blue-fg">(self)</span>
-<span class="ansi-green-fg ansi-bold">   1452</span>     server_hostname <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>host
-<span class="ansi-green-fg">-&gt; 1454</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>sock <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_context</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">wrap_socket</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">sock</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1455</span> <span class="ansi-yellow-bg">                                      </span><span class="ansi-yellow-bg">server_hostname</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">server_hostname</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/ssl.py:501</span>, in <span class="ansi-cyan-fg">SSLContext.wrap_socket</span><span class="ansi-blue-fg">(self, sock, server_side, do_handshake_on_connect, suppress_ragged_eofs, server_hostname, session)</span>
-<span class="ansi-green-fg ansi-bold">    495</span> <span style="font-weight:bold;color:rgb(0,135,0)">def</span><span style="color:rgb(188,188,188)"> </span><span style="color:rgb(0,0,255)">wrap_socket</span>(<span style="color:rgb(0,135,0)">self</span>, sock, server_side<span style="color:rgb(98,98,98)">=</span><span style="font-weight:bold;color:rgb(0,135,0)">False</span>,
-<span class="ansi-green-fg ansi-bold">    496</span>                 do_handshake_on_connect<span style="color:rgb(98,98,98)">=</span><span style="font-weight:bold;color:rgb(0,135,0)">True</span>,
-<span class="ansi-green-fg ansi-bold">    497</span>                 suppress_ragged_eofs<span style="color:rgb(98,98,98)">=</span><span style="font-weight:bold;color:rgb(0,135,0)">True</span>,
-<span class="ansi-green-fg ansi-bold">    498</span>                 server_hostname<span style="color:rgb(98,98,98)">=</span><span style="font-weight:bold;color:rgb(0,135,0)">None</span>, session<span style="color:rgb(98,98,98)">=</span><span style="font-weight:bold;color:rgb(0,135,0)">None</span>):
-<span class="ansi-green-fg ansi-bold">    499</span>     <span style="font-style:italic;color:rgb(95,135,135)"># SSLSocket class handles server_hostname encoding before it calls</span>
-<span class="ansi-green-fg ansi-bold">    500</span>     <span style="font-style:italic;color:rgb(95,135,135)"># ctx._wrap_socket()</span>
-<span class="ansi-green-fg">--&gt; 501</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">sslsocket_class</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_create</span><span class="ansi-yellow-bg">(</span>
-<span class="ansi-green-fg ansi-bold">    502</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">sock</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">sock</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    503</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">server_side</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">server_side</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    504</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">do_handshake_on_connect</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">do_handshake_on_connect</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    505</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">suppress_ragged_eofs</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">suppress_ragged_eofs</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    506</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">server_hostname</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">server_hostname</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    507</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">context</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    508</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">session</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">session</span>
-<span class="ansi-green-fg ansi-bold">    509</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/ssl.py:1074</span>, in <span class="ansi-cyan-fg">SSLSocket._create</span><span class="ansi-blue-fg">(cls, sock, server_side, do_handshake_on_connect, suppress_ragged_eofs, server_hostname, context, session)</span>
-<span class="ansi-green-fg ansi-bold">   1073</span>             <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> <span style="font-weight:bold;color:rgb(215,95,95)">ValueError</span>(<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">do_handshake_on_connect should not be specified for non-blocking sockets</span><span style="color:rgb(175,0,0)">"</span>)
-<span class="ansi-green-fg">-&gt; 1074</span>         <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">do_handshake</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">   1075</span> <span style="font-weight:bold;color:rgb(0,135,0)">except</span> (<span style="font-weight:bold;color:rgb(215,95,95)">OSError</span>, <span style="font-weight:bold;color:rgb(215,95,95)">ValueError</span>):
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/ssl.py:1343</span>, in <span class="ansi-cyan-fg">SSLSocket.do_handshake</span><span class="ansi-blue-fg">(self, block)</span>
-<span class="ansi-green-fg ansi-bold">   1342</span>         <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>settimeout(<span style="font-weight:bold;color:rgb(0,135,0)">None</span>)
-<span class="ansi-green-fg">-&gt; 1343</span>     <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_sslobj</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">do_handshake</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">   1344</span> <span style="font-weight:bold;color:rgb(0,135,0)">finally</span>:
-
-<span class="ansi-red-fg">SSLCertVerificationError</span>: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'raw.githubusercontent.com'. (_ssl.c:1147)
-
-During handling of the above exception, another exception occurred:
-
-<span class="ansi-red-fg">URLError</span>                                  Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[4], line 12</span>
-<span class="ansi-green-fg ansi-bold">      9</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">numpy</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,135,0)">as</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">np</span>
-<span class="ansi-green-fg ansi-bold">     10</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">itertools</span>
-<span class="ansi-green-fg">---&gt; 12</span> train <span style="color:rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">pd</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">read_csv</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/credit-risk/train.csv</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/site-packages/pandas/io/parsers/readers.py:1026</span>, in <span class="ansi-cyan-fg">read_csv</span><span class="ansi-blue-fg">(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, skipfooter, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, date_format, dayfirst, cache_dates, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, doublequote, escapechar, comment, encoding, encoding_errors, dialect, on_bad_lines, delim_whitespace, low_memory, memory_map, float_precision, storage_options, dtype_backend)</span>
-<span class="ansi-green-fg ansi-bold">   1013</span> kwds_defaults <span style="color:rgb(98,98,98)">=</span> _refine_defaults_read(
-<span class="ansi-green-fg ansi-bold">   1014</span>     dialect,
-<span class="ansi-green-fg ansi-bold">   1015</span>     delimiter,
-<span class="ansi-green-fg">   (...)</span>
-<span class="ansi-green-fg ansi-bold">   1022</span>     dtype_backend<span style="color:rgb(98,98,98)">=</span>dtype_backend,
-<span class="ansi-green-fg ansi-bold">   1023</span> )
-<span class="ansi-green-fg ansi-bold">   1024</span> kwds<span style="color:rgb(98,98,98)">.</span>update(kwds_defaults)
-<span class="ansi-green-fg">-&gt; 1026</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">_read</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">filepath_or_buffer</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">kwds</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/site-packages/pandas/io/parsers/readers.py:620</span>, in <span class="ansi-cyan-fg">_read</span><span class="ansi-blue-fg">(filepath_or_buffer, kwds)</span>
-<span class="ansi-green-fg ansi-bold">    617</span> _validate_names(kwds<span style="color:rgb(98,98,98)">.</span>get(<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">names</span><span style="color:rgb(175,0,0)">"</span>, <span style="font-weight:bold;color:rgb(0,135,0)">None</span>))
-<span class="ansi-green-fg ansi-bold">    619</span> <span style="font-style:italic;color:rgb(95,135,135)"># Create the parser.</span>
-<span class="ansi-green-fg">--&gt; 620</span> parser <span style="color:rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">TextFileReader</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">filepath_or_buffer</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">kwds</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">    622</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> chunksize <span style="font-weight:bold;color:rgb(175,0,255)">or</span> iterator:
-<span class="ansi-green-fg ansi-bold">    623</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> parser
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/site-packages/pandas/io/parsers/readers.py:1620</span>, in <span class="ansi-cyan-fg">TextFileReader.__init__</span><span class="ansi-blue-fg">(self, f, engine, **kwds)</span>
-<span class="ansi-green-fg ansi-bold">   1617</span>     <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>options[<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">has_index_names</span><span style="color:rgb(175,0,0)">"</span>] <span style="color:rgb(98,98,98)">=</span> kwds[<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">has_index_names</span><span style="color:rgb(175,0,0)">"</span>]
-<span class="ansi-green-fg ansi-bold">   1619</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>handles: IOHandles <span style="color:rgb(98,98,98)">|</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span> <span style="color:rgb(98,98,98)">=</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span>
-<span class="ansi-green-fg">-&gt; 1620</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>_engine <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_make_engine</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">engine</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/site-packages/pandas/io/parsers/readers.py:1880</span>, in <span class="ansi-cyan-fg">TextFileReader._make_engine</span><span class="ansi-blue-fg">(self, f, engine)</span>
-<span class="ansi-green-fg ansi-bold">   1878</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">b</span><span style="color:rgb(175,0,0)">"</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="font-weight:bold;color:rgb(175,0,255)">in</span> mode:
-<span class="ansi-green-fg ansi-bold">   1879</span>         mode <span style="color:rgb(98,98,98)">+</span><span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">b</span><span style="color:rgb(175,0,0)">"</span>
-<span class="ansi-green-fg">-&gt; 1880</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>handles <span style="color:rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">get_handle</span><span class="ansi-yellow-bg">(</span>
-<span class="ansi-green-fg ansi-bold">   1881</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">f</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1882</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1883</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">encoding</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">options</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">get</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">encoding</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="font-weight:bold;color:rgb(0,135,0)" class="ansi-yellow-bg">None</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1884</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">compression</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">options</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">get</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">compression</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="font-weight:bold;color:rgb(0,135,0)" class="ansi-yellow-bg">None</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1885</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">memory_map</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">options</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">get</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">memory_map</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="font-weight:bold;color:rgb(0,135,0)" class="ansi-yellow-bg">False</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1886</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">is_text</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">is_text</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1887</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">errors</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">options</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">get</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">encoding_errors</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">strict</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1888</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">storage_options</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">options</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">get</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">storage_options</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="font-weight:bold;color:rgb(0,135,0)" class="ansi-yellow-bg">None</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1889</span> <span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">   1890</span> <span style="font-weight:bold;color:rgb(0,135,0)">assert</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>handles <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span>
-<span class="ansi-green-fg ansi-bold">   1891</span> f <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>handles<span style="color:rgb(98,98,98)">.</span>handle
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/site-packages/pandas/io/common.py:728</span>, in <span class="ansi-cyan-fg">get_handle</span><span class="ansi-blue-fg">(path_or_buf, mode, encoding, compression, memory_map, is_text, errors, storage_options)</span>
-<span class="ansi-green-fg ansi-bold">    725</span>     codecs<span style="color:rgb(98,98,98)">.</span>lookup_error(errors)
-<span class="ansi-green-fg ansi-bold">    727</span> <span style="font-style:italic;color:rgb(95,135,135)"># open URLs</span>
-<span class="ansi-green-fg">--&gt; 728</span> ioargs <span style="color:rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">_get_filepath_or_buffer</span><span class="ansi-yellow-bg">(</span>
-<span class="ansi-green-fg ansi-bold">    729</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">path_or_buf</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    730</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">encoding</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">encoding</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    731</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">compression</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">compression</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    732</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">mode</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">mode</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    733</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">storage_options</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">storage_options</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">    734</span> <span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">    736</span> handle <span style="color:rgb(98,98,98)">=</span> ioargs<span style="color:rgb(98,98,98)">.</span>filepath_or_buffer
-<span class="ansi-green-fg ansi-bold">    737</span> handles: <span style="color:rgb(0,135,0)">list</span>[BaseBuffer]
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/site-packages/pandas/io/common.py:384</span>, in <span class="ansi-cyan-fg">_get_filepath_or_buffer</span><span class="ansi-blue-fg">(filepath_or_buffer, encoding, compression, mode, storage_options)</span>
-<span class="ansi-green-fg ansi-bold">    382</span> <span style="font-style:italic;color:rgb(95,135,135)"># assuming storage_options is to be interpreted as headers</span>
-<span class="ansi-green-fg ansi-bold">    383</span> req_info <span style="color:rgb(98,98,98)">=</span> urllib<span style="color:rgb(98,98,98)">.</span>request<span style="color:rgb(98,98,98)">.</span>Request(filepath_or_buffer, headers<span style="color:rgb(98,98,98)">=</span>storage_options)
-<span class="ansi-green-fg">--&gt; 384</span> <span style="font-weight:bold;color:rgb(0,135,0)">with</span> <span class="ansi-yellow-bg">urlopen</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">req_info</span><span class="ansi-yellow-bg">)</span> <span style="font-weight:bold;color:rgb(0,135,0)">as</span> req:
-<span class="ansi-green-fg ansi-bold">    385</span>     content_encoding <span style="color:rgb(98,98,98)">=</span> req<span style="color:rgb(98,98,98)">.</span>headers<span style="color:rgb(98,98,98)">.</span>get(<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">Content-Encoding</span><span style="color:rgb(175,0,0)">"</span>, <span style="font-weight:bold;color:rgb(0,135,0)">None</span>)
-<span class="ansi-green-fg ansi-bold">    386</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> content_encoding <span style="color:rgb(98,98,98)">==</span> <span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">gzip</span><span style="color:rgb(175,0,0)">"</span>:
-<span class="ansi-green-fg ansi-bold">    387</span>         <span style="font-style:italic;color:rgb(95,135,135)"># Override compression based on Content-Encoding header</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/site-packages/pandas/io/common.py:289</span>, in <span class="ansi-cyan-fg">urlopen</span><span class="ansi-blue-fg">(*args, **kwargs)</span>
-<span class="ansi-green-fg ansi-bold">    283</span> <span style="font-style:italic;color:rgb(175,0,0)">"""</span>
-<span class="ansi-green-fg ansi-bold">    284</span> <span style="font-style:italic;color:rgb(175,0,0)">Lazy-import wrapper for stdlib urlopen, as that imports a big chunk of</span>
-<span class="ansi-green-fg ansi-bold">    285</span> <span style="font-style:italic;color:rgb(175,0,0)">the stdlib.</span>
-<span class="ansi-green-fg ansi-bold">    286</span> <span style="font-style:italic;color:rgb(175,0,0)">"""</span>
-<span class="ansi-green-fg ansi-bold">    287</span> <span style="font-weight:bold;color:rgb(0,135,0)">import</span><span style="color:rgb(188,188,188)"> </span><span style="font-weight:bold;color:rgb(0,0,255)">urllib</span><span style="font-weight:bold;color:rgb(0,0,255)">.</span><span style="font-weight:bold;color:rgb(0,0,255)">request</span>
-<span class="ansi-green-fg">--&gt; 289</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">urllib</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">urlopen</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/request.py:214</span>, in <span class="ansi-cyan-fg">urlopen</span><span class="ansi-blue-fg">(url, data, timeout, cafile, capath, cadefault, context)</span>
-<span class="ansi-green-fg ansi-bold">    212</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span>:
-<span class="ansi-green-fg ansi-bold">    213</span>     opener <span style="color:rgb(98,98,98)">=</span> _opener
-<span class="ansi-green-fg">--&gt; 214</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">opener</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">open</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">url</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">data</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">timeout</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/request.py:517</span>, in <span class="ansi-cyan-fg">OpenerDirector.open</span><span class="ansi-blue-fg">(self, fullurl, data, timeout)</span>
-<span class="ansi-green-fg ansi-bold">    514</span>     req <span style="color:rgb(98,98,98)">=</span> meth(req)
-<span class="ansi-green-fg ansi-bold">    516</span> sys<span style="color:rgb(98,98,98)">.</span>audit(<span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">urllib.Request</span><span style="color:rgb(175,0,0)">'</span>, req<span style="color:rgb(98,98,98)">.</span>full_url, req<span style="color:rgb(98,98,98)">.</span>data, req<span style="color:rgb(98,98,98)">.</span>headers, req<span style="color:rgb(98,98,98)">.</span>get_method())
-<span class="ansi-green-fg">--&gt; 517</span> response <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_open</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">req</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">data</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">    519</span> <span style="font-style:italic;color:rgb(95,135,135)"># post-process response</span>
-<span class="ansi-green-fg ansi-bold">    520</span> meth_name <span style="color:rgb(98,98,98)">=</span> protocol<span style="color:rgb(98,98,98)">+</span><span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">_response</span><span style="color:rgb(175,0,0)">"</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/request.py:534</span>, in <span class="ansi-cyan-fg">OpenerDirector._open</span><span class="ansi-blue-fg">(self, req, data)</span>
-<span class="ansi-green-fg ansi-bold">    531</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> result
-<span class="ansi-green-fg ansi-bold">    533</span> protocol <span style="color:rgb(98,98,98)">=</span> req<span style="color:rgb(98,98,98)">.</span>type
-<span class="ansi-green-fg">--&gt; 534</span> result <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_call_chain</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">handle_open</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">protocol</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">protocol</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">+</span>
-<span class="ansi-green-fg ansi-bold">    535</span> <span class="ansi-yellow-bg">                          </span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">'</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">_open</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">'</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">req</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">    536</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> result:
-<span class="ansi-green-fg ansi-bold">    537</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> result
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/request.py:494</span>, in <span class="ansi-cyan-fg">OpenerDirector._call_chain</span><span class="ansi-blue-fg">(self, chain, kind, meth_name, *args)</span>
-<span class="ansi-green-fg ansi-bold">    492</span> <span style="font-weight:bold;color:rgb(0,135,0)">for</span> handler <span style="font-weight:bold;color:rgb(175,0,255)">in</span> handlers:
-<span class="ansi-green-fg ansi-bold">    493</span>     func <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">getattr</span>(handler, meth_name)
-<span class="ansi-green-fg">--&gt; 494</span>     result <span style="color:rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">func</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">    495</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> result <span style="font-weight:bold;color:rgb(175,0,255)">is</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> <span style="font-weight:bold;color:rgb(0,135,0)">None</span>:
-<span class="ansi-green-fg ansi-bold">    496</span>         <span style="font-weight:bold;color:rgb(0,135,0)">return</span> result
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/request.py:1389</span>, in <span class="ansi-cyan-fg">HTTPSHandler.https_open</span><span class="ansi-blue-fg">(self, req)</span>
-<span class="ansi-green-fg ansi-bold">   1388</span> <span style="font-weight:bold;color:rgb(0,135,0)">def</span><span style="color:rgb(188,188,188)"> </span><span style="color:rgb(0,0,255)">https_open</span>(<span style="color:rgb(0,135,0)">self</span>, req):
-<span class="ansi-green-fg">-&gt; 1389</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">do_open</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">http</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">client</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">HTTPSConnection</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">req</span><span class="ansi-yellow-bg">,</span>
-<span class="ansi-green-fg ansi-bold">   1390</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">context</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_context</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">check_hostname</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_check_hostname</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/request.py:1349</span>, in <span class="ansi-cyan-fg">AbstractHTTPHandler.do_open</span><span class="ansi-blue-fg">(self, http_class, req, **http_conn_args)</span>
-<span class="ansi-green-fg ansi-bold">   1346</span>         h<span style="color:rgb(98,98,98)">.</span>request(req<span style="color:rgb(98,98,98)">.</span>get_method(), req<span style="color:rgb(98,98,98)">.</span>selector, req<span style="color:rgb(98,98,98)">.</span>data, headers,
-<span class="ansi-green-fg ansi-bold">   1347</span>                   encode_chunked<span style="color:rgb(98,98,98)">=</span>req<span style="color:rgb(98,98,98)">.</span>has_header(<span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">Transfer-encoding</span><span style="color:rgb(175,0,0)">'</span>))
-<span class="ansi-green-fg ansi-bold">   1348</span>     <span style="font-weight:bold;color:rgb(0,135,0)">except</span> <span style="font-weight:bold;color:rgb(215,95,95)">OSError</span> <span style="font-weight:bold;color:rgb(0,135,0)">as</span> err: <span style="font-style:italic;color:rgb(95,135,135)"># timeout error</span>
-<span class="ansi-green-fg">-&gt; 1349</span>         <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> URLError(err)
-<span class="ansi-green-fg ansi-bold">   1350</span>     r <span style="color:rgb(98,98,98)">=</span> h<span style="color:rgb(98,98,98)">.</span>getresponse()
-<span class="ansi-green-fg ansi-bold">   1351</span> <span style="font-weight:bold;color:rgb(0,135,0)">except</span>:
-
-<span class="ansi-red-fg">URLError</span>: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'raw.githubusercontent.com'. (_ssl.c:1147)&gt;</pre>
-</div>
-</div>
 </div>
 <p><em>Including all additional imports</em></p>
 <p>The data used in this analysis is a <a href="https://www.kaggle.com/datasets/laotse/credit-risk-dataset">simulated data set</a> of credit bureau data based on patterns observed in real credit bureau data.</p>
@@ -452,7 +266,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 <h2 class="anchored" data-anchor-id="exploring-the-data">Exploring the Data</h2>
 <section id="preliminary-visualizations" class="level3">
 <h3 class="anchored" data-anchor-id="preliminary-visualizations">Preliminary Visualizations</h3>
-<div id="cell-6" class="cell">
+<div id="cell-6" class="cell" data-execution_count="62">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data modification</span></span>
@@ -471,7 +285,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 </details>
 </div>
 <p><em>Modifying training data for visualization</em></p>
-<div id="cell-8" class="cell">
+<div id="cell-8" class="cell" data-execution_count="63">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating linear regression models and calculating R^2 values</span></span>
@@ -493,7 +307,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 </details>
 </div>
 <p><em>Creating linear regression models and calculating R^2 values for subsets of defaulted and fully repaid loans</em></p>
-<div id="cell-10" class="cell">
+<div id="cell-10" class="cell" data-execution_count="64">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
@@ -544,7 +358,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 </div>
 <p><strong>Figure 1</strong></p>
 <p>The plots above display the relationship between a borrower’s income and the loan amount borrowed for both defaulted and fully repaid loans. To assist the visualization of the data points, the dependent variable <code>person_income</code> is adjusted using a <span class="math inline">\(\log_2\)</span> scale. With this scale in place and for both defaulted and fully repaid loans, there appears to be a transformed linear relationship between a borrower’s income and the loan amount borrowed. Additionally, this transformed linear relationship appears to be positive and moderately strong (given both <span class="math inline">\(R^2\)</span> values &gt; 0.6). For both borrowers who defaulted on loans and borrowers who fully repaid their loans, it appears that as the loan amount increases, a borrower’s income increases (adjusted by a <span class="math inline">\(\log_2\)</span> scale). Considering this observed relationship, it is reasonable to assert that bigger loans are borrowed by individuals with higher income levels, regardless of whether or not those individuals defaulted or fully repaid their loans.</p>
-<div id="cell-12" class="cell">
+<div id="cell-12" class="cell" data-execution_count="65">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subsetting data to the three most common loan intents</span></span>
@@ -579,7 +393,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 </section>
 <section id="table-of-general-summary-statistics" class="level3">
 <h3 class="anchored" data-anchor-id="table-of-general-summary-statistics">Table of General Summary Statistics</h3>
-<div id="cell-15" class="cell">
+<div id="cell-15" class="cell" data-execution_count="66">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary Statistics</span></span>
@@ -597,7 +411,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>sum_stats <span class="op">=</span> sum_stats.<span class="bu">round</span>(<span class="dv">2</span>)</span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>sum_stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="66">
 <div>
 
 
@@ -875,7 +689,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 <h1>Model Construction</h1>
 <section id="feature-selection" class="level2">
 <h2 class="anchored" data-anchor-id="feature-selection">Feature Selection</h2>
-<div id="cell-18" class="cell">
+<div id="cell-18" class="cell" data-execution_count="67">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Modifying the training data</span></span>
@@ -967,7 +781,7 @@ File <span class="ansi-green-fg">~/anaconda3/envs/ml-0451/lib/python3.9/urllib/r
 </section>
 <section id="creating-a-scoring-function" class="level2">
 <h2 class="anchored" data-anchor-id="creating-a-scoring-function">Creating a Scoring Function</h2>
-<div id="cell-21" class="cell">
+<div id="cell-21" class="cell" data-execution_count="68">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to compute the score for each observation</span></span>
@@ -1035,7 +849,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 <p>For this analysis, a linear scoring function is used. Specifically, the linear scoring function computes the score of each data observation by taking the dot product of each observation with the weights vector <code>w</code>. To ensure that all scores are values on the interval [0, 1], the scores are normalized after they are calculated (i.e.&nbsp;the scores are updated to be the difference between each raw score and the minimum raw score divided by the range of raw scores). Additionally, the confusion matrix for the model’s performance is displayed above. The model’s false positive rate is approximately <span class="math inline">\(1.55\%\)</span> while the true positive rate is approximately <span class="math inline">\(36.34\%\)</span>. Conversely, the model’s false negative rate is approximately <span class="math inline">\(63.66\%\)</span> while the true negative rate is approximately <span class="math inline">\(98.45\%\)</span>. With this information, it appears that the model rarely misclassifies fully repaid loans as defaulted (low FPR). However, the model frequently (moderately high FNR) misclassifies defaulted loans as being fully repaid. In general, with a very high TNR, the model is very accurate at detecting truly fully repaid loans but much less accurate (low TPR) at recognizing truly defaulted loans. It is important to note here that the initial objective for this model was to accurately predict if a prospective borrower will default on a loan, thus suggesting that perhaps the model and or the scoring function should be slightly redesigned to increase the TPR. However, given the introductory nature of this brief study, the analysis will continue with the current model as is.</p>
 <section id="plotting-distribution-of-scores" class="level3">
 <h3 class="anchored" data-anchor-id="plotting-distribution-of-scores">Plotting Distribution of Scores</h3>
-<div id="cell-24" class="cell">
+<div id="cell-24" class="cell" data-execution_count="69">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of Scores - Code Provided by Prof. Chodrow</span></span>
@@ -1061,7 +875,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </section>
 <section id="choosing-a-threshold" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-a-threshold">Choosing a Threshold</h2>
-<div id="cell-27" class="cell">
+<div id="cell-27" class="cell" data-execution_count="70">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Threshold selection based on model accuracy</span></span>
@@ -1093,7 +907,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </div>
 <p><strong>Figure 5</strong></p>
 <p>Shown above is the trend in overall model accuracy as the threshold <span class="math inline">\(t\)</span> increases from <span class="math inline">\(0: 1\)</span>. As outlined in the plot, the peak model accuracy (<span class="math inline">\(\approx 85\%\)</span>) is achieved using a threshold of <span class="math inline">\(t = 0.505\)</span>. However, what is likely more interesting (especially for the bank) is how the profit-per-borrower can be maximized through selecting a value for <span class="math inline">\(t\)</span>. Below is an examination of thresholding for profit maximization.</p>
-<div id="cell-29" class="cell">
+<div id="cell-29" class="cell" data-execution_count="71">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Threshold selection based on profit for the bank created by the model</span></span>
@@ -1149,7 +963,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 <h1>Model Evaluation</h1>
 <section id="perspective-of-the-bank" class="level2">
 <h2 class="anchored" data-anchor-id="perspective-of-the-bank">Perspective of the Bank</h2>
-<div id="cell-32" class="cell">
+<div id="cell-32" class="cell" data-execution_count="72">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reading in and modifying the test data</span></span>
@@ -1206,7 +1020,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 <h2 class="anchored" data-anchor-id="perspective-of-the-borrower">Perspective of the Borrower</h2>
 <section id="loan-approval-and-borrower-age" class="level4">
 <h4 class="anchored" data-anchor-id="loan-approval-and-borrower-age">Loan Approval and Borrower Age</h4>
-<div id="cell-35" class="cell">
+<div id="cell-35" class="cell" data-execution_count="73">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to convert numerical ages to age categories</span></span>
@@ -1307,7 +1121,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </section>
 <section id="loan-approval-and-loan-intent" class="level4">
 <h4 class="anchored" data-anchor-id="loan-approval-and-loan-intent">Loan Approval and Loan Intent</h4>
-<div id="cell-38" class="cell">
+<div id="cell-38" class="cell" data-execution_count="74">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Independent and dependent variables for bar chart</span></span>
@@ -1425,7 +1239,7 @@ There were 1791 defaulted loan(s) that were predicted to be defaulted.</code></p
 </section>
 <section id="loan-approval-and-borrower-income" class="level4">
 <h4 class="anchored" data-anchor-id="loan-approval-and-borrower-income">Loan Approval and Borrower Income</h4>
-<div id="cell-41" class="cell">
+<div id="cell-41" class="cell" data-execution_count="75">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding high/low score indicator col</span></span>
