@@ -241,7 +241,7 @@ window.Quarto = {
 <p>In this analysis, I explore the construction of a predictive classification model and subsequently examine the model’s properties and behavior to audit for bias. Specifically, the model I constructed aims to predict the employment status of a given individual. Following the refining process, the behavior, accuracy, and error rates of the model are investigated and compared across each racial group outlined in the data. The purpose of this is to uncover any biases on the basis of race the model may be exercising when making predictions for certain individuals. While the model is blind to racial identity during training, this does not eliminate the possibility that systemic racial biases are reflected in the model’s predictive behavior. To audit for potential bias, the model is checked for three primary “fairness” criteria: calibration, error rate balance, and statistical parity. In the search for bias, it is found that the refined model is relatively well-calibrated across each of the racial groups present in the data, but the model generally fails to satisfy the error-balance and statistical parity conditions of accepted “fairness”. Ultimately, the model is shown to exhibit “unfair” (i.e.&nbsp;inconsistent) predictive behavior pertaining to the racial identity of individuals in the data. The results of this introductory study highlight the crucial role of diligently investigating the presence of group-based bias and “unfairness” exercised by classification models even when such models are blind to the group identity. Considering these findings in the context of employment prediction, this study serves as an example of how systemic biases perpetuated through an automated decision classifier can contribute and compound upon past injustices that have discriminantly affected individuals of certain racial identities more than others.</p>
 <section id="accessing-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="accessing-the-data">Accessing the Data</h2>
-<div id="cell-3" class="cell" data-execution_count="61">
+<div id="cell-3" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Includuing all additional imports</span></span>
@@ -269,7 +269,7 @@ window.Quarto = {
 <p>The data for this study comes from an ACS (American Community Survey) data set. Specifically, the data is from a 2018 PUMS (Public Use Microdata Sample) survey for the state of Massachusetts. Each observation from this data set is an individual massachusetts resident who completed the 2018 PUMS survey. The data is downloaded using the <code>ACSDataSource</code> class from the <code>folktables</code> package.</p>
 <section id="subsetting-variables---extracting-relevant-features" class="level3">
 <h3 class="anchored" data-anchor-id="subsetting-variables---extracting-relevant-features">Subsetting Variables - Extracting Relevant Features</h3>
-<div id="cell-6" class="cell" data-execution_count="62">
+<div id="cell-6" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">vars</span> <span class="op">=</span> [<span class="st">"AGEP"</span>, <span class="st">"SCHL"</span>, <span class="st">"MAR"</span>, <span class="st">"RELP"</span>, <span class="st">"DIS"</span>, <span class="st">"ESP"</span>, <span class="st">"CIT"</span>, <span class="st">"MIG"</span>, <span class="st">"MIL"</span>, <span class="st">"ANC"</span>, <span class="st">"NATIVITY"</span>, <span class="st">"DEAR"</span>, <span class="st">"DEYE"</span>, <span class="st">"DREM"</span>, <span class="st">"SEX"</span>, <span class="st">"RAC1P"</span>, <span class="st">"ESR"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -302,7 +302,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="model-1---predicting-employment-status">Model 1 - Predicting Employment Status</h2>
 <section id="data-preparation" class="level4">
 <h4 class="anchored" data-anchor-id="data-preparation">Data Preparation</h4>
-<div id="cell-10" class="cell" data-execution_count="63">
+<div id="cell-10" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filtering out employment status (target) and race variables</span></span>
@@ -328,7 +328,7 @@ window.Quarto = {
 </section>
 <section id="general-descriptives" class="level4">
 <h4 class="anchored" data-anchor-id="general-descriptives">General Descriptives</h4>
-<div id="cell-13" class="cell" data-execution_count="64">
+<div id="cell-13" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Observing some general descriptives in the training data</span></span>
@@ -384,7 +384,7 @@ window.Quarto = {
 <p><em>Code above calculates three proportions of employed individuals in the data: 1. General proportion of employment across all individuals 2. Proportion of each race in all employed individuals 3. Proportion of employed individuals within each race.</em></p>
 <p><strong>Figure 1</strong></p>
 <p>Prior to constructing and fitting the predictive model, it’s useful to explore some general descriptives of the data. In total, there are 56104 individuals in the training data. Approximately <span class="math inline">\(50\%\)</span> of individuals from the data are employed (as of their filling out the survey in 2018).</p>
-<div id="cell-15" class="cell" data-execution_count="65">
+<div id="cell-15" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting proportion of employed individuals across each race</span></span>
@@ -430,7 +430,7 @@ window.Quarto = {
 <li>About <span class="math inline">\(47.3\%\)</span> of individuals identifying as some other race are employed</li>
 <li>About <span class="math inline">\(38\%\)</span> of individuals identifying as two or more races are employed</li>
 </ul>
-<div id="cell-17" class="cell" data-execution_count="66">
+<div id="cell-17" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examining the intersection of race and gender as it relates to employment</span></span>
@@ -481,7 +481,7 @@ window.Quarto = {
 <p><em><span class="math inline">\(^1\)</span>“A.I./A.N.Specified”: Individuals who are American Indian and Alaska Native tribes specified, or American Indian or Alaska Native, or not specified and of no other races.</em></p>
 <p><strong>Figure 3</strong></p>
 <p>The figure above displays the possible intersectionality between race and sex among employed individuals. For six of the nine race categories (all but American Indian, Alaska Native, and Native Hawaiian &amp; Other Pacific Islander) found in this data set, there does not appear to be a significant difference (<span class="math inline">\(&lt;5\%\)</span>) in employment rates between males and females. However, for the remaining racial groups, there does appear to be a noteworthy difference (<span class="math inline">\(&gt;10\%\)</span>) in employment rates between males and females. Therefore, based on this figure, there generally does not appear to be a significant intersectional effect of race and sex on employment rates across all racial groups, but for some groups, an intersectional effect may be present. Please note that this finding does not dismiss the presence of intersectional biases and systemic injustices that may impact certain individuals from this data set. The existence of such intersectionality may very well be present in the data and but just not captured by this figure. Observing the intersectionality of race and gender relating to employment may be more clearly observed through other statistical processes.</p>
-<div id="cell-19" class="cell" data-execution_count="67">
+<div id="cell-19" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examining the intersection of race and disability as it relates to employment</span></span>
@@ -528,15 +528,15 @@ window.Quarto = {
 </section>
 <section id="constructing-and-fitting-the-model" class="level3">
 <h3 class="anchored" data-anchor-id="constructing-and-fitting-the-model">Constructing and Fitting the Model</h3>
-<div id="cell-22" class="cell" data-execution_count="68">
+<div id="cell-22" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Constructing and fitting the model</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> make_pipeline(StandardScaler(), DecisionTreeClassifier())</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>model.fit(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="68">
-<style>#sk-container-id-4 {
+<div class="cell-output cell-output-display" data-execution_count="27">
+<style>#sk-container-id-2 {
   /* Definition of color scheme common for light and dark mode */
   --sklearn-color-text: #000;
   --sklearn-color-text-muted: #666;
@@ -567,15 +567,15 @@ window.Quarto = {
   }
 }
 
-#sk-container-id-4 {
+#sk-container-id-2 {
   color: var(--sklearn-color-text);
 }
 
-#sk-container-id-4 pre {
+#sk-container-id-2 pre {
   padding: 0;
 }
 
-#sk-container-id-4 input.sk-hidden--visually {
+#sk-container-id-2 input.sk-hidden--visually {
   border: 0;
   clip: rect(1px 1px 1px 1px);
   clip: rect(1px, 1px, 1px, 1px);
@@ -587,7 +587,7 @@ window.Quarto = {
   width: 1px;
 }
 
-#sk-container-id-4 div.sk-dashed-wrapped {
+#sk-container-id-2 div.sk-dashed-wrapped {
   border: 1px dashed var(--sklearn-color-line);
   margin: 0 0.4em 0.5em 0.4em;
   box-sizing: border-box;
@@ -595,7 +595,7 @@ window.Quarto = {
   background-color: var(--sklearn-color-background);
 }
 
-#sk-container-id-4 div.sk-container {
+#sk-container-id-2 div.sk-container {
   /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
      but bootstrap.min.css set `[hidden] { display: none !important; }`
      so we also need the `!important` here to be able to override the
@@ -605,7 +605,7 @@ window.Quarto = {
   position: relative;
 }
 
-#sk-container-id-4 div.sk-text-repr-fallback {
+#sk-container-id-2 div.sk-text-repr-fallback {
   display: none;
 }
 
@@ -621,14 +621,14 @@ div.sk-item {
 
 /* Parallel-specific style estimator block */
 
-#sk-container-id-4 div.sk-parallel-item::after {
+#sk-container-id-2 div.sk-parallel-item::after {
   content: "";
   width: 100%;
   border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
   flex-grow: 1;
 }
 
-#sk-container-id-4 div.sk-parallel {
+#sk-container-id-2 div.sk-parallel {
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -636,28 +636,28 @@ div.sk-item {
   position: relative;
 }
 
-#sk-container-id-4 div.sk-parallel-item {
+#sk-container-id-2 div.sk-parallel-item {
   display: flex;
   flex-direction: column;
 }
 
-#sk-container-id-4 div.sk-parallel-item:first-child::after {
+#sk-container-id-2 div.sk-parallel-item:first-child::after {
   align-self: flex-end;
   width: 50%;
 }
 
-#sk-container-id-4 div.sk-parallel-item:last-child::after {
+#sk-container-id-2 div.sk-parallel-item:last-child::after {
   align-self: flex-start;
   width: 50%;
 }
 
-#sk-container-id-4 div.sk-parallel-item:only-child::after {
+#sk-container-id-2 div.sk-parallel-item:only-child::after {
   width: 0;
 }
 
 /* Serial-specific style estimator block */
 
-#sk-container-id-4 div.sk-serial {
+#sk-container-id-2 div.sk-serial {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -675,14 +675,14 @@ clickable and can be expanded/collapsed.
 
 /* Pipeline and ColumnTransformer style (default) */
 
-#sk-container-id-4 div.sk-toggleable {
+#sk-container-id-2 div.sk-toggleable {
   /* Default theme specific background. It is overwritten whether we have a
   specific estimator or a Pipeline/ColumnTransformer */
   background-color: var(--sklearn-color-background);
 }
 
 /* Toggleable label */
-#sk-container-id-4 label.sk-toggleable__label {
+#sk-container-id-2 label.sk-toggleable__label {
   cursor: pointer;
   display: flex;
   width: 100%;
@@ -695,13 +695,13 @@ clickable and can be expanded/collapsed.
   gap: 0.5em;
 }
 
-#sk-container-id-4 label.sk-toggleable__label .caption {
+#sk-container-id-2 label.sk-toggleable__label .caption {
   font-size: 0.6rem;
   font-weight: lighter;
   color: var(--sklearn-color-text-muted);
 }
 
-#sk-container-id-4 label.sk-toggleable__label-arrow:before {
+#sk-container-id-2 label.sk-toggleable__label-arrow:before {
   /* Arrow on the left of the label */
   content: "▸";
   float: left;
@@ -709,13 +709,13 @@ clickable and can be expanded/collapsed.
   color: var(--sklearn-color-icon);
 }
 
-#sk-container-id-4 label.sk-toggleable__label-arrow:hover:before {
+#sk-container-id-2 label.sk-toggleable__label-arrow:hover:before {
   color: var(--sklearn-color-text);
 }
 
 /* Toggleable content - dropdown */
 
-#sk-container-id-4 div.sk-toggleable__content {
+#sk-container-id-2 div.sk-toggleable__content {
   max-height: 0;
   max-width: 0;
   overflow: hidden;
@@ -724,12 +724,12 @@ clickable and can be expanded/collapsed.
   background-color: var(--sklearn-color-unfitted-level-0);
 }
 
-#sk-container-id-4 div.sk-toggleable__content.fitted {
+#sk-container-id-2 div.sk-toggleable__content.fitted {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-0);
 }
 
-#sk-container-id-4 div.sk-toggleable__content pre {
+#sk-container-id-2 div.sk-toggleable__content pre {
   margin: 0.2em;
   border-radius: 0.25em;
   color: var(--sklearn-color-text);
@@ -737,79 +737,79 @@ clickable and can be expanded/collapsed.
   background-color: var(--sklearn-color-unfitted-level-0);
 }
 
-#sk-container-id-4 div.sk-toggleable__content.fitted pre {
+#sk-container-id-2 div.sk-toggleable__content.fitted pre {
   /* unfitted */
   background-color: var(--sklearn-color-fitted-level-0);
 }
 
-#sk-container-id-4 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+#sk-container-id-2 input.sk-toggleable__control:checked~div.sk-toggleable__content {
   /* Expand drop-down */
   max-height: 200px;
   max-width: 100%;
   overflow: auto;
 }
 
-#sk-container-id-4 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+#sk-container-id-2 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
   content: "▾";
 }
 
 /* Pipeline/ColumnTransformer-specific style */
 
-#sk-container-id-4 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
   color: var(--sklearn-color-text);
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
-#sk-container-id-4 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
   background-color: var(--sklearn-color-fitted-level-2);
 }
 
 /* Estimator-specific style */
 
 /* Colorize estimator box */
-#sk-container-id-4 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
   /* unfitted */
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
-#sk-container-id-4 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+#sk-container-id-2 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-2);
 }
 
-#sk-container-id-4 div.sk-label label.sk-toggleable__label,
-#sk-container-id-4 div.sk-label label {
+#sk-container-id-2 div.sk-label label.sk-toggleable__label,
+#sk-container-id-2 div.sk-label label {
   /* The background is the default theme color */
   color: var(--sklearn-color-text-on-default-background);
 }
 
 /* On hover, darken the color of the background */
-#sk-container-id-4 div.sk-label:hover label.sk-toggleable__label {
+#sk-container-id-2 div.sk-label:hover label.sk-toggleable__label {
   color: var(--sklearn-color-text);
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
 /* Label box, darken color on hover, fitted */
-#sk-container-id-4 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+#sk-container-id-2 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
   color: var(--sklearn-color-text);
   background-color: var(--sklearn-color-fitted-level-2);
 }
 
 /* Estimator label */
 
-#sk-container-id-4 div.sk-label label {
+#sk-container-id-2 div.sk-label label {
   font-family: monospace;
   font-weight: bold;
   display: inline-block;
   line-height: 1.2em;
 }
 
-#sk-container-id-4 div.sk-label-container {
+#sk-container-id-2 div.sk-label-container {
   text-align: center;
 }
 
 /* Estimator-specific */
-#sk-container-id-4 div.sk-estimator {
+#sk-container-id-2 div.sk-estimator {
   font-family: monospace;
   border: 1px dotted var(--sklearn-color-border-box);
   border-radius: 0.25em;
@@ -819,18 +819,18 @@ clickable and can be expanded/collapsed.
   background-color: var(--sklearn-color-unfitted-level-0);
 }
 
-#sk-container-id-4 div.sk-estimator.fitted {
+#sk-container-id-2 div.sk-estimator.fitted {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-0);
 }
 
 /* on hover */
-#sk-container-id-4 div.sk-estimator:hover {
+#sk-container-id-2 div.sk-estimator:hover {
   /* unfitted */
   background-color: var(--sklearn-color-unfitted-level-2);
 }
 
-#sk-container-id-4 div.sk-estimator.fitted:hover {
+#sk-container-id-2 div.sk-estimator.fitted:hover {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-2);
 }
@@ -918,7 +918,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 
 /* "?"-specific style due to the `<a>` HTML tag */
 
-#sk-container-id-4 a.estimator_doc_link {
+#sk-container-id-2 a.estimator_doc_link {
   float: right;
   font-size: 1rem;
   line-height: 1em;
@@ -933,30 +933,30 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
   border: var(--sklearn-color-unfitted-level-1) 1pt solid;
 }
 
-#sk-container-id-4 a.estimator_doc_link.fitted {
+#sk-container-id-2 a.estimator_doc_link.fitted {
   /* fitted */
   border: var(--sklearn-color-fitted-level-1) 1pt solid;
   color: var(--sklearn-color-fitted-level-1);
 }
 
 /* On hover */
-#sk-container-id-4 a.estimator_doc_link:hover {
+#sk-container-id-2 a.estimator_doc_link:hover {
   /* unfitted */
   background-color: var(--sklearn-color-unfitted-level-3);
   color: var(--sklearn-color-background);
   text-decoration: none;
 }
 
-#sk-container-id-4 a.estimator_doc_link.fitted:hover {
+#sk-container-id-2 a.estimator_doc_link.fitted:hover {
   /* fitted */
   background-color: var(--sklearn-color-fitted-level-3);
 }
-</style><div id="sk-container-id-4" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[('standardscaler', StandardScaler()),
-                ('decisiontreeclassifier', DecisionTreeClassifier())])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-10" type="checkbox"><label for="sk-estimator-id-10" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Pipeline</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.pipeline.Pipeline.html">?<span>Documentation for Pipeline</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted"><pre>Pipeline(steps=[('standardscaler', StandardScaler()),
-                ('decisiontreeclassifier', DecisionTreeClassifier())])</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-11" type="checkbox"><label for="sk-estimator-id-11" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>StandardScaler</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.preprocessing.StandardScaler.html">?<span>Documentation for StandardScaler</span></a></div></label><div class="sk-toggleable__content fitted"><pre>StandardScaler()</pre></div> </div></div><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-12" type="checkbox"><label for="sk-estimator-id-12" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>DecisionTreeClassifier</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.tree.DecisionTreeClassifier.html">?<span>Documentation for DecisionTreeClassifier</span></a></div></label><div class="sk-toggleable__content fitted"><pre>DecisionTreeClassifier()</pre></div> </div></div></div></div></div></div>
+</style><div id="sk-container-id-2" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[('standardscaler', StandardScaler()),
+                ('decisiontreeclassifier', DecisionTreeClassifier())])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-4" type="checkbox"><label for="sk-estimator-id-4" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Pipeline</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.pipeline.Pipeline.html">?<span>Documentation for Pipeline</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted"><pre>Pipeline(steps=[('standardscaler', StandardScaler()),
+                ('decisiontreeclassifier', DecisionTreeClassifier())])</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-5" type="checkbox"><label for="sk-estimator-id-5" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>StandardScaler</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.preprocessing.StandardScaler.html">?<span>Documentation for StandardScaler</span></a></div></label><div class="sk-toggleable__content fitted"><pre>StandardScaler()</pre></div> </div></div><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-6" type="checkbox"><label for="sk-estimator-id-6" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>DecisionTreeClassifier</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.tree.DecisionTreeClassifier.html">?<span>Documentation for DecisionTreeClassifier</span></a></div></label><div class="sk-toggleable__content fitted"><pre>DecisionTreeClassifier()</pre></div> </div></div></div></div></div></div>
 </div>
 </div>
-<div id="cell-23" class="cell" data-execution_count="69">
+<div id="cell-23" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Refining the model</span></span>
@@ -978,7 +978,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Refined Model Overall Accuracy: </span><span class="sc">{</span>gen_score <span class="op">*</span> <span class="dv">100</span><span class="sc">: .3f}</span><span class="ss">%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Refined Model Overall Accuracy:  84.673%</code></pre>
+<pre><code>Refined Model Overall Accuracy:  82.062%</code></pre>
 </div>
 </div>
 <p><em>Code above uses the <code>make_pipeline</code> method from the <code>sklearn</code> package, the training data is first standardized and then used to fit a <code>DecisionTreeClassifier</code> model (also from <code>sklearn</code>). The <code>max_depth</code> parameter for the model is tuned iteratively with corss-validation to set the tree depth that maximizes overall accuracy while mitigating model over-fitting.</em></p>
@@ -986,7 +986,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 </section>
 <section id="general-accuracy-and-error-rates" class="level3">
 <h3 class="anchored" data-anchor-id="general-accuracy-and-error-rates">General Accuracy and Error Rates</h3>
-<div id="cell-26" class="cell" data-execution_count="70">
+<div id="cell-26" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculating various accuracy metrics</span></span>
@@ -1042,17 +1042,17 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 </div>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>There were 5506 unemployed individuals that were predicted to be unemployed.
-There were 1468 unemployed individuals that were predicted to be employed.
-There were 939 employed individuals that were predicted to be unemployed.
-There were 6114 unemployed individuals that were predicted to be employed.
-Overall Testing Accuracy:  82.840%
-General False Negative Rate:  13.313%
-General True Negative Rate:  78.950%
-General False Positive Rate:  21.050%
-General True Positive Rate:  86.687%
-General Positive Predictive Value:  80.638%
-General Negative Predictive Value:  85.431%</code></pre>
+<pre><code>There were 5432 unemployed individuals that were predicted to be unemployed.
+There were 1542 unemployed individuals that were predicted to be employed.
+There were 911 employed individuals that were predicted to be unemployed.
+There were 6142 unemployed individuals that were predicted to be employed.
+Overall Testing Accuracy:  82.512%
+General False Negative Rate:  12.916%
+General True Negative Rate:  77.889%
+General False Positive Rate:  22.111%
+General True Positive Rate:  87.084%
+General Positive Predictive Value:  79.932%
+General Negative Predictive Value:  85.638%</code></pre>
 </div>
 </div>
 <p><em>Code above constructs the general confusion matrix for the refined model and calculates the typical accuracy/error rates: FPR, FNR, TPR, TNR, PPV, and NPV</em></p>
@@ -1075,7 +1075,7 @@ General Negative Predictive Value:  85.431%</code></pre>
 <h2 class="anchored" data-anchor-id="auditing-the-model-for-racial-bias">Auditing the Model for Racial Bias</h2>
 <section id="examining-model-accuracy-and-error-rates-across-each-racial-category" class="level3">
 <h3 class="anchored" data-anchor-id="examining-model-accuracy-and-error-rates-across-each-racial-category">Examining Model Accuracy and Error Rates Across Each Racial Category</h3>
-<div id="cell-29" class="cell" data-execution_count="71">
+<div id="cell-29" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding a column for indicating correct predictions</span></span>
@@ -1189,7 +1189,7 @@ General Negative Predictive Value:  85.431%</code></pre>
 <span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>race_acc.loc[<span class="dv">9</span>] <span class="op">=</span> [race_recode.get(<span class="fl">9.0</span>), acc(r9), prop(r9), fpr(r9), fnr(r9), tpr(r9), tnr(r9), ppv(r9), npv(r9)]</span>
 <span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>race_acc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="71">
+<div class="cell-output cell-output-display" data-execution_count="30">
 <div>
 
 
@@ -1212,38 +1212,38 @@ General Negative Predictive Value:  85.431%</code></pre>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">1</td>
 <td>White</td>
-<td>82.8 %</td>
+<td>82.3 %</td>
 <td>20.2 %</td>
-<td>20.9 %</td>
-<td>13.7 %</td>
-<td>86.3 %</td>
-<td>79.1 %</td>
-<td>81.0 %</td>
-<td>84.8 %</td>
+<td>21.8 %</td>
+<td>13.8 %</td>
+<td>86.2 %</td>
+<td>78.2 %</td>
+<td>80.4 %</td>
+<td>84.5 %</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2</td>
 <td>American Indian</td>
-<td>82.4 %</td>
+<td>88.2 %</td>
 <td>0.0 %</td>
-<td>22.2 %</td>
+<td>11.1 %</td>
 <td>12.5 %</td>
 <td>87.5 %</td>
-<td>77.8 %</td>
-<td>77.8 %</td>
+<td>88.9 %</td>
 <td>87.5 %</td>
+<td>88.9 %</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">3</td>
 <td>Black or African American</td>
-<td>84.4 %</td>
+<td>85.1 %</td>
 <td>1.5 %</td>
-<td>18.6 %</td>
-<td>12.3 %</td>
-<td>87.7 %</td>
-<td>81.4 %</td>
-<td>80.7 %</td>
-<td>88.2 %</td>
+<td>19.7 %</td>
+<td>9.5 %</td>
+<td>90.5 %</td>
+<td>80.3 %</td>
+<td>80.2 %</td>
+<td>90.5 %</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">4</td>
@@ -1272,14 +1272,14 @@ General Negative Predictive Value:  85.431%</code></pre>
 <tr class="even">
 <td data-quarto-table-cell-role="th">6</td>
 <td>Asian</td>
-<td>81.3 %</td>
+<td>81.4 %</td>
 <td>1.7 %</td>
-<td>28.4 %</td>
-<td>9.5 %</td>
-<td>90.5 %</td>
-<td>71.6 %</td>
-<td>77.2 %</td>
-<td>87.6 %</td>
+<td>30.5 %</td>
+<td>7.3 %</td>
+<td>92.7 %</td>
+<td>69.5 %</td>
+<td>76.3 %</td>
+<td>90.0 %</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">7</td>
@@ -1296,26 +1296,26 @@ General Negative Predictive Value:  85.431%</code></pre>
 <tr class="even">
 <td data-quarto-table-cell-role="th">8</td>
 <td>Some Other Race</td>
-<td>84.8 %</td>
+<td>85.1 %</td>
 <td>0.8 %</td>
-<td>19.0 %</td>
-<td>10.8 %</td>
-<td>89.2 %</td>
-<td>81.0 %</td>
-<td>80.4 %</td>
-<td>89.5 %</td>
+<td>22.8 %</td>
+<td>5.9 %</td>
+<td>94.1 %</td>
+<td>77.2 %</td>
+<td>78.3 %</td>
+<td>93.7 %</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">9</td>
 <td>Two or More Races</td>
-<td>83.4 %</td>
+<td>83.7 %</td>
 <td>0.7 %</td>
-<td>16.5 %</td>
-<td>16.7 %</td>
-<td>83.3 %</td>
-<td>83.5 %</td>
-<td>77.8 %</td>
-<td>87.8 %</td>
+<td>16.9 %</td>
+<td>15.5 %</td>
+<td>84.5 %</td>
+<td>83.1 %</td>
+<td>77.6 %</td>
+<td>88.5 %</td>
 </tr>
 </tbody>
 </table>
@@ -1333,7 +1333,7 @@ General Negative Predictive Value:  85.431%</code></pre>
 <p>A similar trend is generally observable for TPR across each racial group (majority TPR range from about <span class="math inline">\(83\%\)</span> to <span class="math inline">\(100\%\)</span>) - with the exception of the “American Indian and Alaska Native tribes specified” group with a notably lower TPR: <span class="math inline">\(67\%\)</span>). As for TNR, there is a larger spread in values across all racial groups with a general TNR range of <span class="math inline">\(67\%\)</span> to <span class="math inline">\(100\%\)</span>.</p>
 <p><span class="math display">\[PPV = \frac{TP}{TP + FP}\]</span> <span class="math display">\[NPV = \frac{TN}{TN + FN}\]</span></p>
 <p>Further, the PPV and NPV for each racial group are primarily similar and display a smaller spread of values – with PPV metrics ranging from approximately <span class="math inline">\(77\%\)</span> to <span class="math inline">\(100\%\)</span> and NPV values ranging from approximately <span class="math inline">\(67\%\)</span> to <span class="math inline">\(100\%\)</span>.</p>
-<div id="cell-31" class="cell" data-execution_count="72">
+<div id="cell-31" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Changing column types for easier visualization</span></span>
@@ -1394,7 +1394,7 @@ General Negative Predictive Value:  85.431%</code></pre>
 <p><em>Code above uses the data frame constructed in the previous chunk to plot the overall model accuracy and FPR/FNR by racial group</em></p>
 <p><strong>Figure 6</strong></p>
 <p>The plots above provide a visual accompaniment to the information displayed in <strong>Table 1</strong>. As shown in overall accuracy plot (left), the model’s accuracy for the majority of racial groups is lower than the general accuracy. The largest disparity in general accuracy to the accuracy for a specific racial group is found for individuals identifying as Native Hawaiian &amp; Other Pacific Islander. Regarding FPR anf FNR, the model’s error rates across the racial groups appear to differ considerably both from one another and also from the general FPR and FNR.</p>
-<div id="cell-33" class="cell" data-execution_count="73">
+<div id="cell-33" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">20</span>, <span class="dv">10</span>))</span>
@@ -1461,7 +1461,7 @@ General Negative Predictive Value:  85.431%</code></pre>
 <h3 class="anchored" data-anchor-id="bias-measures">Bias Measures</h3>
 <section id="calibration" class="level4">
 <h4 class="anchored" data-anchor-id="calibration">Calibration:</h4>
-<div id="cell-37" class="cell" data-execution_count="74">
+<div id="cell-37" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examining the calibration of the model</span></span>
@@ -1505,13 +1505,13 @@ General Negative Predictive Value:  85.431%</code></pre>
 </section>
 <section id="error-rate-balance" class="level4">
 <h4 class="anchored" data-anchor-id="error-rate-balance">Error Rate Balance:</h4>
-<div id="cell-40" class="cell" data-execution_count="75">
+<div id="cell-40" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing FPR and TPR across each racial group</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>erb[[<span class="st">"Racial Group (Abbr. Cats.)"</span>, <span class="st">"FPR"</span>, <span class="st">"TPR"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="75">
+<div class="cell-output cell-output-display" data-execution_count="34">
 <div>
 
 
@@ -1528,20 +1528,20 @@ General Negative Predictive Value:  85.431%</code></pre>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">1</td>
 <td>White</td>
-<td>20.9 %</td>
-<td>86.3 %</td>
+<td>21.8 %</td>
+<td>86.2 %</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2</td>
 <td>American Indian</td>
-<td>22.2 %</td>
+<td>11.1 %</td>
 <td>87.5 %</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">3</td>
 <td>Black or African American</td>
-<td>18.6 %</td>
-<td>87.7 %</td>
+<td>19.7 %</td>
+<td>90.5 %</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">4</td>
@@ -1558,8 +1558,8 @@ General Negative Predictive Value:  85.431%</code></pre>
 <tr class="even">
 <td data-quarto-table-cell-role="th">6</td>
 <td>Asian</td>
-<td>28.4 %</td>
-<td>90.5 %</td>
+<td>30.5 %</td>
+<td>92.7 %</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">7</td>
@@ -1570,14 +1570,14 @@ General Negative Predictive Value:  85.431%</code></pre>
 <tr class="even">
 <td data-quarto-table-cell-role="th">8</td>
 <td>Some Other Race</td>
-<td>19.0 %</td>
-<td>89.2 %</td>
+<td>22.8 %</td>
+<td>94.1 %</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">9</td>
 <td>Two or More Races</td>
-<td>16.5 %</td>
-<td>83.3 %</td>
+<td>16.9 %</td>
+<td>84.5 %</td>
 </tr>
 </tbody>
 </table>
@@ -1590,7 +1590,7 @@ General Negative Predictive Value:  85.431%</code></pre>
 </section>
 <section id="statistical-parity" class="level4">
 <h4 class="anchored" data-anchor-id="statistical-parity">Statistical Parity:</h4>
-<div id="cell-43" class="cell" data-execution_count="76">
+<div id="cell-43" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculating the absolute difference of the probabilities of a positive prediction for each racial group to assess statistical parity</span></span>
@@ -1612,7 +1612,7 @@ Adjusted Statistical Parity (ABS.) Difference:  37.78%</code></pre>
 </section>
 <section id="reproducing-figure-5-from-chouldechova" class="level4">
 <h4 class="anchored" data-anchor-id="reproducing-figure-5-from-chouldechova">Reproducing <strong>Figure 5</strong> from Chouldechova</h4>
-<div id="cell-46" class="cell" data-execution_count="77">
+<div id="cell-46" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Defining FPR as linear function of FNR when PPV and P are held constant for white and black or African American individuals in the data</span></span>
@@ -1648,7 +1648,7 @@ Adjusted Statistical Parity (ABS.) Difference:  37.78%</code></pre>
 <span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(race_acc[<span class="st">"FNR"</span>].iloc[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>13.7</code></pre>
+<pre><code>13.8</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>

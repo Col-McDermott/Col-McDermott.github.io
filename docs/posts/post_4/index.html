@@ -238,7 +238,7 @@ window.Quarto = {
 <p>The primary goal of this brief study on the perceptron algorithm is to explore and investigate the processes under the hood of the perceptron algorithm <span class="math inline">\(-\)</span> one of the oldest machine learning algorithms to exist. The functionality of and logic behind the perceptron algorithm is a backbone to many modern ML methods and models. It is crucial to develop at least a basic understanding of how perceptron works and why it’s design is as such. This introductory dive into the inner-workings of perceptron involves examining the conditions in which the algorithm is successful, the conditions in which the algorithm must be manually adjusted to prevent non-convergence, various ways the algorithm can be refined to operate on more complex data, and the general limitations and implications associated with this algorithm.</p>
 <section id="generating-data" class="level3">
 <h3 class="anchored" data-anchor-id="generating-data">Generating Data</h3>
-<div id="cell-3" class="cell" data-execution_count="60">
+<div id="cell-3" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
@@ -290,7 +290,7 @@ window.Quarto = {
 </section>
 <section id="evaluating-the-perceptron-implementation" class="level3">
 <h3 class="anchored" data-anchor-id="evaluating-the-perceptron-implementation">Evaluating the Perceptron Implementation</h3>
-<div id="cell-7" class="cell" data-execution_count="61">
+<div id="cell-7" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code provided by Prof. Chodrow</span></span>
@@ -332,7 +332,7 @@ window.Quarto = {
 <div class="ansi-escaped-output">
 <pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
 <span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[61], line 28</span>
+Cell <span class="ansi-green-fg">In[5], line 28</span>
 <span class="ansi-green-fg ansi-bold">     25</span>     y_i <span style="color:rgb(98,98,98)">=</span> y1[i]
 <span class="ansi-green-fg ansi-bold">     27</span>     <span style="font-style:italic;color:rgb(95,135,135)"># perform a perceptron update using the random data point</span>
 <span class="ansi-green-fg">---&gt; 28</span>     <span class="ansi-yellow-bg">opt</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">step</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x_i</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y_i</span><span class="ansi-yellow-bg">)</span>
