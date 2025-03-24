@@ -8,7 +8,7 @@
 
 <meta name="author" content="Col McDermott">
 <meta name="dcterms.date" content="2025-03-26">
-<meta name="description" content="An introductory exploration of the Perceptron algorithm – CHANGE.">
+<meta name="description" content="An introductory exploration of the Perceptron algorithm – FINISH.">
 
 <title>Post 4 - Implementing Perceptron – Middlebury College CSCI 0451 Blog - Col McDermott</title>
 <style>
@@ -195,7 +195,7 @@ window.Quarto = {
       <h1 class="title">Post 4 - Implementing Perceptron</h1>
                   <div>
         <div class="description">
-          An introductory exploration of the Perceptron algorithm – CHANGE.
+          An introductory exploration of the Perceptron algorithm – FINISH.
         </div>
       </div>
                 </div>
@@ -285,8 +285,8 @@ window.Quarto = {
 <section id="implementing-the-perceptron-algorithm" class="level3">
 <h3 class="anchored" data-anchor-id="implementing-the-perceptron-algorithm">Implementing the Perceptron Algorithm</h3>
 <p>For this introductory study, I have implemented a rudimentary version of the perceptron algorithm. This implementation involves three class definitions: <code>LinearModel</code>, <code>Perceptron</code>, and <code>PerceptronOptimizer</code>.</p>
-<p><strong><code>LinearModel</code></strong>: - <code>self.w</code>: An instance variable to store the weights vector of a linear model - <code>score(X)</code>: Method to compute the score <span class="math inline">\(s_i\)</span> for each data point in the feature matrix <span class="math inline">\(\bold{X}\)</span> - <code>predict(X)</code>: Method to compute the classification prediction <span class="math inline">\(\hat{y}_i\)</span> <span class="math inline">\(\in\{0, 1\}\)</span> for each data point</p>
-<p><strong><code>Perceptron</code> (inherits from <code>LinearModel</code>)</strong>: - <code>loss(X, y)</code>: Method to compute the misclassification rate in the data <span class="math inline">\(-\)</span> A point i is classified correctly if <span class="math inline">\(s_i\bar{y}_i &gt; 0\)</span>, where <span class="math inline">\(\bar{y}_i \in \{-1, 1\}\)</span> is the modified classification label. - <code>grad(x, y)</code>: Method to compute the perceptron update for a sampled data point - This method takes as arguments <code>x</code> <span class="math inline">\(-\)</span> the row of the feature matrix <span class="math inline">\(\bold{X}\)</span> corresponding to the sampled data point <span class="math inline">\(-\)</span> and <code>y</code> <span class="math inline">\(-\)</span> the classification target vector - This method first computes the score <span class="math inline">\(s_i\)</span> of the sampled data point with <span class="math inline">\(&lt;\bold{w}, x_i&gt;\)</span> - This method then computes the vector <span class="math inline">\(-I[s_i(2y_i - 1) &lt; 0]y_ix_i\)</span> which represents the perceptron update (moving the score <span class="math inline">\(s_i\)</span> closer to the target <span class="math inline">\(y_i\)</span>) with respect to the sampled data point. - Ultimately, this method computes an update to a sampled data point that later adjusts the weight vector of the perceptron algorithm to better fit the sampled data point</p>
+<p><strong><code>LinearModel</code></strong>: - <code>self.w</code>: An instance variable to store the weights vector of a linear model - <code>score(X)</code>: Method to compute the score <span class="math inline">\(s_i\)</span> for each data point in the feature matrix <strong><span class="math inline">\(X\)</span></strong> - <code>predict(X)</code>: Method to compute the classification prediction <span class="math inline">\(\hat{y}_i\)</span> <span class="math inline">\(\in\{0, 1\}\)</span> for each data point</p>
+<p><strong><code>Perceptron</code> (inherits from <code>LinearModel</code>)</strong>: - <code>loss(X, y)</code>: Method to compute the misclassification rate in the data <span class="math inline">\(-\)</span> A point i is classified correctly if <span class="math inline">\(s_i\bar{y}_i &gt; 0\)</span>, where <span class="math inline">\(\bar{y}_i \in \{-1, 1\}\)</span> is the modified classification label. - <code>grad(x, y)</code>: Method to compute the perceptron update for a sampled data point - This method takes as arguments <code>x</code> <span class="math inline">\(-\)</span> the row of the feature matrix <strong><span class="math inline">\(X\)</span></strong> corresponding to the sampled data point <span class="math inline">\(-\)</span> and <code>y</code> <span class="math inline">\(-\)</span> the classification target vector - This method first computes the score <span class="math inline">\(s_i\)</span> of the sampled data point with <span class="math inline">\(&lt;\)</span><strong><span class="math inline">\(w\)</span></strong><span class="math inline">\(, x_i&gt;\)</span> - This method then computes the vector <span class="math inline">\(-I[s_i(2y_i - 1) &lt; 0]y_ix_i\)</span> which represents the perceptron update (moving the score <span class="math inline">\(s_i\)</span> closer to the target <span class="math inline">\(y_i\)</span>) with respect to the sampled data point. - Ultimately, this method computes an update to a sampled data point that later adjusts the weight vector of the perceptron algorithm to better fit the sampled data point</p>
 </section>
 <section id="evaluating-the-perceptron-implementation" class="level3">
 <h3 class="anchored" data-anchor-id="evaluating-the-perceptron-implementation">Evaluating the Perceptron Implementation</h3>
