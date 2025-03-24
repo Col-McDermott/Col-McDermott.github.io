@@ -10,7 +10,7 @@
 <meta name="dcterms.date" content="2025-03-26">
 <meta name="description" content="An introductory exploration of the Perceptron algorithm – CHANGE.">
 
-<title>Post 4 - Perceptron – CHANGE – Middlebury College CSCI 0451 Blog - Col McDermott</title>
+<title>Post 4 - Implementing Perceptron – Middlebury College CSCI 0451 Blog - Col McDermott</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -122,6 +122,35 @@ background-size: cover;
       }
 </style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -163,7 +192,7 @@ background-size: cover;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Post 4 - Perceptron – CHANGE</h1>
+      <h1 class="title">Post 4 - Implementing Perceptron</h1>
                   <div>
         <div class="description">
           An introductory exploration of the Perceptron algorithm – CHANGE.
@@ -206,97 +235,156 @@ background-size: cover;
 
 <section id="abstract" class="level1">
 <h1>Abstract</h1>
-<section id="accessing-the-data" class="level3">
-<h3 class="anchored" data-anchor-id="accessing-the-data">Accessing the Data</h3>
-<div id="cell-3" class="cell" data-execution_count="43">
+<p>The primary goal of this brief study on the perceptron algorithm is to explore and investigate the processes under the hood of the perceptron algorithm <span class="math inline">\(-\)</span> one of the oldest machine learning algorithms to exist. The functionality of and logic behind the perceptron algorithm is a backbone to many modern ML methods and models. It is crucial to develop at least a basic understanding of how perceptron works and why it’s design is as such. This introductory dive into the inner-workings of perceptron involves examining the conditions in which the algorithm is successful, the conditions in which the algorithm must be manually adjusted to prevent non-convergence, various ways the algorithm can be refined to operate on more complex data, and the general limitations and implications associated with this algorithm.</p>
+<section id="generating-data" class="level3">
+<h3 class="anchored" data-anchor-id="generating-data">Generating Data</h3>
+<div id="cell-3" class="cell" data-execution_count="60">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Includuing all additional imports</span></span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> cross_val_score, train_test_split</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> LinearSegmentedColormap</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> folktables <span class="im">import</span> ACSDataSource, BasicProblem</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.tree <span class="im">import</span> DecisionTreeClassifier</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.svm <span class="im">import</span> SVC</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> itertools</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieving the data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.svm <span class="im">import</span> SVC</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch <span class="im">as</span> tch</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> itertools</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Porting over perceptron implementation</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> perceptron <span class="im">import</span> Perceptron, PerceptronOptimizer</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating the data - Some code borrowed from Prof. Chodrow</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">## Linearly separable 2D data</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>y1 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>X1 <span class="op">=</span> y1[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.2</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">2</span>))</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>X1 <span class="op">=</span> tch.cat((X1, tch.ones((X1.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">## Not linearly separable 2D data</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>y2 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>X2 <span class="op">=</span> y2[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.3</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">2</span>))</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>X2 <span class="op">=</span> tch.cat((X2, tch.ones((X2.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co">## 6D data</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>y3 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>X3 <span class="op">=</span> y3[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.2</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">6</span>))</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>X3 <span class="op">=</span> tch.cat((X3, tch.ones((X3.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload</code></pre>
 </div>
-<p><em>Including all additional imports</em></p>
-<p>Description of the Data.</p>
+</div>
+<p><em>Code above generates three random data sets: 1. Linearly separable data with two features. 2. Not linearly separable data with two features. 3. Possibly linearly separable data with 6 features</em></p>
+<p>To test and investigate the perceptron algorithm, I have created three random datasets. The first data set has two features and is intentionally linearly separable <span class="math inline">\(-\)</span> the perceptron algorithm should converge to a loss of 0 for this dataset. The second data set also has two features but is intentionally <em>not</em> linearly separable <span class="math inline">\(-\)</span> the perceptron algorithm will not be able to converge to a loss of 0 for this data set and will need to be manually terminated after a certain number of iterations. The third data set has 6 features and is used to show how the perceptron works with data that can’t be easily visualized <span class="math inline">\(-\)</span> this dataset is possibly linearly separable.</p>
 </section>
-<section id="exploring-the-data" class="level3">
-<h3 class="anchored" data-anchor-id="exploring-the-data">Exploring the data</h3>
-<div id="cell-6" class="cell" data-execution_count="44">
+<section id="implementing-the-perceptron-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="implementing-the-perceptron-algorithm">Implementing the Perceptron Algorithm</h3>
+<p>For this introductory study, I have implemented a rudimentary version of the perceptron algorithm. This implementation involves three class definitions: <code>LinearModel</code>, <code>Perceptron</code>, and <code>PerceptronOptimizer</code>.</p>
+<p><strong><code>LinearModel</code></strong>: - <code>self.w</code>: An instance variable to store the weights vector of a linear model - <code>score(X)</code>: Method to compute the score <span class="math inline">\(s_i\)</span> for each data point in the feature matrix <span class="math inline">\(\bold{X}\)</span> - <code>predict(X)</code>: Method to compute the classification prediction <span class="math inline">\(\hat{y}_i\)</span> <span class="math inline">\(\in\{0, 1\}\)</span> for each data point</p>
+<p><strong><code>Perceptron</code> (inherits from <code>LinearModel</code>)</strong>: - <code>loss(X, y)</code>: Method to compute the misclassification rate in the data <span class="math inline">\(-\)</span> A point i is classified correctly if <span class="math inline">\(s_i\bar{y}_i &gt; 0\)</span>, where <span class="math inline">\(\bar{y}_i \in \{-1, 1\}\)</span> is the modified classification label. - <code>grad(x, y)</code>: Method to compute the perceptron update for a sampled data point - This method takes as arguments <code>x</code> <span class="math inline">\(-\)</span> the row of the feature matrix <span class="math inline">\(\bold{X}\)</span> corresponding to the sampled data point <span class="math inline">\(-\)</span> and <code>y</code> <span class="math inline">\(-\)</span> the classification target vector - This method first computes the score <span class="math inline">\(s_i\)</span> of the sampled data point with <span class="math inline">\(&lt;\bold{w}, x_i&gt;\)</span> - This method then computes the vector <span class="math inline">\(-I[s_i(2y_i - 1) &lt; 0]y_ix_i\)</span> which represents the perceptron update (moving the score <span class="math inline">\(s_i\)</span> closer to the target <span class="math inline">\(y_i\)</span>) with respect to the sampled data point. - Ultimately, this method computes an update to a sampled data point that later adjusts the weight vector of the perceptron algorithm to better fit the sampled data point</p>
+</section>
+<section id="evaluating-the-perceptron-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="evaluating-the-perceptron-implementation">Evaluating the Perceptron Implementation</h3>
+<div id="cell-7" class="cell" data-execution_count="61">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data exploration</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code provided by Prof. Chodrow</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Instantiate a model and an optimizer</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> Perceptron()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> PerceptronOptimizer(p)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the loss</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Keeping track of loss values</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>loss_vec <span class="op">=</span> []</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Iteration counter</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>j <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> X1.size()[<span class="dv">0</span>]</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (loss <span class="op">&gt;</span> <span class="dv">0</span>) <span class="kw">and</span> (j <span class="op">&lt;</span> <span class="dv">1000</span>):</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># not part of the update: just for tracking our progress    </span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> p.loss(X1, y1) </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    loss_vec.append(loss)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># pick a random data point</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> tch.randint(n, size <span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    x_i <span class="op">=</span> X1[[i],:]</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    y_i <span class="op">=</span> y1[i]</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># perform a perceptron update using the random data point</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    opt.step(x_i, y_i)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    j <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Observe the algorithm's performance</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Changing loss values:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(loss_vec)):</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Iteration: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss"> | Loss: </span><span class="sc">{</span>loss_vec[i]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-error">
+<div class="ansi-escaped-output">
+<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[61], line 28</span>
+<span class="ansi-green-fg ansi-bold">     25</span>     y_i <span style="color:rgb(98,98,98)">=</span> y1[i]
+<span class="ansi-green-fg ansi-bold">     27</span>     <span style="font-style:italic;color:rgb(95,135,135)"># perform a perceptron update using the random data point</span>
+<span class="ansi-green-fg">---&gt; 28</span>     <span class="ansi-yellow-bg">opt</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">step</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x_i</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y_i</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg ansi-bold">     29</span>     j <span style="color:rgb(98,98,98)">+</span><span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(98,98,98)">1</span>
+<span class="ansi-green-fg ansi-bold">     31</span> <span style="font-style:italic;color:rgb(95,135,135)"># Observe the algorithm's performance</span>
+
+File <span class="ansi-green-fg">~/Desktop/S_25/CSCI 0451A/Blog/Col-McDermott.github.io/posts/post_4/perceptron.py:102</span>, in <span class="ansi-cyan-fg">PerceptronOptimizer.step</span><span class="ansi-blue-fg">(self, X, y)</span>
+<span class="ansi-green-fg ansi-bold">    100</span> <span style="font-style:italic;color:rgb(95,135,135)"># Computing the loss for the sampled point</span>
+<span class="ansi-green-fg ansi-bold">    101</span> loss <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>model<span style="color:rgb(98,98,98)">.</span>loss(X, y)
+<span class="ansi-green-fg">--&gt; 102</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>model<span style="color:rgb(98,98,98)">.</span>w <span style="color:rgb(98,98,98)">-</span><span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>model<span style="color:rgb(98,98,98)">.</span>grad(x_i, y_i)
+
+<span class="ansi-red-fg">RuntimeError</span>: output with shape [3] doesn't match the broadcast shape [1, 3]</pre>
 </div>
-<p><em>Code description</em></p>
-<p>Description of exploring the data.</p>
-</section>
-<section id="constructing-the-model" class="level3">
-<h3 class="anchored" data-anchor-id="constructing-the-model">Constructing the Model</h3>
-<section id="data-preparation" class="level4">
-<h4 class="anchored" data-anchor-id="data-preparation">Data Preparation</h4>
-<div id="cell-10" class="cell" data-execution_count="45">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparing the data for the model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
-<p><em>Code description</em></p>
-<p>Description of the data preparation process.</p>
-</section>
-<section id="fitting-the-model" class="level4">
-<h4 class="anchored" data-anchor-id="fitting-the-model">Fitting the Model</h4>
-<div id="cell-13" class="cell" data-execution_count="46">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitting the model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
+<p><em>Code above checks the implementation of the perceptron algorithm</em></p>
+</section>
+<section id="experimenting-with-perceptron" class="level3">
+<h3 class="anchored" data-anchor-id="experimenting-with-perceptron">Experimenting With Perceptron</h3>
+<section id="linearly-separable-data" class="level5">
+<h5 class="anchored" data-anchor-id="linearly-separable-data">Linearly Separable Data</h5>
 <p><em>Code description</em></p>
-<p>Description of fitting the model.</p>
+<p>Analysis of perceptron on linearly separable data.</p>
 </section>
-<section id="refining-the-model" class="level4">
-<h4 class="anchored" data-anchor-id="refining-the-model">Refining the Model</h4>
-<div id="cell-16" class="cell" data-execution_count="47">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Refining the model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
+<section id="not-linearly-separable-data" class="level5">
+<h5 class="anchored" data-anchor-id="not-linearly-separable-data">Not Linearly Separable Data</h5>
 <p><em>Code description</em></p>
-<p>Analysis of refining the model.</p>
+<p>Analysis of perceptron on not linearly separable data.</p>
 </section>
-</section>
-<section id="model-accuracy-analysis" class="level3">
-<h3 class="anchored" data-anchor-id="model-accuracy-analysis">Model Accuracy Analysis</h3>
-<div id="cell-19" class="cell" data-execution_count="48">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculating various accuracy metrics</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
+<section id="higher-dimensional-data" class="level5">
+<h5 class="anchored" data-anchor-id="higher-dimensional-data">Higher-Dimensional Data</h5>
 <p><em>Code description</em></p>
-<p>Analysis of the model accuracy and performance.</p>
+<p>Analysis of perceptron on higher dimensional, possibly linearly separable data.</p>
 </section>
 </section>
-<section id="discussion" class="level1">
-<h1>Discussion</h1>
-<p>Analysis of findings from this study.</p>
+<section id="minibatch-perceptron" class="level3">
+<h3 class="anchored" data-anchor-id="minibatch-perceptron">Minibatch Perceptron</h3>
+<p><em>Code description</em></p>
+<p>Exploration of the minibatch perceptron algorithm.</p>
+<section id="minibatch-perceptron-experiments" class="level5">
+<h5 class="anchored" data-anchor-id="minibatch-perceptron-experiments">Minibatch Perceptron Experiments</h5>
+<p><em>Code Description</em></p>
+<p>Evaluation of the minibatch perceptron algorithm.</p>
+</section>
+</section>
+<section id="concluding-thoughts" class="level3">
+<h3 class="anchored" data-anchor-id="concluding-thoughts">Concluding Thoughts</h3>
+<p>Analysis of the findings from this study.</p>
 <p><em>During the implementation process of this replication study, I collaborated with _____.</em></p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
