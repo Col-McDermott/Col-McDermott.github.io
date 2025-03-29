@@ -1,5 +1,5 @@
 # Col McDermott
-# Implementation of Perceptron - Some code provided by Prof. Chodrow
+# Implementation of Minibatch Perceptron - Some code provided by Prof. Chodrow
 
 import torch as tch
 
@@ -46,7 +46,7 @@ class LinearModel:
         
         return (self.score(X) > 0.5).float()
 
-class Perceptron(LinearModel):
+class MBPerceptron(LinearModel):
 
     def loss(self, X, y):
         """
@@ -63,36 +63,54 @@ class Perceptron(LinearModel):
 
         return tch.mean(((self.score(X) * ((2 * y) - 1)) <= 0).float())
     
-    def grad(self, x, y):
+    def grad(self, X, y, lr):
         """
         Computes the perceptron update for a sampled point
 
         ARGUMENTS: 
-            x, tch.Tensor: the sampled row vector of the feature matrix. x.size() == (1, p), 
+            X, tch.Tensor: a submatrix of size k X p of the feature matrix. X.size() == (k, p), 
             where p is the number of features.
 
             y, tch.Tensor: the target vector.  y.size() = (n,). The possible labels for y are {0, 1}
+
+            lr: learning rate parameter
         """
         
-        # Calculating the score for the sampled data point
-        s_i = self.score(x)
-        
-        # The target corresponding to the sampled data point -- Might involve special indexing
-        return (-1 * (((s_i * (2 * y) - 1) < 0) * 1)) * (((2 * y - 1)) * x)[0]
+        # Calculating the score for each data point in the submatrix
+        s_k = self.score(X)
 
-class PerceptronOptimizer:
+        # Calculating the misclassification rate of the submatrix
+        mc = ((s_k * ((2 * y) - 1) < 0)) * 1
+        
+        # Calculating the submatrix row updates
+        ud = X * (((2 * y) - 1).reshape(-1, 1))
+    
+        # Determining if each row of the submatrix should be updated according its classification correctness
+        ur = mc.reshape(-1, 1) * ud
+
+        # Computing the average of the row updates
+        ur_avg = ur.mean(0, True)
+    
+        # Calculating the of the updates from the data points in the submatrix scaled by the learning rate
+        grad = -1 * ((lr * ur_avg)[0])
+
+        return grad
+
+class MBPerceptronOptimizer:
 
     def __init__(self, model):
         self.model = model 
     
-    def step(self, X, y):
+    def step(self, X, y, lr):
         """
         Compute one step of the perceptron update using a row of 
-        the feature matrix X and corresponding target vector value of y. 
+        the feature matrix X and corresponding target vector value of y.
+
+        lr: learning rate parameter to pass to grad() method 
         """
 
         # Computing the loss for the sampled point and conducting a the next perceptron step is necessary
         if self.model.loss(X, y) > 0:
-            self.model.w -= self.model.grad(X, y)
+            self.model.w -= self.model.grad(X, y, lr)
             return 1
         return 0

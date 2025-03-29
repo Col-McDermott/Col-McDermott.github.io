@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Col McDermott">
-<meta name="dcterms.date" content="2025-03-26">
-<meta name="description" content="An introductory exploration of the Perceptron algorithm – FINISH.">
+<meta name="dcterms.date" content="2025-03-31">
+<meta name="description" content="An introductory exploration of the Perceptron algorithm.">
 
 <title>Post 4 - Implementing Perceptron – Middlebury College CSCI 0451 Blog - Col McDermott</title>
 <style>
@@ -195,7 +195,7 @@ window.Quarto = {
       <h1 class="title">Post 4 - Implementing Perceptron</h1>
                   <div>
         <div class="description">
-          An introductory exploration of the Perceptron algorithm – FINISH.
+          An introductory exploration of the Perceptron algorithm.
         </div>
       </div>
                 </div>
@@ -214,7 +214,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">March 26, 2025</p>
+        <p class="date">March 31, 2025</p>
       </div>
     </div>
     
@@ -235,156 +235,792 @@ window.Quarto = {
 
 <section id="abstract" class="level1">
 <h1>Abstract</h1>
-<p>The primary goal of this brief study on the perceptron algorithm is to explore and investigate the processes under the hood of the perceptron algorithm <span class="math inline">\(-\)</span> one of the oldest machine learning algorithms to exist. The functionality of and logic behind the perceptron algorithm is a backbone to many modern ML methods and models. It is crucial to develop at least a basic understanding of how perceptron works and why it’s design is as such. This introductory dive into the inner-workings of perceptron involves examining the conditions in which the algorithm is successful, the conditions in which the algorithm must be manually adjusted to prevent non-convergence, various ways the algorithm can be refined to operate on more complex data, and the general limitations and implications associated with this algorithm.</p>
-<section id="generating-data" class="level3">
-<h3 class="anchored" data-anchor-id="generating-data">Generating Data</h3>
-<div id="cell-3" class="cell" data-execution_count="4">
+<p>The primary goal of this brief study on perceptron is to explore and investigate the processes under the hood of this algorithm <span class="math inline">\(-\)</span> one of the oldest machine learning algorithms to exist. The functionality of and logic behind the perceptron algorithm is a backbone of many modern ML methods and models. It is crucial to develop at least a basic understanding of how perceptron works and why its design is as such. This introductory dive into the inner workings of perceptron involves examining the conditions in which the algorithm is successful, the conditions in which the algorithm must be manually adjusted to prevent non-convergence, various ways the algorithm can be refined to operate on more complex data, and the general limitations and implications associated with this algorithm. Over several experiments involving multiple datasets with different key characteristics (such as linear separability and number involved variables), my implementation of the perceptron algorithm is analyzed. With low-dimensional, linearly separable data, I found perceptron to perform with high accuracy (usually perfect) over a relatively small number of iterations. However, with more complex and or not linearly separable data, the algorithm’s performance decreased in accuracy and or runtime. Yet, using an alternative version of perceptron allowed for the mitigation of some of the flaws exhibited by the original algorithm on certain datasets</p>
+<p>For the implementation of the original and enhanced perceptron algorithms, visit <a href="">perceptron.py</a> and <a href="">MBperceptron.py</a>.</p>
+<section id="generating-data" class="level2">
+<h2 class="anchored" data-anchor-id="generating-data">Generating Data</h2>
+<div id="cell-3" class="cell" data-execution_count="310">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> cross_val_score, train_test_split</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> LinearSegmentedColormap</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.svm <span class="im">import</span> SVC</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch <span class="im">as</span> tch</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> itertools</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Porting over perceptron implementation</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> perceptron <span class="im">import</span> Perceptron, PerceptronOptimizer</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating the data - Some code borrowed from Prof. Chodrow</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">## Linearly separable 2D data</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>y1 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>X1 <span class="op">=</span> y1[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.2</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">2</span>))</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>X1 <span class="op">=</span> tch.cat((X1, tch.ones((X1.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">## Not linearly separable 2D data</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>y2 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>X2 <span class="op">=</span> y2[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.3</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">2</span>))</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>X2 <span class="op">=</span> tch.cat((X2, tch.ones((X2.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co">## 6D data</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>y3 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>X3 <span class="op">=</span> y3[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.2</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">6</span>))</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>X3 <span class="op">=</span> tch.cat((X3, tch.ones((X3.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> LinearSegmentedColormap</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch <span class="im">as</span> tch</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Porting over perceptron and minibatch perceptron implementations</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> perceptron <span class="im">import</span> Perceptron, PerceptronOptimizer</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> MBperceptron <span class="im">import</span> MBPerceptron, MBPerceptronOptimizer</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>tch.manual_seed(<span class="dv">100</span>) <span class="co"># For consistent data generation</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>) <span class="co"># For consistent plotting</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating the data - Some code provided by Prof. Chodrow</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">## Linearly separable 2D data</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>y1 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>X1 <span class="op">=</span> y1[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.2</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">2</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>X1 <span class="op">=</span> tch.cat((X1, tch.ones((X1.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Not linearly separable 2D data</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>y2 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>X2 <span class="op">=</span> y2[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.4</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">2</span>))</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>X2 <span class="op">=</span> tch.cat((X2, tch.ones((X2.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 6D data, low-noise</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>y3 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>X3 <span class="op">=</span> y3[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.2</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">6</span>))</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>X3 <span class="op">=</span> tch.cat((X3, tch.ones((X3.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 6D data, high-noise</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>y4 <span class="op">=</span> tch.arange(<span class="dv">500</span>) <span class="op">&gt;=</span> <span class="bu">int</span>(<span class="dv">500</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>X4 <span class="op">=</span> y4[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, <span class="fl">0.5</span>, size <span class="op">=</span> (<span class="dv">500</span>, <span class="dv">6</span>))</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>X4 <span class="op">=</span> tch.cat((X4, tch.ones((X4.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>The autoreload extension is already loaded. To reload it, use:
   %reload_ext autoreload</code></pre>
 </div>
 </div>
-<p><em>Code above generates three random data sets: 1. Linearly separable data with two features. 2. Not linearly separable data with two features. 3. Possibly linearly separable data with 6 features</em></p>
-<p>To test and investigate the perceptron algorithm, I have created three random datasets. The first data set has two features and is intentionally linearly separable <span class="math inline">\(-\)</span> the perceptron algorithm should converge to a loss of 0 for this dataset. The second data set also has two features but is intentionally <em>not</em> linearly separable <span class="math inline">\(-\)</span> the perceptron algorithm will not be able to converge to a loss of 0 for this data set and will need to be manually terminated after a certain number of iterations. The third data set has 6 features and is used to show how the perceptron works with data that can’t be easily visualized <span class="math inline">\(-\)</span> this dataset is possibly linearly separable.</p>
-</section>
-<section id="implementing-the-perceptron-algorithm" class="level3">
-<h3 class="anchored" data-anchor-id="implementing-the-perceptron-algorithm">Implementing the Perceptron Algorithm</h3>
-<p>For this introductory study, I have implemented a rudimentary version of the perceptron algorithm. This implementation involves three class definitions: <code>LinearModel</code>, <code>Perceptron</code>, and <code>PerceptronOptimizer</code>.</p>
-<p><strong><code>LinearModel</code></strong>: - <code>self.w</code>: An instance variable to store the weights vector of a linear model - <code>score(X)</code>: Method to compute the score <span class="math inline">\(s_i\)</span> for each data point in the feature matrix <strong><span class="math inline">\(X\)</span></strong> - <code>predict(X)</code>: Method to compute the classification prediction <span class="math inline">\(\hat{y}_i\)</span> <span class="math inline">\(\in\{0, 1\}\)</span> for each data point</p>
-<p><strong><code>Perceptron</code> (inherits from <code>LinearModel</code>)</strong>: - <code>loss(X, y)</code>: Method to compute the misclassification rate in the data <span class="math inline">\(-\)</span> A point i is classified correctly if <span class="math inline">\(s_i\bar{y}_i &gt; 0\)</span>, where <span class="math inline">\(\bar{y}_i \in \{-1, 1\}\)</span> is the modified classification label. - <code>grad(x, y)</code>: Method to compute the perceptron update for a sampled data point - This method takes as arguments <code>x</code> <span class="math inline">\(-\)</span> the row of the feature matrix <strong><span class="math inline">\(X\)</span></strong> corresponding to the sampled data point <span class="math inline">\(-\)</span> and <code>y</code> <span class="math inline">\(-\)</span> the classification target vector - This method first computes the score <span class="math inline">\(s_i\)</span> of the sampled data point with <span class="math inline">\(&lt;\)</span><strong><span class="math inline">\(w\)</span></strong><span class="math inline">\(, x_i&gt;\)</span> - This method then computes the vector <span class="math inline">\(-I[s_i(2y_i - 1) &lt; 0]y_ix_i\)</span> which represents the perceptron update (moving the score <span class="math inline">\(s_i\)</span> closer to the target <span class="math inline">\(y_i\)</span>) with respect to the sampled data point. - Ultimately, this method computes an update to a sampled data point that later adjusts the weight vector of the perceptron algorithm to better fit the sampled data point</p>
-</section>
-<section id="evaluating-the-perceptron-implementation" class="level3">
-<h3 class="anchored" data-anchor-id="evaluating-the-perceptron-implementation">Evaluating the Perceptron Implementation</h3>
-<div id="cell-7" class="cell" data-execution_count="5">
+<div id="cell-4" class="cell" data-execution_count="311">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code provided by Prof. Chodrow</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Instantiate a model and an optimizer</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> Perceptron()</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> PerceptronOptimizer(p)</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Some code provided by Prof. Chodrow</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_perceptron_data(X, y, ax):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> X.shape[<span class="dv">1</span>] <span class="op">==</span> <span class="dv">3</span>, <span class="st">"This function only works for data created with p_dims == 2"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    targets <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>]</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    markers <span class="op">=</span> [<span class="st">"o"</span> , <span class="st">","</span>]</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the loss</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Keeping track of loss values</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>loss_vec <span class="op">=</span> []</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Iteration counter</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>j <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> X1.size()[<span class="dv">0</span>]</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (loss <span class="op">&gt;</span> <span class="dv">0</span>) <span class="kw">and</span> (j <span class="op">&lt;</span> <span class="dv">1000</span>):</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># not part of the update: just for tracking our progress    </span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> p.loss(X1, y1) </span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    loss_vec.append(loss)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># pick a random data point</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> tch.randint(n, size <span class="op">=</span> (<span class="dv">1</span>,))</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    x_i <span class="op">=</span> X1[[i],:]</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    y_i <span class="op">=</span> y1[i]</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># perform a perceptron update using the random data point</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    opt.step(x_i, y_i)</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    j <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Observe the algorithm's performance</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Changing loss values:</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(loss_vec)):</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Iteration: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss"> | Loss: </span><span class="sc">{</span>loss_vec[i]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Custom color map</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    colors <span class="op">=</span> [<span class="st">"purple"</span>, <span class="st">"darkorange"</span>]  </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    cmap <span class="op">=</span> LinearSegmentedColormap.from_list(<span class="st">"my_cmap"</span>, colors, N<span class="op">=</span><span class="dv">256</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        ix <span class="op">=</span> y <span class="op">==</span> targets[i]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        ax.scatter(X[ix,<span class="dv">0</span>], X[ix,<span class="dv">1</span>], s <span class="op">=</span> <span class="dv">20</span>,  c <span class="op">=</span> <span class="dv">2</span><span class="op">*</span>y[ix]<span class="op">-</span><span class="dv">1</span>, facecolors <span class="op">=</span> <span class="st">"none"</span>, edgecolors <span class="op">=</span> <span class="st">"none"</span>, cmap <span class="op">=</span> cmap, vmin <span class="op">=</span> <span class="op">-</span><span class="dv">2</span>, vmax <span class="op">=</span> <span class="dv">2</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>, marker <span class="op">=</span> markers[i])</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"$x_1$"</span>, ylabel <span class="op">=</span> <span class="vs">r"$x_2$"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plot_perceptron_data(X1, y1, ax[<span class="dv">0</span>])</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>plot_perceptron_data(X2, y2, ax[<span class="dv">1</span>])</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Linearly Separable Data"</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"Not Linearly Separable Data"</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Visualizations of the Generated Linearly Separable and Not Linearly Separable Data of Two Variables"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-error">
-<div class="ansi-escaped-output">
-<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-Cell <span class="ansi-green-fg">In[5], line 28</span>
-<span class="ansi-green-fg ansi-bold">     25</span>     y_i <span style="color:rgb(98,98,98)">=</span> y1[i]
-<span class="ansi-green-fg ansi-bold">     27</span>     <span style="font-style:italic;color:rgb(95,135,135)"># perform a perceptron update using the random data point</span>
-<span class="ansi-green-fg">---&gt; 28</span>     <span class="ansi-yellow-bg">opt</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">step</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">x_i</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">y_i</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg ansi-bold">     29</span>     j <span style="color:rgb(98,98,98)">+</span><span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(98,98,98)">1</span>
-<span class="ansi-green-fg ansi-bold">     31</span> <span style="font-style:italic;color:rgb(95,135,135)"># Observe the algorithm's performance</span>
-
-File <span class="ansi-green-fg">~/Desktop/S_25/CSCI 0451A/Blog/Col-McDermott.github.io/posts/post_4/perceptron.py:102</span>, in <span class="ansi-cyan-fg">PerceptronOptimizer.step</span><span class="ansi-blue-fg">(self, X, y)</span>
-<span class="ansi-green-fg ansi-bold">    100</span> <span style="font-style:italic;color:rgb(95,135,135)"># Computing the loss for the sampled point</span>
-<span class="ansi-green-fg ansi-bold">    101</span> loss <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>model<span style="color:rgb(98,98,98)">.</span>loss(X, y)
-<span class="ansi-green-fg">--&gt; 102</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>model<span style="color:rgb(98,98,98)">.</span>w <span style="color:rgb(98,98,98)">-</span><span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>model<span style="color:rgb(98,98,98)">.</span>grad(x_i, y_i)
-
-<span class="ansi-red-fg">RuntimeError</span>: output with shape [3] doesn't match the broadcast shape [1, 3]</pre>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
+</figure>
 </div>
 </div>
 </div>
-<p><em>Code above checks the implementation of the perceptron algorithm</em></p>
+<p><em>Code above generates four random data sets: 1. Linearly separable data with two features. 2. Not linearly separable data with two features. 3. &amp; 4. Possibly linearly separable data with 6 features (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p>To test and investigate the perceptron algorithm, I have created four random datasets. The first data set has two features and is intentionally linearly separable <span class="math inline">\(-\)</span> the perceptron algorithm should converge to a loss of 0 for this dataset. The second data set also has two features but is intentionally <em>not</em> linearly separable <span class="math inline">\(-\)</span> the perceptron algorithm will not be able to converge to a loss of 0 for this data set and will need to be manually terminated after a certain number of iterations. The third and fourth datasets have 6 features and are used to show how the perceptron works with data that can’t be easily visualized <span class="math inline">\(-\)</span> the third dataset is linearly separable due to its low-noise factor while the fourth dataset is likely not linearly separable due to its high-noise factor.</p>
 </section>
-<section id="experimenting-with-perceptron" class="level3">
-<h3 class="anchored" data-anchor-id="experimenting-with-perceptron">Experimenting With Perceptron</h3>
-<section id="linearly-separable-data" class="level5">
-<h5 class="anchored" data-anchor-id="linearly-separable-data">Linearly Separable Data</h5>
-<p><em>Code description</em></p>
-<p>Analysis of perceptron on linearly separable data.</p>
+<section id="implementing-the-perceptron-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="implementing-the-perceptron-algorithm">Implementing the Perceptron Algorithm</h2>
+<p>For this introductory study, I have implemented a rudimentary version of the perceptron algorithm. This implementation involves three class definitions: <code>LinearModel</code>, <code>Perceptron</code>, and <code>PerceptronOptimizer</code>.</p>
+<p><strong><code>LinearModel</code></strong>:</p>
+<ul>
+<li><code>self.w</code>: An instance variable to store the weights vector of a linear model.</li>
+<li><code>score(X)</code>: Method to compute the score <span class="math inline">\(s_i\)</span> using <span class="math inline">\(\langle\)</span><strong><span class="math inline">\(w\)</span></strong><span class="math inline">\(, x_i\rangle\)</span> for each data point in the feature matrix <strong><span class="math inline">\(X\)</span></strong>.</li>
+<li><code>predict(X)</code>: Method to compute the classification prediction <span class="math inline">\(\hat{y}_i\)</span> <span class="math inline">\(\in\{0, 1\}\)</span> for each data point:
+<ul>
+<li><span class="math inline">\(\hat{y_i} = 1\)</span> if (<span class="math inline">\(s_i &gt; 0\)</span>) and <span class="math inline">\(\hat{y_i} = 0\)</span> otherwise.</li>
+</ul></li>
+</ul>
+<p><strong><code>Perceptron</code></strong> (inherits from <strong><code>LinearModel</code></strong>):</p>
+<ul>
+<li><code>loss(X, y)</code>: Method to compute the misclassification rate in the data by taking the average number of misclassification instances <span class="math inline">\(-\)</span> A point <span class="math inline">\(x_i\)</span> is classified correctly if <span class="math inline">\(s_iy_i' &gt; 0\)</span>, where <span class="math inline">\(y_i' \in \{-1, 1\}\)</span> is the modified classification label (computed with <span class="math inline">\(2y_i - 1\)</span>).</li>
+<li><code>grad(x, y)</code>: Method to compute the perceptron update for a sampled data point.
+<ul>
+<li>This method takes as arguments <code>x</code>: the row of the feature matrix <strong><span class="math inline">\(X\)</span></strong> corresponding to the sampled data point <span class="math inline">\(-\)</span> and <code>y</code>: the classification target vector.</li>
+<li>This method first computes the score <span class="math inline">\(s_i\)</span> of the sampled data point with <span class="math inline">\(\langle\)</span><strong><span class="math inline">\(w\)</span></strong><span class="math inline">\(, x_i\rangle\)</span>.</li>
+<li>This method then computes the vector <span class="math inline">\(-\mathbf{1}[s_i(2y_i - 1) &lt; 0](2y_i - 1)x_i\)</span> which represents the perceptron update (moving the score <span class="math inline">\(s_i\)</span> closer to the target <span class="math inline">\(y_i\)</span>) with respect to the sampled data point. This vector, which represents the gradient of the loss function, is defined by three components:
+<ol type="1">
+<li><span class="math inline">\(\mathbf{1}[s_i(2y_i - 1) &lt; 0]\)</span> indicates whether or not the current data point <span class="math inline">\(x_i\)</span> is correctly classified. If the point <span class="math inline">\(x_i\)</span> is correctly classified, the whole vector evaluates to <span class="math inline">\([\mathbf{0}]\)</span>, and thus no changes are made to the current weights vector, <span class="math inline">\(\mathbf{w}\)</span>. If the point <span class="math inline">\(x_i\)</span> is incorrectly classified, the vector evaluates to <span class="math inline">\(-(2y_i - 1)x_i\)</span> which will change <span class="math inline">\(\mathbf{w}\)</span>.</li>
+<li><span class="math inline">\((2y_i - 1)x_i\)</span> represents the update to the score data point <span class="math inline">\(x_i\)</span> that occurs in the event of a misclassification (i.e.&nbsp;moving <span class="math inline">\(s_i\)</span> closer to the value of <span class="math inline">\(y_i\)</span>).</li>
+<li>Lastly, the preceding “<span class="math inline">\(-\)</span>” indicates that if the point <span class="math inline">\(x_i\)</span> is misclassified, the vector <span class="math inline">\(\mathbf{w}\)</span> needs to be updated in the <strong>opposite</strong> direction of the gradient of the loss function.</li>
+</ol></li>
+<li>Ultimately, this method computes an update to a sampled data point that later adjusts the weight vector of the perceptron algorithm to better fit the sampled data point.</li>
+</ul></li>
+</ul>
 </section>
-<section id="not-linearly-separable-data" class="level5">
-<h5 class="anchored" data-anchor-id="not-linearly-separable-data">Not Linearly Separable Data</h5>
-<p><em>Code description</em></p>
-<p>Analysis of perceptron on not linearly separable data.</p>
+<section id="evaluating-the-perceptron-implementation" class="level2">
+<h2 class="anchored" data-anchor-id="evaluating-the-perceptron-implementation">Evaluating the Perceptron Implementation</h2>
+<div id="cell-8" class="cell" data-execution_count="312">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Method to evaluate the perceptron algorithm - Some code provided by Prof. Chodrow</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> perceptron_test(X, y, max_it, verbose):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Instantiate a model and an optimizer</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> Perceptron()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> PerceptronOptimizer(p)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize the loss</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Keeping track of loss values (length of this array is also the number of algorithm iterations)</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    loss_vec <span class="op">=</span> []</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> X.size()[<span class="dv">0</span>]</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (loss <span class="op">&gt;</span> <span class="dv">0</span>):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Termination condition</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (max_it <span class="op">!=</span> <span class="va">None</span>) <span class="kw">and</span> (<span class="bu">len</span>(loss_vec) <span class="op">&gt;=</span> max_it):</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Tracking the evolution of the loss function</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> p.loss(X, y) </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        loss_vec.append(loss)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Selecting a random data point</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        i <span class="op">=</span> tch.randint(n, size <span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        x_i <span class="op">=</span> X[[i],:]</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        y_i <span class="op">=</span> y[i]</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Performing perceptron update using the random data point</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        opt.step(x_i, y_i)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (verbose):</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Observe the algorithm's performance with the evolution of the loss function</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Evolution of loss values:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Iteration: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss"> | Loss: </span><span class="sc">{</span>loss_vec[i]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"...</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Total Iterations: </span><span class="sc">{</span><span class="bu">len</span>(loss_vec)<span class="sc">}</span><span class="ss"> | Final Loss: </span><span class="sc">{</span>loss_vec[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="cell-9" class="cell" data-execution_count="313">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating perceptron on 2D, linearly separable data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pe1 <span class="op">=</span> perceptron_test(X1, y1, <span class="va">None</span>, <span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Evolution of loss values:
+
+Iteration: 0 | Loss: 0.5
+Iteration: 1 | Loss: 0.1860000044107437
+Iteration: 2 | Loss: 0.1860000044107437
+Iteration: 3 | Loss: 0.1860000044107437
+Iteration: 4 | Loss: 0.1860000044107437
+...
+
+Total Iterations: 1282 | Final Loss: 0.0</code></pre>
+</div>
+</div>
+<p><em>Code above checks the implementation of the perceptron algorithm on a linearly separable dataset of two variables (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p>In the above code cell, the implementation of the perceptron algorithm is tested on the generated 2D, linearly separable data. Considering that this data is linearly separable, the algorithm should be able to converge to a loss of <span class="math inline">\(0\)</span> with a finite number of iterations. In the output above, the evolution of the loss value across the first five (or less if appropriate) iterations of the perceptron algorithm followed by the loss value at the algorithm’s final iteration is displayed. This output aligns with the expected behavior of the algorithm as the loss value is shown to decrease during the initial iterations and eventually converge to a value of <span class="math inline">\(0\)</span>.</p>
 </section>
-<section id="higher-dimensional-data" class="level5">
-<h5 class="anchored" data-anchor-id="higher-dimensional-data">Higher-Dimensional Data</h5>
-<p><em>Code description</em></p>
-<p>Analysis of perceptron on higher dimensional, possibly linearly separable data.</p>
+<section id="experimenting-with-perceptron" class="level2">
+<h2 class="anchored" data-anchor-id="experimenting-with-perceptron">Experimenting With Perceptron</h2>
+<div id="cell-12" class="cell" data-execution_count="314">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting helper method provided by Prof. Chodrow</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw_line(w, x_min, x_max, ax, <span class="op">**</span>kwargs):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    w_ <span class="op">=</span> w.flatten()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> tch.linspace(x_min, x_max, <span class="dv">101</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="op">-</span><span class="dv">1</span> <span class="op">*</span> (((w_[<span class="dv">0</span>] <span class="op">*</span> x) <span class="op">+</span> w_[<span class="dv">2</span>])<span class="op">/</span>w_[<span class="dv">1</span>])</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    ax.plot(x, y, <span class="op">**</span>kwargs)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to plot the behavior of the perceptron algorithm</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> perceptron_plotter(X, y, max_it, dim):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Code Provided by Prof. Chodrow</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Initialize a perceptron </span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> Perceptron()</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> PerceptronOptimizer(p)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    p.loss(X, y)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize for main loop</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bookkeeping arrays</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    loss_vec <span class="op">=</span> []</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    updated_losses <span class="op">=</span> []</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    old_w_vals <span class="op">=</span> []</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    new_w_vals <span class="op">=</span> []</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    sampled_points <span class="op">=</span> []</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    update_its <span class="op">=</span> []</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> X.size()[<span class="dv">0</span>]</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> loss <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Terminating condition</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (max_it <span class="op">!=</span> <span class="va">None</span>) <span class="kw">and</span> (<span class="bu">len</span>(loss_vec) <span class="op">&gt;=</span> max_it):</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> p.loss(X, y).item()</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        loss_vec.append(loss)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Save the current value of w for plotting later</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>        curr_w <span class="op">=</span> tch.clone(p.w)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sample random data point</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>        i <span class="op">=</span> tch.randint(n, size <span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>        x_i <span class="op">=</span> X[[i],:]</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>        y_i <span class="op">=</span> y[i]</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Make an optimization step - Now p.w is the new weight vector</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>        step <span class="op">=</span> opt.step(x_i, y_i)</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> step <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>            sampled_points.append(i)</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>            old_w_vals.append(curr_w)</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>            new_w_vals.append(tch.clone(p.w))</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>            updated_loss <span class="op">=</span> p.loss(X, y).item()</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>            updated_losses.append(updated_loss)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>            update_its.append((<span class="bu">len</span>(loss_vec)))</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>    filler <span class="op">=</span> <span class="st">" Not "</span> <span class="cf">if</span> (loss_vec[<span class="op">-</span><span class="dv">1</span>] <span class="op">&gt;</span> <span class="dv">0</span>) <span class="cf">else</span> <span class="st">" "</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (dim <span class="op">&lt;=</span> <span class="dv">2</span>):</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Plotting the algorithm procedure</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        plt.rcParams[<span class="st">"figure.figsize"</span>] <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">7.5</span>)</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>        current_ax <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>        fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, sharex <span class="op">=</span> <span class="va">True</span>, sharey <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        markers <span class="op">=</span> [<span class="st">"o"</span>, <span class="st">","</span>]</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>        marker_map <span class="op">=</span> {<span class="op">-</span><span class="dv">1</span> : <span class="dv">0</span>, <span class="dv">1</span> : <span class="dv">1</span>}</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>            ax <span class="op">=</span> axarr.ravel()[current_ax]</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>            plot_perceptron_data(X, y, ax)</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>            draw_line(old_w_vals[i], x_min <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>, x_max <span class="op">=</span> <span class="dv">2</span>, ax <span class="op">=</span> ax, color <span class="op">=</span> <span class="st">"slategray"</span>, linestyle <span class="op">=</span> <span class="st">"dashed"</span>)</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>            draw_line(new_w_vals[i], x_min <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>, x_max <span class="op">=</span> <span class="dv">2</span>, ax <span class="op">=</span> ax, color <span class="op">=</span> <span class="st">"slategray"</span>)</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>            ax.scatter(X[sampled_points[i],<span class="dv">0</span>],X[sampled_points[i],<span class="dv">1</span>], color <span class="op">=</span> <span class="st">"slategray"</span>, facecolors <span class="op">=</span> <span class="st">"none"</span>, edgecolors <span class="op">=</span> <span class="st">"black"</span>, marker <span class="op">=</span> markers[marker_map[<span class="dv">2</span> <span class="op">*</span> (y1[sampled_points[i]].item()) <span class="op">-</span> <span class="dv">1</span>]])</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>            ax.set_title(<span class="ss">f"Current Overall</span><span class="ch">\n</span><span class="ss">Loss = </span><span class="sc">{</span>updated_losses[i]<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>            ax.<span class="bu">set</span>(xlim <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>), ylim <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>            ax.text(<span class="op">-</span><span class="fl">0.55</span>, <span class="fl">1.55</span>, <span class="ss">f"Iteration: </span><span class="sc">{</span>update_its[i]<span class="sc">}</span><span class="ss">"</span>, bbox <span class="op">=</span> <span class="bu">dict</span>(facecolor <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>, edgecolor <span class="op">=</span> <span class="st">"gray"</span>, boxstyle <span class="op">=</span> <span class="st">"round,pad=0.3"</span>))</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>            current_ax <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> axarr.ravel()[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>        plot_perceptron_data(X, y, ax)</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>        draw_line(new_w_vals[<span class="op">-</span><span class="dv">1</span>], x_min <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>, x_max <span class="op">=</span> <span class="dv">2</span>, ax <span class="op">=</span> ax, color <span class="op">=</span> <span class="st">"slategray"</span>)</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f"Final Overall</span><span class="ch">\n</span><span class="ss">Loss = </span><span class="sc">{</span>loss_vec[<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(xlim <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>), ylim <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>        ax.text(<span class="op">-</span><span class="fl">0.55</span>, <span class="fl">1.55</span>, <span class="ss">f"Iteration: </span><span class="sc">{</span><span class="bu">len</span>(loss_vec)<span class="sc">}</span><span class="ss">"</span>, bbox <span class="op">=</span> <span class="bu">dict</span>(facecolor <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>, edgecolor <span class="op">=</span> <span class="st">"gray"</span>, boxstyle <span class="op">=</span> <span class="st">"round,pad=0.3"</span>))</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>        fig.suptitle(<span class="st">"Convergence of Loss Value and Separation Line for 2D"</span> <span class="op">+</span> filler <span class="op">+</span> <span class="st">"Linearly Separable Data"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>        fig.text(<span class="fl">0.5</span>, <span class="fl">0.005</span>, <span class="st">"Sampled Points at the Current Iteration are Outlined in Black"</span>, ha <span class="op">=</span> <span class="st">"center"</span>, va <span class="op">=</span> <span class="st">"center"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>        plt.tight_layout()</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [loss_vec, update_its]</span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the model loss values - Code provided by Prof. Chodrow</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_plotter(loss_vec, update_its):</span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>    ax.plot(loss_vec, color <span class="op">=</span> <span class="st">"slategray"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>    ax.scatter(tch.arange(<span class="bu">len</span>(loss_vec)), loss_vec, color <span class="op">=</span> <span class="st">"purple"</span>)</span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(update_its)):</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>        ax.scatter(update_its[i], loss_vec[update_its[i]], color <span class="op">=</span> <span class="st">"darkorange"</span>)</span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"Model Loss Value"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Perceptron Iteration"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="st">"Model Loss Values Across Perceptron Iterations"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="fl">0.0</span>, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="linearly-separable-data" class="level3">
+<h3 class="anchored" data-anchor-id="linearly-separable-data">Linearly Separable Data</h3>
+<div id="cell-14" class="cell" data-execution_count="315">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tch.manual_seed(<span class="dv">100</span>) <span class="co"># For consistent random sampling</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of perceptron on 2D, linearly separable data</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>lv1 <span class="op">=</span> perceptron_plotter(X1, y1, <span class="va">None</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above re-runs the perceptron algorithm on 2D linearly separable data and plots the algorithm’s progress, displaying the previous separation line, the sampled point, and the updated separation line. The first 5 update-invoking iterations are displayed followed by the final iteration (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Figure 2</strong>:</p>
+<p>The subplots above display the behavior of the perceptron algorithm on linearly separable data of two variables. In the first five subplots, the first five update-invoking iterations of the perceptron algorithm are illustrated, highlighting the current loss value of the model, marking the randomly sampled point, and identifying both the previous separation line (i.e.&nbsp;the previous weights vector) and the updated separation line (i.e.&nbsp;the updated weight vector). In the last subplot, the loss value of the model and the separation line of the final iteration of the algorithm is displayed. As expected, the final loss value is <span class="math inline">\(0\)</span> and the final separation line perfectly separates the two groups of data points.</p>
+<div id="cell-16" class="cell" data-execution_count="316">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the loss values on 2D, linearly separable data</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>loss_plotter(lv1[<span class="dv">0</span>], lv1[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above plots the changing model loss values across the iterations of the algorithm (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Figure 3</strong>:</p>
+<p>The plot above portrays the evolution of the loss value over all iterations of the perceptron algorithm acting on 2D linearly separable data. The loss values corresponding to the update-invoking iterations are marked in <span style="color:darkorange">orange</span>. As displayed in this plot, the loss value generally decreases as the number of algorithm iterations increases. And, supported by the last subplot in <strong>Figure 2</strong>, the final loss value is <span class="math inline">\(0\)</span>.</p>
+</section>
+<section id="not-linearly-separable-data" class="level3">
+<h3 class="anchored" data-anchor-id="not-linearly-separable-data">Not Linearly Separable Data</h3>
+<div id="cell-19" class="cell" data-execution_count="317">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting perceptron behavior on 2D, not linearly separable data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>lv2 <span class="op">=</span> perceptron_plotter(X2, y2, <span class="dv">1000</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above mimics the plots in <strong>Figure 2</strong> but instead depicts the behavior of perceptron on 2D data that is not linearly separable (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Figure 4</strong></p>
+<p>The subplots above display the behavior of the perceptron algorithm on data of two variables that is <strong>not</strong> linearly separable. Similarly to <strong>Figure 2</strong>, the first five subplots show the first five update-invoking iterations of the perceptron algorithm. Each subplot highlights the current loss value of the model, marks the randomly sampled point, and identifies both the previous separation line (i.e.&nbsp;the previous weights vector) and the updated separation line (i.e.&nbsp;the updated weight vector). Again, the loss value of the model and the separation line of the final iteration (the last allotted iteration in this case as controlled by the <code>max_it</code> parameter) of the algorithm is displayed in the last subplot. As expected, the final loss value is <span class="math inline">\(&gt;0\)</span> and the final separation line does not perfectly separate the two groups of data points.</p>
+<div id="cell-21" class="cell" data-execution_count="318">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the loss value on 2D, not linearly separable data</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>loss_plotter(lv2[<span class="dv">0</span>], lv2[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above plots the changing model loss values across the updating iterations of the algorithm (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Figure 5</strong>:</p>
+<p>The plot above portrays the evolution of the loss value over all iterations of the perceptron algorithm acting on 2D not linearly separable data. The loss values corresponding to the update-invoking iterations are marked in <span style="color:darkorange">orange</span>. As displayed in this plot, the loss value generally decreases as the number of algorithm iterations increases. However, within the number of allotted iterations, the loss value fails to converge to <span class="math inline">\(0\)</span>. This is supported by the last subplot in <strong>Figure 4</strong> showing the final loss value to be <span class="math inline">\(&gt;0\)</span>.</p>
+</section>
+<section id="higher-dimensional-data" class="level3">
+<h3 class="anchored" data-anchor-id="higher-dimensional-data">Higher-Dimensional Data</h3>
+<div id="cell-24" class="cell" data-execution_count="319">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating perceptron on 6D, low-noise data</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>lv3 <span class="op">=</span> perceptron_plotter(X3, y3, <span class="va">None</span>, <span class="dv">6</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>loss_plotter(lv3[<span class="dv">0</span>], lv3[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above displays the evolution of the model loss value on low-noise 6D data (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Figure 6</strong></p>
+<p>The plot above again shows the evolution in the loss function value over the iterations of the perceptron algorithm acting on low-noise data of six variables (update-invoking iterations are again marked in <span style="color:darkorange">orange</span>). In this case, perceptron is being run on a dataset of six variables generated to have low noise. As indicated by the rightmost point in the above plot, the perceptron algorithm seems to converge to a loss value of <span class="math inline">\(0\)</span> even when iterating over a dataset of a higher dimension. Given this, it appears that the low-noise, 6-variable data is linearly separable.</p>
+<div id="cell-26" class="cell" data-execution_count="320">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating Perceptron on 6D, high-noise data</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>lv4 <span class="op">=</span> perceptron_plotter(X4, y4, <span class="dv">1000</span>, <span class="dv">6</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>loss_plotter(lv4[<span class="dv">0</span>], lv4[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above displays the evolution of the model loss value on high-noise 6D data (some code provided by Prof.&nbsp;Chodrow)</em></p>
+<p><strong>Figure 7</strong></p>
+<p>The above plot now shows the evolution in the loss function value over the iterations of the perceptron algorithm <span class="math inline">\(-\)</span> run on a dataset of six variables generated to have high noise (update-invoking iterations are again marked in <span style="color:darkorange">orange</span>). As indicated by the rightmost point in the above plot, the perceptron algorithm seems unable to converge to a loss value of <span class="math inline">\(0\)</span> within the allotted number of iterations. Given this, it appears that the high-noise, 6-variable is not linearly separable. Overall, it seems that the behavior of the perceptron algorithm on higher-dimensional data is analogous to that of lower-dimensional data with respect to linear separability.</p>
 </section>
 </section>
-<section id="minibatch-perceptron" class="level3">
-<h3 class="anchored" data-anchor-id="minibatch-perceptron">Minibatch Perceptron</h3>
-<p><em>Code description</em></p>
-<p>Exploration of the minibatch perceptron algorithm.</p>
-<section id="minibatch-perceptron-experiments" class="level5">
-<h5 class="anchored" data-anchor-id="minibatch-perceptron-experiments">Minibatch Perceptron Experiments</h5>
-<p><em>Code Description</em></p>
-<p>Evaluation of the minibatch perceptron algorithm.</p>
+<section id="minibatch-perceptron" class="level2">
+<h2 class="anchored" data-anchor-id="minibatch-perceptron">Minibatch Perceptron</h2>
+<p>An alternate version of the perceptron algorithm is the “minibatch perceptron”. During a step, minibatch perceptron computes an average update vector from a batch of randomly sampled data points rather than a single update for a single data point. With a batch size of <span class="math inline">\(k\)</span>, the minibatch perceptron update formula is the following (note that <span class="math inline">\(s_{k_i}\)</span> is the score of data point <span class="math inline">\(x_{k_i}\)</span> given by <span class="math inline">\(\langle\)</span><strong><span class="math inline">\(w\)</span></strong><span class="math inline">\(, x_{k_i}\rangle\)</span>):</p>
+<p><span class="math display">\[
+w^{(t + 1)} = w^{(t)} + \frac{\alpha}{k}\sum_{i = 1}^{k}\mathbf{1}[s_{k_i}(2y_{k_i} - 1) &lt; 0](2y_{k_i} - 1)x_{k_i}
+\]</span></p>
+<div id="cell-30" class="cell" data-execution_count="321">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Method to evaluate the minibatch perceptron algorithm - Some code provided by Prof. Chodrow</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MBperceptron_test(X, y, k, max_it, lr, verbose):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Instantiate a model and an optimizer</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    mbp <span class="op">=</span> MBPerceptron()</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> MBPerceptronOptimizer(mbp)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize the loss</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bookkeeping arrays</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    loss_vec <span class="op">=</span> []</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    updated_losses <span class="op">=</span> []</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    old_w_vals <span class="op">=</span> []</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    new_w_vals <span class="op">=</span> []</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    update_its <span class="op">=</span> []</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (loss <span class="op">&gt;</span> <span class="dv">0</span>):</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Terminating condition</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (max_it <span class="op">!=</span> <span class="va">None</span>) <span class="kw">and</span> (<span class="bu">len</span>(loss_vec) <span class="op">&gt;=</span> max_it):</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> mbp.loss(X, y).item()</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>        loss_vec.append(loss)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Save the current value of w for plotting later</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>        curr_w <span class="op">=</span> tch.clone(mbp.w)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Selecting a batch of random data points</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>        ix <span class="op">=</span> tch.randperm(X.size(<span class="dv">0</span>))[:k]</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>        X_k <span class="op">=</span> X[ix,:]</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>        y_k <span class="op">=</span> y[ix]</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Make an optimization step - Now p.w is the new weight vector</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>        step <span class="op">=</span> opt.step(X_k, y_k, lr)</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> step <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>            old_w_vals.append(curr_w)</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>            new_w_vals.append(tch.clone(mbp.w))</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>            updated_loss <span class="op">=</span> mbp.loss(X, y).item()</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>            updated_losses.append(updated_loss)</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>            update_its.append((<span class="bu">len</span>(loss_vec)))</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (verbose):</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Observe the algorithm's performance with the evolution of the loss function</span></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Evolution of loss values (with batchsize k = </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">):</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Iteration: </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss"> | Loss: </span><span class="sc">{</span>loss_vec[i]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"...</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Total Iterations: </span><span class="sc">{</span><span class="bu">len</span>(loss_vec)<span class="sc">}</span><span class="ss"> | Final Loss: </span><span class="sc">{</span>loss_vec[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [loss_vec, update_its]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="cell-31" class="cell" data-execution_count="322">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating perceptron on 2D, linearly separable data</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>mbp_eval <span class="op">=</span> MBperceptron_test(X1, y1, <span class="dv">5</span>, <span class="va">None</span>, <span class="fl">0.5</span>, <span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Evolution of loss values (with batchsize k = 5):
+
+Iteration: 0 | Loss: 0.492000013589859
+Iteration: 1 | Loss: 0.4359999895095825
+Iteration: 2 | Loss: 0.3720000088214874
+Iteration: 3 | Loss: 0.17599999904632568
+Iteration: 4 | Loss: 0.03200000151991844
+...
+
+Total Iterations: 164 | Final Loss: 0.0
+</code></pre>
+</div>
+</div>
+<p><em>Code above evaluates the minibatch perceptron on a given dataset, with batch size <code>k</code> and allotted iteration <code>max_it</code> adjustable (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p>As displayed by the output above, when operating on 2D, linearly separable data, the minibatch perceptron algorithm is able to successfully converge to a loss value of <span class="math inline">\(0\)</span>. That is, the minibatch perceptron is able to determine the exact separation line for the two groups found in the data. Note that with a batch size of <span class="math inline">\(k = 5\)</span>, the minibatch perceptron converges over <span class="math inline">\(1000\)</span> fewer iterations than the standard perceptron.</p>
+</section>
+<section id="experimenting-with-minibatch-perceptron" class="level2">
+<h2 class="anchored" data-anchor-id="experimenting-with-minibatch-perceptron">Experimenting With Minibatch Perceptron</h2>
+<section id="with-batch-size-k-1" class="level3">
+<h3 class="anchored" data-anchor-id="with-batch-size-k-1">With Batch Size <span class="math inline">\(k = 1\)</span></h3>
+<div id="cell-34" class="cell" data-execution_count="323">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the model loss values - Code provided by Prof. Chodrow</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MBloss_plotter(ds1, ds2):</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">7.5</span>))</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].plot(ds1[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"slategray"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].scatter(tch.arange(<span class="bu">len</span>(ds1[<span class="dv">0</span>])), ds1[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"purple"</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(ds1[<span class="dv">1</span>])):</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">0</span>].scatter(ds1[<span class="dv">1</span>][i], ds1[<span class="dv">0</span>][ds1[<span class="dv">1</span>][i]], color <span class="op">=</span> <span class="st">"darkorange"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_ylabel(<span class="st">"Model Loss Value"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_title(<span class="st">"Linearly Separable Data"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].axhline(<span class="fl">0.0</span>, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_xlabel(<span class="st">"M.B. Perceptron Iteration"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (ds2 <span class="op">!=</span> <span class="va">None</span>):</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].plot(ds2[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"gray"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].scatter(tch.arange(<span class="bu">len</span>(ds2[<span class="dv">0</span>])), ds2[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"purple"</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(ds2[<span class="dv">1</span>])):</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>            ax[<span class="dv">1</span>].scatter(ds2[<span class="dv">1</span>][i], ds2[<span class="dv">0</span>][ds2[<span class="dv">1</span>][i]], color <span class="op">=</span> <span class="st">"darkorange"</span>)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].set_xlabel(<span class="st">"M.B. Perceptron Iteration"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Model Loss Value"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].set_title(<span class="st">"Not Linearly Separable Data"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].axhline(<span class="fl">0.0</span>, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">"Model Loss Values Across Minibatch Perceptron Iterations"</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="cell-35" class="cell" data-execution_count="324">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 2D, linearly separable data -- k = 1</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 2D, linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>mbp_ex1 <span class="op">=</span> MBperceptron_test(X1, y1, <span class="dv">1</span>, <span class="va">None</span>, <span class="fl">0.5</span>, <span class="va">True</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 2D, not linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>mbp_ex2 <span class="op">=</span> MBperceptron_test(X2, y2, <span class="dv">1</span>, <span class="dv">1000</span>, <span class="fl">0.5</span>, <span class="va">True</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>MBloss_plotter(mbp_ex1, mbp_ex2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>On 2D, linearly separable data:
+
+Evolution of loss values (with batchsize k = 1):
+
+Iteration: 0 | Loss: 0.5
+Iteration: 1 | Loss: 0.47600001096725464
+Iteration: 2 | Loss: 0.47600001096725464
+Iteration: 3 | Loss: 0.47600001096725464
+Iteration: 4 | Loss: 0.014000000432133675
+...
+
+Total Iterations: 135 | Final Loss: 0.0
+
+On 2D, not linearly separable data:
+
+Evolution of loss values (with batchsize k = 1):
+
+Iteration: 0 | Loss: 0.4740000069141388
+Iteration: 1 | Loss: 0.4740000069141388
+Iteration: 2 | Loss: 0.3179999887943268
+Iteration: 3 | Loss: 0.15600000321865082
+Iteration: 4 | Loss: 0.15600000321865082
+...
+
+Total Iterations: 1000 | Final Loss: 0.07800000160932541
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-16-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above displays the evolution of the model loss value on both linearly separable and not linearly separable 2D data using the minibatch perceptron alg. with batchsize <span class="math inline">\(k = 1\)</span> (some code provided by Prof.&nbsp;Chodrow)</em></p>
+<p><strong>Figure 8</strong></p>
+<p>The figures above illustrates the evolution of the loss value of the minibatch perceptron algorithm as it iterates over both linearly separable and not linearly separable 2D data (update-invoking iterations are again marked in <span style="color:darkorange">orange</span>). With a batch size <span class="math inline">\(k = 1\)</span>, the minibatch perceptron algorithm behaves exactly like the standard perceptron algorithm. That is, it converges to a loss value of <span class="math inline">\(0\)</span> with linearly separable data and fails to converge to a loss value of <span class="math inline">\(0\)</span> with not linearly separable data (in the number of allotted iterations).</p>
+<div id="cell-37" class="cell" data-execution_count="325">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 6D, linearly separable data -- k = 1</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 6D, linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>mbp_ex3 <span class="op">=</span> MBperceptron_test(X3, y3, <span class="dv">1</span>, <span class="va">None</span>, <span class="fl">0.5</span>, <span class="va">True</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 6D, not linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>mbp_ex4 <span class="op">=</span> MBperceptron_test(X4, y4, <span class="dv">1</span>, <span class="dv">1000</span>, <span class="fl">0.5</span>, <span class="va">True</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>MBloss_plotter(mbp_ex3, mbp_ex4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>On 6D, linearly separable data:
+
+Evolution of loss values (with batchsize k = 1):
+
+Iteration: 0 | Loss: 0.3959999978542328
+Iteration: 1 | Loss: 0.09399999678134918
+Iteration: 2 | Loss: 0.09399999678134918
+Iteration: 3 | Loss: 0.09399999678134918
+Iteration: 4 | Loss: 0.09399999678134918
+...
+
+Total Iterations: 27 | Final Loss: 0.0
+
+On 6D, not linearly separable data:
+
+Evolution of loss values (with batchsize k = 1):
+
+Iteration: 0 | Loss: 0.27399998903274536
+Iteration: 1 | Loss: 0.27399998903274536
+Iteration: 2 | Loss: 0.27399998903274536
+Iteration: 3 | Loss: 0.1080000028014183
+Iteration: 4 | Loss: 0.1080000028014183
+...
+
+Total Iterations: 1000 | Final Loss: 0.004000000189989805
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-17-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above displays the evolution of the model loss value on both linearly separable and not linearly separable 6D data using the minibatch perceptron alg. with batchsize <span class="math inline">\(k = 1\)</span> (some code provided by Prof.&nbsp;Chodrow)</em></p>
+<p><strong>Figure 9</strong></p>
+<p>The figures above illustrates the evolution of the loss value of the minibatch perceptron algorithm as it iterates over both linearly separable and not linearly separable 6D data (update-invoking iterations are again marked in <span style="color:darkorange">orange</span>). With a batch size <span class="math inline">\(k = 1\)</span>, the minibatch perceptron algorithm again behaves similarly to the standard perceptron algorithm. That is, it converges to a loss value of <span class="math inline">\(0\)</span> with linearly separable data and fails to converge to a loss value of <span class="math inline">\(0\)</span> with not linearly separable data (in the number of allotted iterations).</p>
+</section>
+<section id="with-batch-size-k-10" class="level3">
+<h3 class="anchored" data-anchor-id="with-batch-size-k-10">With Batch Size <span class="math inline">\(k = 10\)</span></h3>
+<div id="cell-40" class="cell" data-execution_count="326">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the model loss values - Code provided by Prof. Chodrow - MODIFIED METHOD</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MBloss_plotter_m(ds1, ds2, nls): <span class="co"># nls: linear separability of the data set indicator parameter </span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    filler <span class="op">=</span>  <span class="st">" Not "</span> <span class="cf">if</span> nls <span class="cf">else</span> <span class="st">" "</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">7.5</span>))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].plot(ds1[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"slategray"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].scatter(tch.arange(<span class="bu">len</span>(ds1[<span class="dv">0</span>])), ds1[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"purple"</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(ds1[<span class="dv">1</span>])):</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">0</span>].scatter(ds1[<span class="dv">1</span>][i], ds1[<span class="dv">0</span>][ds1[<span class="dv">1</span>][i]], color <span class="op">=</span> <span class="st">"darkorange"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_ylabel(<span class="st">"Model Loss Value"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_title(<span class="st">"2D Data"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].axhline(<span class="fl">0.0</span>, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_xlabel(<span class="st">"M.B. Perceptron Iteration"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (ds2 <span class="op">!=</span> <span class="va">None</span>):</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].plot(ds2[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"gray"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].scatter(tch.arange(<span class="bu">len</span>(ds2[<span class="dv">0</span>])), ds2[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"purple"</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(ds2[<span class="dv">1</span>])):</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>            ax[<span class="dv">1</span>].scatter(ds2[<span class="dv">1</span>][i], ds2[<span class="dv">0</span>][ds2[<span class="dv">1</span>][i]], color <span class="op">=</span> <span class="st">"darkorange"</span>)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].set_xlabel(<span class="st">"M.B. Perceptron Iteration"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Model Loss Value"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].set_title(<span class="st">"6D Data"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>        ax[<span class="dv">1</span>].axhline(<span class="fl">0.0</span>, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">"Model Loss Values Across Minibatch Perceptron Iterations on"</span> <span class="op">+</span> filler <span class="op">+</span> <span class="st">"Linearly Separable Data"</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="cell-41" class="cell" data-execution_count="327">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 6D, linearly separable data -- k = 10</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 2D, linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>mbp_ex5 <span class="op">=</span> MBperceptron_test(X1, y1, <span class="dv">10</span>, <span class="va">None</span>, <span class="fl">0.5</span>, <span class="va">True</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 6D, linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>mbp_ex6 <span class="op">=</span> MBperceptron_test(X3, y3, <span class="dv">10</span>, <span class="va">None</span>, <span class="fl">0.5</span>, <span class="va">True</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>MBloss_plotter_m(mbp_ex5, mbp_ex6, <span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>On 2D, linearly separable data:
+
+Evolution of loss values (with batchsize k = 10):
+
+Iteration: 0 | Loss: 0.5
+Iteration: 1 | Loss: 0.5
+Iteration: 2 | Loss: 0.5
+Iteration: 3 | Loss: 0.44200000166893005
+Iteration: 4 | Loss: 0.07999999821186066
+...
+
+Total Iterations: 281 | Final Loss: 0.0
+
+On 6D, linearly separable data:
+
+Evolution of loss values (with batchsize k = 10):
+
+Iteration: 0 | Loss: 0.25
+Iteration: 1 | Loss: 0.2160000056028366
+Iteration: 2 | Loss: 0.1860000044107437
+Iteration: 3 | Loss: 0.15600000321865082
+Iteration: 4 | Loss: 0.13600000739097595
+...
+
+Total Iterations: 207 | Final Loss: 0.0
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-19-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above displays the evolution of the model loss value on linearly separable of both 2D and 6D data using the minibatch perceptron alg. with batchsize <span class="math inline">\(k = 10\)</span> (some code provided by Prof.&nbsp;Chodrow)</em></p>
+<p><strong>Figure 10</strong></p>
+<p>The figures above illustrates the evolution of the loss value of the minibatch perceptron algorithm as it iterates linearly separable 2D and 6D data (update-invoking iterations are again marked in <span style="color:darkorange">orange</span>). With a batch size <span class="math inline">\(k = 10\)</span>, the minibatch perceptron algorithm is able to find the exact separation line of the data groups as indicated by the final loss value of <span class="math inline">\(0\)</span>. Interestingly, the number of iterations the minibatch perceptron takes while operating on both the linearly separable datasets is larger than that of the standard perceptron algorithm.</p>
+</section>
+<section id="with-batch-size-k-n" class="level3">
+<h3 class="anchored" data-anchor-id="with-batch-size-k-n">With Batch Size <span class="math inline">\(k = n\)</span></h3>
+<div id="cell-44" class="cell" data-execution_count="328">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 6D, not linearly separable data -- k = n</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 2D, not linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>mbp_ex7 <span class="op">=</span> MBperceptron_test(X2, y2, X2.shape[<span class="dv">0</span>], <span class="dv">100000</span>, <span class="fl">1e-3</span>, <span class="va">True</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"On 6D, not linearly separable data:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>mbp_ex8 <span class="op">=</span> MBperceptron_test(X4, y4, X4.shape[<span class="dv">0</span>], <span class="dv">100000</span>, <span class="fl">1e-3</span>, <span class="va">True</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">7.5</span>))</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(mbp_ex7[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"purple"</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ax[0].scatter(tch.arange(len(mbp_ex7[0])), mbp_ex7[0], color = "purple")</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"Model Loss Value"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"2D Data"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].axhline(<span class="fl">0.0</span>, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].axhline(<span class="bu">min</span>(mbp_ex7[<span class="dv">0</span>]), color <span class="op">=</span> <span class="st">"darkred"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"M.B. Perceptron Iteration"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (mbp_ex8 <span class="op">!=</span> <span class="va">None</span>):</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].plot(mbp_ex8[<span class="dv">0</span>], color <span class="op">=</span> <span class="st">"darkorange"</span>)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ax[1].scatter(tch.arange(len(mbp_ex8[0])), mbp_ex8[0], color = "purple")</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].set_xlabel(<span class="st">"M.B. Perceptron Iteration"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Model Loss Value"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].set_title(<span class="st">"6D Data"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].axhline(<span class="fl">0.0</span>, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].axhline(<span class="bu">min</span>(mbp_ex8[<span class="dv">0</span>]), color <span class="op">=</span> <span class="st">"darkred"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Model Loss Values Across Minibatch Perceptron Iterations on Not Linearly Separable Data"</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>On 2D, not linearly separable data:
+
+Evolution of loss values (with batchsize k = 500):
+
+Iteration: 0 | Loss: 0.4819999933242798
+Iteration: 1 | Loss: 0.4819999933242798
+Iteration: 2 | Loss: 0.4819999933242798
+Iteration: 3 | Loss: 0.4819999933242798
+Iteration: 4 | Loss: 0.4819999933242798
+...
+
+Total Iterations: 100000 | Final Loss: 0.03999999910593033
+
+On 6D, not linearly separable data:
+
+Evolution of loss values (with batchsize k = 500):
+
+Iteration: 0 | Loss: 0.3700000047683716
+Iteration: 1 | Loss: 0.3700000047683716
+Iteration: 2 | Loss: 0.3700000047683716
+Iteration: 3 | Loss: 0.3700000047683716
+Iteration: 4 | Loss: 0.3700000047683716
+...
+
+Total Iterations: 44649 | Final Loss: 0.0
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-20-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above displays the evolution of the model loss value on not linearly separable of both 2D and 6D data using the minibatch perceptron alg. with batchsize <span class="math inline">\(k = n\)</span> (some code provided by Prof.&nbsp;Chodrow)</em></p>
+<p><strong>Figure 11</strong></p>
+<p>The figures above illustrates the evolution of the loss value of the minibatch perceptron algorithm as it iterates over not linearly separable 2D and 6D data. The purpose of this experiment is to observe whether or not this algorithm will converge on data that is not linearly separable given a small enough learning rate <span class="math inline">\(\alpha\)</span>. In this case, the learning rate is set to <span class="math inline">\(\alpha = 0.001\)</span>. With a batch size <span class="math inline">\(k = n\)</span>, the minibatch perceptron algorithm does appear to converge (note that <span class="math inline">\(100000\)</span> iterations were allotted). For the 2D data, the algorithm is unable to achieve a loss value of <span class="math inline">\(0\)</span>, but visually converges to a loss value of approximately <span class="math inline">\(0.36\)</span>. Interestingly, on the 6D data, the algorithm also converges and does seem to achieve a loss value of <span class="math inline">\(0\)</span>. In general, it appears that the minibatch perceptron is still able to converge to some decreased loss value even when operating on data that is not linearly separable (that’s cool!).</p>
 </section>
 </section>
-<section id="concluding-thoughts" class="level3">
-<h3 class="anchored" data-anchor-id="concluding-thoughts">Concluding Thoughts</h3>
-<p>Analysis of the findings from this study.</p>
-<p><em>During the implementation process of this replication study, I collaborated with _____.</em></p>
+<section id="runtime-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="runtime-analysis">Runtime Analysis</h2>
+<p><strong>Standard Perceptron Algorithm</strong>:</p>
+<p>During a given step of the standard perceptron algorithm, two primary computations occur. First, the current loss value of the linear model is calculated. The loss calculation involves computing the score of each data point in the feature matrix <span class="math inline">\(\mathbf{X}\)</span>, multiplying each score <span class="math inline">\(s_i\)</span> by the corresponding modified target <span class="math inline">\(y_i'\)</span>, and checking if <span class="math inline">\(s_iy_i' &gt; 0\)</span>. Then, the average of all values <span class="math inline">\(s_iy_i' &gt; 0\)</span> is taken. Note that the loss calculation has a complexity of <span class="math inline">\(O(p)\)</span> as there are <span class="math inline">\(p\)</span> elements (features) in each row of <span class="math inline">\(\mathbf{X}\)</span>. The second computation of a step involves subtracting the current gradient of the loss function from the current weights vector. Similarly, computing the gradient has a complexity of <span class="math inline">\(O(p)\)</span>. Overall, the complexity of a step of the standard perceptron algorithm is <span class="math inline">\(O(p)\)</span> where <span class="math inline">\(p\)</span> is the number of features in a given row of the feature matrix <span class="math inline">\(\mathbf{X}\)</span>.</p>
+<p><strong>Minibatch Perceptron Algorithm</strong>:</p>
+<p>In general, the processes of a given step of the minibatch perceptron algorithm are identical to those of the standard algorithm, only they are computed using a random submatrix (size <span class="math inline">\(k\)</span> x <span class="math inline">\(p\)</span>) of <span class="math inline">\(\mathbf{X}\)</span> instead of a single row. Given this, the minibatch perceptron performs essentially the same computations as the standard algorithm but <span class="math inline">\(k\)</span> times. Therefore, the complexity of a given step of the minibatch perceptron algorithm is <span class="math inline">\(O(kp)\)</span> where <span class="math inline">\(k\)</span> is the number of rows in the sampled submatrix of <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(p\)</span> is the number of features in a given row of <span class="math inline">\(\mathbf{X}\)</span>.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>The general purpose of this study was to investigate and explore a famous, widely recognized, and foundational machine learning algorithm: Perceptron. To dive into this cornerstone procedure of ML, I implemented two basic versions of this algorithm.</p>
+<p>My initial implementation is a representation of the standard perceptron. With this algorithm, I examined how it behaved on data sets of different variables and linear separability. As expected, I found that the standard algorithm performed well (usually perfectly) when tasked with classifying linearly separable data, regardless of the data’s dimensional complexity. Additionally as expected, I found that the standard algorithm struggled to achieve perfect accuracy on data that is not linearly separable, again regardless of the data’s dimensional complexity.</p>
+<p>The other implementation represents an alternative version of the perceptron algorithm known as the “minibatch perceptron”. This alternative algorithm is similar to the standard version, but differs in its computation of an “update”. The minibatch perceptron takes in a batch of random data points to update by, instead of a single random data point like the standard algorithm. With a batch size of <span class="math inline">\(1\)</span>, I found the minibatch perceptron to perform exactly like the standard perceptron. As I increased the batch size, I observed that the minibatch algorithm was still able to achieve a loss value of <span class="math inline">\(0\)</span> and identify the exact separation line for linearly separable data. Interestingly, when setting the batch size equal to the total number of data points, I found that this alternative version of the algorithm was able to converge to a loss value equal to or smaller than that of the standard algorithm even when operating on data that is not linearly separable.</p>
+<p>Overall, this study gave me the opportunity to dive into several key processes of ML under the hood and gain some initial experience with gradient-based optimization methods.</p>
+<p><em>During the implementation process of this replication study, I collaborated with Omar Armbruster. For more information and documentation on my algorithm implementations, visit <a href="">perceptron.py</a> and <a href="">MBperceptron.py</a>.</em></p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
