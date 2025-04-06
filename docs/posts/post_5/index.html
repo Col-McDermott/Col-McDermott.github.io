@@ -246,10 +246,10 @@ window.Quarto = {
 </li>
 <li>Evaluating the efficacy of my logistic regression implementation on real-world, empirical data (using standard train-test-split, model fitting, and model scoring methods).</li>
 </ol>
-<p>For my implementation of logistic regression, check out <a href="">logistic.py</a>.</p>
+<p>For my implementation of logistic regression, check out <a href="https://github.com/Col-McDermott/Col-McDermott.github.io/blob/main/posts/post_5/logistic.py">logistic.py</a>.</p>
 <section id="implementing-logistic-regression" class="level2">
 <h2 class="anchored" data-anchor-id="implementing-logistic-regression">Implementing Logistic Regression</h2>
-<div id="cell-3" class="cell" data-execution_count="1155">
+<div id="cell-3" class="cell" data-execution_count="1193">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
@@ -310,7 +310,7 @@ L(\mathbf{w}) = \frac{1}{n}\sum_{i = 1}^n{[-y_ilog(\sigma(s_i)) - (1 - y_i)log(1
 <section id="experimenting-with-logistic-regression" class="level2">
 <h2 class="anchored" data-anchor-id="experimenting-with-logistic-regression">Experimenting With Logistic Regression</h2>
 <p>In order to conduct some basic experiments with my logistic regression implementation, it is necessary to generate some simulated data for a binary classification problem. This experiment data is generated and visualized in the code cell below:</p>
-<div id="cell-6" class="cell" data-execution_count="1156">
+<div id="cell-6" class="cell" data-execution_count="1194">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating data for binary classification - code provided by Prof. Chodrow</span></span>
@@ -351,7 +351,7 @@ L(\mathbf{w}) = \frac{1}{n}\sum_{i = 1}^n{[-y_ilog(\sigma(s_i)) - (1 - y_i)log(1
 <p><em>Code above generates some random binary classification data and visualizes the generated data (some code provided by Prof.&nbsp;Chodrow).</em></p>
 <p><strong>Figure 1</strong></p>
 <p>Above is a visualization of the generated binary classification data. While the data above does not appear to be highly conducive to perfectly separable decision boundaries, it still displays clear general regions of the two groups of data points.</p>
-<div id="cell-8" class="cell" data-execution_count="1157">
+<div id="cell-8" class="cell" data-execution_count="1195">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model interpretation helper methods</span></span>
@@ -435,7 +435,7 @@ L(\mathbf{w}) = \frac{1}{n}\sum_{i = 1}^n{[-y_ilog(\sigma(s_i)) - (1 - y_i)log(1
 <p><em>Code above defines plotting methods for observing the model’s empirical loss value evolution, the model’s accuracy, and the model’s classification decision boundaries (some code provided by Prof.&nbsp;Chodrow).</em></p>
 <section id="experiment-1-standard-gradient-descent" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-1-standard-gradient-descent">Experiment 1: Standard Gradient Descent</h3>
-<div id="cell-10" class="cell" data-execution_count="1158">
+<div id="cell-10" class="cell" data-execution_count="1196">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing vanilla gradient descent - some code provided by Prof. Chodrow</span></span>
@@ -494,7 +494,7 @@ Final Model Accuracy: 92.67%</code></pre>
 </div>
 <p><em>Code above conducts a standard gradient descent procedure with <span class="math inline">\(100\)</span> iterations using <code>LogisticRegression</code> and <code>GradientDescent</code> objects and outputs the results of every 20th iteration (some code provided by Prof.&nbsp;Chodrow)</em></p>
 <p>The output above highlights the model’s empirical loss value and accuracy at every 20th iteration (<span class="math inline">\(100\)</span> iterations total) during a standard gradient descent procedure. Over the optimization iterations displayed above, the model’s empirical loss value decreases while its accuracy increases.</p>
-<div id="cell-12" class="cell" data-execution_count="1159">
+<div id="cell-12" class="cell" data-execution_count="1197">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizing standard gradient descent</span></span>
@@ -511,7 +511,7 @@ Final Model Accuracy: 92.67%</code></pre>
 <p><em>Code above plots the evolution of the model’s empirical loss value across the optimization iterations of standard gradient descent.</em></p>
 <p><strong>Figure 2</strong></p>
 <p>As further shown in the figure above, the model’s empirical loss value decreases across each iteration of the optimization process. The initial empirical loss value is approximately <span class="math inline">\(0.86\)</span> while the post-optimization loss value is about <span class="math inline">\(0.5\)</span>, indicating a ~<span class="math inline">\(48\%\)</span> loss-value decrease. This suggests that my implementation of logistic regression works as is generally expected. That is, during a standard gradient procedure, the current linear model’s weights vector <span class="math inline">\(\mathbf{w}\)</span> yields a lower empirical loss value than that of the previous model during each iteration of optimization.</p>
-<div id="cell-14" class="cell" data-execution_count="1160">
+<div id="cell-14" class="cell" data-execution_count="1198">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the model accuracy</span></span>
@@ -528,7 +528,7 @@ Final Model Accuracy: 92.67%</code></pre>
 <p><em>Code above plots the model accuracy at each iteration of the standard gradient descent procedure above.</em></p>
 <p><strong>Figure 3</strong></p>
 <p>As displayed above, the accuracy of the model generally increases with each iteration of the gradient procedure, climbing from ~<span class="math inline">\(89\%\)</span> to ~<span class="math inline">\(93\%\)</span> accuracy. This aligns with the fact that the empirical loss value of the model is shown to decrease with each iteration of gradient descent. That is, the model’s accuracy and its empirical loss value are inversely related.</p>
-<div id="cell-16" class="cell" data-execution_count="1161">
+<div id="cell-16" class="cell" data-execution_count="1199">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the decision boundaries</span></span>
@@ -548,7 +548,7 @@ Final Model Accuracy: 92.67%</code></pre>
 </section>
 <section id="experiment-2-gradient-descent-with-momentum" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-2-gradient-descent-with-momentum">Experiment 2: Gradient Descent With Momentum</h3>
-<div id="cell-19" class="cell" data-execution_count="1162">
+<div id="cell-19" class="cell" data-execution_count="1200">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing gradient descent with momentum - some code provided by Prof. Chodrow</span></span>
@@ -626,7 +626,7 @@ Momentum Gradient Descent Converges at 47 Iterations</code></pre>
 </div>
 <p><em>Code above initializes <code>LogisticRegression</code> and <code>GradientDescentOptimizer</code> objects for both standard gradient descent and gradient descent with momentum optimizers. The output above shows convergence progress every <span class="math inline">\(20\)</span> iterations and depicts the number of optimization iterations needed for each gradient descent process to achieve a loss value <span class="math inline">\(&lt; 0.3\)</span> (some code provided by Prof.&nbsp;Chodrow).</em></p>
 <p>In this experiment, I compare the rate of convergence between the standard gradient descent and gradient descent with momentum procedures. For this experiment, I loosely define “convergence” to be when the optimized model’s empirical loss value is <span class="math inline">\(&lt; 0.3\)</span>. Note that for this analysis, I have set the hyperparameters to <span class="math inline">\(\alpha_s, \alpha_m = 0.1\)</span> for both optimizers and <span class="math inline">\(\beta_s = 0\)</span> (standard gradient descent), <span class="math inline">\(\beta_m = 0.9\)</span> (gradient descent with momentum). As presented in the output above, the gradient descent with momentum optimizer achieves a loss value <span class="math inline">\(&lt; 0.3\)</span> in significantly fewer iterations than that of the standard gradient descent optimizer. That is, the gradient descent with momentum process appears to converge in about <span class="math inline">\(\frac{1}{12}\)</span> of the iterations needed for the standard gradient descent process to converge.</p>
-<div id="cell-21" class="cell" data-execution_count="1163">
+<div id="cell-21" class="cell" data-execution_count="1201">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing the convergence rates of the two gradient descent methods</span></span>
@@ -647,7 +647,7 @@ Momentum Gradient Descent Converges at 47 Iterations</code></pre>
 <section id="experiment-3-investigating-overfitting" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-3-investigating-overfitting">Experiment 3: Investigating Overfitting</h3>
 <p>To observe an instance of my logistic regression implementation leading to overfitting, I have generated two new sets of binary classification data. The two new data sets are identically designed, where the number of features per data point exceeds the number of data points. One dataset will be used as the “training data” and the other the “testing data”.</p>
-<div id="cell-24" class="cell" data-execution_count="1164">
+<div id="cell-24" class="cell" data-execution_count="1202">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating binary classification data for overfitting - code provided by Prof. Chodrow</span></span>
@@ -656,7 +656,7 @@ Momentum Gradient Descent Converges at 47 Iterations</code></pre>
 </details>
 </div>
 <p><em>Code above generates the “training” and “testing” data sets for the overfitting experiment (some code provided by Prof.&nbsp;Chodrow).</em></p>
-<div id="cell-26" class="cell" data-execution_count="1165">
+<div id="cell-26" class="cell" data-execution_count="1203">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Investigating overfitting as the number of dimensions in the data grows past the number of data points</span></span>
@@ -690,7 +690,7 @@ Model Accuracy on Testing Data: 86.0%</code></pre>
 </div>
 <p><em>Code above conducts a model overfitting experiment by first setting the number of data features to be greater than the number of data points, then fitting a model using <code>LogisticRegression</code> and <code>GradientDescentOptimizer</code> objects, and finally comparing the model’s training-data performance to its testing-data performance.</em></p>
 <p>As indicated by the output above, the logistic regression model is able to achieve maximum classification accuracy on the training data in a fairly small number of iterations. However, when evaluated on the unseen testing data, the model’s accuracy drops significantly to about <span class="math inline">\(86\%\)</span>. This is clear sign of overfitting as the model’s flawless performance on the training data does not translate to its performance on the testing data.</p>
-<div id="cell-28" class="cell" data-execution_count="1166">
+<div id="cell-28" class="cell" data-execution_count="1204">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the model's training and testing accuracies as training accuracy approaches 100%</span></span>
@@ -711,7 +711,7 @@ Model Accuracy on Testing Data: 86.0%</code></pre>
 <section id="experiment-4-evaluating-the-performance-of-logisticregression-and-gradientdescentoptimizer-on-empirical-data" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-4-evaluating-the-performance-of-logisticregression-and-gradientdescentoptimizer-on-empirical-data">Experiment 4: Evaluating The Performance of <code>LogisticRegression</code> and <code>GradientDescentOptimizer</code> on Empirical Data</h3>
 <p>The final experiment in this brief study involves evaluating the performance of my logistic regression implementation on real-world data. For this experiment, I will be using a public data set published to <a href="https://www.kaggle.com/datasets/juice0lover/users-vs-bots-classification?resource=download">kaggle.com</a> by Aleksei Zagorskii. This dataset contains user profile data from the popular Russian social media and networking platform VKontakte (<a href="https://vk.com/">VK.com</a>) and is used to classify users as either real-human users or bots. The data features a combination of numerical and categorical information extracted from public <em>VK.com</em> user profiles.</p>
-<div id="cell-31" class="cell" data-execution_count="1167">
+<div id="cell-31" class="cell" data-execution_count="1205">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reading-in and processing the data to evaluate the model with</span></span>
@@ -762,7 +762,7 @@ Model Accuracy on Testing Data: 86.0%</code></pre>
 <li><code>target</code></li>
 </ol>
 <p>Before fitting my logistic regression models, the data is first standardized (using <span class="math inline">\(\frac{\mathbf{x} - \mu}{\sigma}\)</span> where <span class="math inline">\(\mu, \sigma\)</span> are the mean and STD. of the data). The purpose of this is to ensure numerical stability and optimization symmetry to support my logistic regression model’s ability to converge to an appropriate weights vector <span class="math inline">\(\mathbf{w}\)</span> and minimize the empirical loss function. Finally, the data is split into training (<span class="math inline">\(60\%\)</span> of original), validation (<span class="math inline">\(20\%\)</span> of original), and testing (<span class="math inline">\(20\%\)</span> of original) subsets.</p>
-<div id="cell-33" class="cell" data-execution_count="1168">
+<div id="cell-33" class="cell" data-execution_count="1206">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evlauating my logistic repression implementation on binary classification on the real-world data</span></span>
@@ -888,7 +888,7 @@ Accuracy (Momentum Gradient Descent): 85.97%
 <p>To evaluate my implementation of logistic regression on the real-world data, I fit two logistic regression models to the training data: One model is optimized with standard gradient descent and the other uses gradient descent with momentum. As displayed by the output above, the empirical losses for each model decrease over the iterations of gradient descent on both the training and validation data. Along these lines, the corresponding accuracies of each model gradually increase, which is expected.</p>
 <section id="training-data-empirical-loss-evolution-and-accuracies" class="level4">
 <h4 class="anchored" data-anchor-id="training-data-empirical-loss-evolution-and-accuracies"><strong>Training Data Empirical Loss Evolution and Accuracies</strong></h4>
-<div id="cell-36" class="cell" data-execution_count="1169">
+<div id="cell-36" class="cell" data-execution_count="1207">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the losses for training data</span></span>
@@ -905,7 +905,7 @@ Accuracy (Momentum Gradient Descent): 85.97%
 <p><em>Code above plots the loss value evolution for standard and momentum gradient descent on the training data.</em></p>
 <p><strong>Figure 7 (7a above &amp; 7b below)</strong></p>
 <p>Above shows the loss value evolution of the standard and momentum gradient descent models optimizing over the training data. As expected the loss values decrease over the optimization iterations for both models, but the model using momentum gradient descent minimizes the loss much faster. Below are the changing model accuracies for the training data. Inline with the plot above, the accuracies for each model improve during the optimization process, but the model using momentum gradient descent is able to achieve a higher accuracy faster than the model using standard gradient descent.</p>
-<div id="cell-38" class="cell" data-execution_count="1170">
+<div id="cell-38" class="cell" data-execution_count="1208">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the accuracies for training data</span></span>
@@ -925,7 +925,7 @@ Accuracy (Momentum Gradient Descent): 85.97%
 </section>
 <section id="validation-data-empirical-loss-evolution-and-accuracies" class="level4">
 <h4 class="anchored" data-anchor-id="validation-data-empirical-loss-evolution-and-accuracies"><strong>Validation Data Empirical Loss Evolution and Accuracies</strong></h4>
-<div id="cell-41" class="cell" data-execution_count="1171">
+<div id="cell-41" class="cell" data-execution_count="1209">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the losses for training data</span></span>
@@ -942,7 +942,7 @@ Accuracy (Momentum Gradient Descent): 85.97%
 <p><em>Code above plots the loss value evolution for standard and momentum gradient descent on the validation data.</em></p>
 <p><strong>Figure 8 (8a above &amp; 8b below)</strong></p>
 <p>Above shows the loss value evolution of the standard and momentum gradient descent models now optimizing over the validation data. Again as expected the loss values decrease over the optimization iterations for both models, and the model using momentum gradient descent continues to minimize the loss much faster. Below shows the changing model accuracies now for the validation data. Further aligned with the plot above, the accuracies for each model still improve during the optimization process, and the model using momentum gradient descent is again able to achieve a higher accuracy faster than the model using standard gradient descent.</p>
-<div id="cell-43" class="cell" data-execution_count="1172">
+<div id="cell-43" class="cell" data-execution_count="1210">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the accuracies for training data</span></span>
@@ -962,7 +962,7 @@ Accuracy (Momentum Gradient Descent): 85.97%
 </section>
 <section id="testing-data-empircal-loss-value-and-accuracy" class="level4">
 <h4 class="anchored" data-anchor-id="testing-data-empircal-loss-value-and-accuracy"><strong>Testing Data Empircal Loss Value and Accuracy</strong></h4>
-<div id="cell-46" class="cell" data-execution_count="1173">
+<div id="cell-46" class="cell" data-execution_count="1211">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating the loss and accuracy of each model on the testing data</span></span>
