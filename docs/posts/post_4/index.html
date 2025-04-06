@@ -239,7 +239,7 @@ window.Quarto = {
 <p>For the implementation of the original and enhanced perceptron algorithms, visit <a href="https://github.com/Col-McDermott/Col-McDermott.github.io/blob/main/posts/post_4/perceptron.py">perceptron.py</a> and <a href="https://github.com/Col-McDermott/Col-McDermott.github.io/blob/main/posts/post_4/MBperceptron.py">MBperceptron.py</a>.</p>
 <section id="generating-data" class="level2">
 <h2 class="anchored" data-anchor-id="generating-data">Generating Data</h2>
-<div id="cell-3" class="cell" data-execution_count="329">
+<div id="cell-3" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
@@ -281,7 +281,7 @@ window.Quarto = {
   %reload_ext autoreload</code></pre>
 </div>
 </div>
-<div id="cell-4" class="cell" data-execution_count="330">
+<div id="cell-4" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Some code provided by Prof. Chodrow</span></span>
@@ -349,7 +349,7 @@ window.Quarto = {
 </section>
 <section id="evaluating-the-perceptron-implementation" class="level2">
 <h2 class="anchored" data-anchor-id="evaluating-the-perceptron-implementation">Evaluating the Perceptron Implementation</h2>
-<div id="cell-8" class="cell" data-execution_count="331">
+<div id="cell-8" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Method to evaluate the perceptron algorithm - Some code provided by Prof. Chodrow</span></span>
@@ -393,7 +393,7 @@ window.Quarto = {
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Total Iterations: </span><span class="sc">{</span><span class="bu">len</span>(loss_vec)<span class="sc">}</span><span class="ss"> | Final Loss: </span><span class="sc">{</span>loss_vec[<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="cell-9" class="cell" data-execution_count="332">
+<div id="cell-9" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating perceptron on 2D, linearly separable data</span></span>
@@ -417,7 +417,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 </section>
 <section id="experimenting-with-perceptron" class="level2">
 <h2 class="anchored" data-anchor-id="experimenting-with-perceptron">Experimenting With Perceptron</h2>
-<div id="cell-12" class="cell" data-execution_count="333">
+<div id="cell-12" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting helper method provided by Prof. Chodrow</span></span>
@@ -521,7 +521,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 </div>
 <section id="linearly-separable-data" class="level3">
 <h3 class="anchored" data-anchor-id="linearly-separable-data">Linearly Separable Data</h3>
-<div id="cell-14" class="cell" data-execution_count="334">
+<div id="cell-14" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tch.manual_seed(<span class="dv">100</span>) <span class="co"># For consistent random sampling</span></span>
@@ -540,7 +540,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 <p><em>Code above re-runs the perceptron algorithm on 2D linearly separable data and plots the algorithm’s progress, displaying the previous separation line, the sampled point, and the updated separation line. The first 5 update-invoking iterations are displayed followed by the final iteration (some code provided by Prof.&nbsp;Chodrow).</em></p>
 <p><strong>Figure 2</strong>:</p>
 <p>The subplots above display the behavior of the perceptron algorithm on linearly separable data of two variables. In the first five subplots, the first five update-invoking iterations of the perceptron algorithm are illustrated, highlighting the current loss value of the model, marking the randomly sampled point, and identifying both the previous separation line (i.e.&nbsp;the previous weights vector) and the updated separation line (i.e.&nbsp;the updated weight vector). In the last subplot, the loss value of the model and the separation line of the final iteration of the algorithm is displayed. As expected, the final loss value is <span class="math inline">\(0\)</span> and the final separation line perfectly separates the two groups of data points.</p>
-<div id="cell-16" class="cell" data-execution_count="335">
+<div id="cell-16" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the loss values on 2D, linearly separable data</span></span>
@@ -560,7 +560,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 </section>
 <section id="not-linearly-separable-data" class="level3">
 <h3 class="anchored" data-anchor-id="not-linearly-separable-data">Not Linearly Separable Data</h3>
-<div id="cell-19" class="cell" data-execution_count="336">
+<div id="cell-19" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting perceptron behavior on 2D, not linearly separable data</span></span>
@@ -577,7 +577,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 <p><em>Code above mimics the plots in <strong>Figure 2</strong> but instead depicts the behavior of perceptron on 2D data that is not linearly separable (some code provided by Prof.&nbsp;Chodrow).</em></p>
 <p><strong>Figure 4</strong></p>
 <p>The subplots above display the behavior of the perceptron algorithm on data of two variables that is <strong>not</strong> linearly separable. Similarly to <strong>Figure 2</strong>, the first five subplots show the first five update-invoking iterations of the perceptron algorithm. Each subplot highlights the current loss value of the model, marks the randomly sampled point, and identifies both the previous separation line (i.e.&nbsp;the previous weights vector) and the updated separation line (i.e.&nbsp;the updated weight vector). Again, the loss value of the model and the separation line of the final iteration (the last allotted iteration in this case as controlled by the <code>max_it</code> parameter) of the algorithm is displayed in the last subplot. As expected, the final loss value is <span class="math inline">\(&gt;0\)</span> and the final separation line does not perfectly separate the two groups of data points.</p>
-<div id="cell-21" class="cell" data-execution_count="337">
+<div id="cell-21" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the loss value on 2D, not linearly separable data</span></span>
@@ -597,7 +597,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 </section>
 <section id="higher-dimensional-data" class="level3">
 <h3 class="anchored" data-anchor-id="higher-dimensional-data">Higher-Dimensional Data</h3>
-<div id="cell-24" class="cell" data-execution_count="338">
+<div id="cell-24" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating perceptron on 6D, low-noise data</span></span>
@@ -615,7 +615,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 <p><em>Code above displays the evolution of the model loss value on low-noise 6D data (some code provided by Prof.&nbsp;Chodrow).</em></p>
 <p><strong>Figure 6</strong></p>
 <p>The plot above again shows the evolution in the loss function value over the iterations of the perceptron algorithm acting on low-noise data of six variables (update-invoking iterations are again marked in <span style="color:darkorange">orange</span>). In this case, perceptron is being run on a dataset of six variables generated to have low noise. As indicated by the rightmost point in the above plot, the perceptron algorithm seems to converge to a loss value of <span class="math inline">\(0\)</span> even when iterating over a dataset of a higher dimension. Given this, it appears that the low-noise, 6-variable data is linearly separable.</p>
-<div id="cell-26" class="cell" data-execution_count="339">
+<div id="cell-26" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating Perceptron on 6D, high-noise data</span></span>
@@ -641,7 +641,7 @@ Total Iterations: 1282 | Final Loss: 0.0</code></pre>
 <p><span class="math display">\[
 w^{(t + 1)} = w^{(t)} + \frac{\alpha}{k}\sum_{i = 1}^{k}\mathbf{1}[s_{k_i}(2y_{k_i} - 1) &lt; 0](2y_{k_i} - 1)x_{k_i}
 \]</span></p>
-<div id="cell-30" class="cell" data-execution_count="340">
+<div id="cell-30" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Method to evaluate the minibatch perceptron algorithm - Some code provided by Prof. Chodrow</span></span>
@@ -698,7 +698,7 @@ w^{(t + 1)} = w^{(t)} + \frac{\alpha}{k}\sum_{i = 1}^{k}\mathbf{1}[s_{k_i}(2y_{k
 <span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [loss_vec, update_its]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="cell-31" class="cell" data-execution_count="341">
+<div id="cell-31" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating perceptron on 2D, linearly separable data</span></span>
@@ -725,7 +725,7 @@ Total Iterations: 164 | Final Loss: 0.0
 <h2 class="anchored" data-anchor-id="experimenting-with-minibatch-perceptron">Experimenting With Minibatch Perceptron</h2>
 <section id="with-batch-size-k-1" class="level3">
 <h3 class="anchored" data-anchor-id="with-batch-size-k-1">With Batch Size <span class="math inline">\(k = 1\)</span></h3>
-<div id="cell-34" class="cell" data-execution_count="342">
+<div id="cell-34" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the model loss values - Code provided by Prof. Chodrow</span></span>
@@ -753,7 +753,7 @@ Total Iterations: 164 | Final Loss: 0.0
 <span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="cell-35" class="cell" data-execution_count="343">
+<div id="cell-35" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 2D, linearly separable data -- k = 1</span></span>
@@ -802,7 +802,7 @@ Total Iterations: 1000 | Final Loss: 0.07800000160932541
 <p><em>Code above displays the evolution of the model loss value on both linearly separable and not linearly separable 2D data using the minibatch perceptron alg. with batchsize <span class="math inline">\(k = 1\)</span> (some code provided by Prof.&nbsp;Chodrow)</em></p>
 <p><strong>Figure 8</strong></p>
 <p>The figures above illustrates the evolution of the loss value of the minibatch perceptron algorithm as it iterates over both linearly separable and not linearly separable 2D data (update-invoking iterations are again marked in <span style="color:darkorange">orange</span>). With a batch size <span class="math inline">\(k = 1\)</span>, the minibatch perceptron algorithm behaves exactly like the standard perceptron algorithm. That is, it converges to a loss value of <span class="math inline">\(0\)</span> with linearly separable data and fails to converge to a loss value of <span class="math inline">\(0\)</span> with not linearly separable data (in the number of allotted iterations).</p>
-<div id="cell-37" class="cell" data-execution_count="344">
+<div id="cell-37" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 6D, linearly separable data -- k = 1</span></span>
@@ -854,7 +854,7 @@ Total Iterations: 1000 | Final Loss: 0.004000000189989805
 </section>
 <section id="with-batch-size-k-10" class="level3">
 <h3 class="anchored" data-anchor-id="with-batch-size-k-10">With Batch Size <span class="math inline">\(k = 10\)</span></h3>
-<div id="cell-40" class="cell" data-execution_count="345">
+<div id="cell-40" class="cell" data-execution_count="37">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the evolution of the model loss values - Code provided by Prof. Chodrow - MODIFIED METHOD</span></span>
@@ -883,7 +883,7 @@ Total Iterations: 1000 | Final Loss: 0.004000000189989805
 <span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="cell-41" class="cell" data-execution_count="346">
+<div id="cell-41" class="cell" data-execution_count="38">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 6D, linearly separable data -- k = 10</span></span>
@@ -935,7 +935,7 @@ Total Iterations: 207 | Final Loss: 0.0
 </section>
 <section id="with-batch-size-k-n" class="level3">
 <h3 class="anchored" data-anchor-id="with-batch-size-k-n">With Batch Size <span class="math inline">\(k = n\)</span></h3>
-<div id="cell-44" class="cell" data-execution_count="347">
+<div id="cell-44" class="cell" data-execution_count="39">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the behavior of minibatch perceptron on 6D, not linearly separable data -- k = n</span></span>
