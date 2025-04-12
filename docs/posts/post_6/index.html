@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Col McDermott">
+<meta name="dcterms.date" content="2025-04-12">
+<meta name="description" content="An introductory examination of overfitting, overparameterization, and double-descent instances with ML models.">
+
+<title>Post 6 - Investigating Overfitting, Overparameterization, and Double-Descent – Middlebury College CSCI 0451 Blog - Col McDermott</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-6943a74fafdbf25ea2a644024beb669f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: white;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: white;
+background-image: url(../../img/landscape.png);
+background-size: cover;
+      }
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Middlebury College CSCI 0451 Blog - Col McDermott</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Blog Info</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/Col-McDermott"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Post 6 - Investigating Overfitting, Overparameterization, and Double-Descent</h1>
+                  <div>
+        <div class="description">
+          An introductory examination of overfitting, overparameterization, and double-descent instances with ML models.
+        </div>
+      </div>
+                </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Col McDermott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 12, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>Classically, the standard approach towards constructing a supervised ML model begins with harnessing a dataset with an arbitrary number of data points each containing a uniform arbitrary number of features. The dataset is then split into at least two subsets: one for training the model and the other for testing the model. The underlying goals of model construction and refinement are to tweak the parameters of the model to produce desirable results for the given problem of focus (such as general classification or regression) with respect to the training data. Finally, the model attempts to generalize the patterns that it identified in the training data to the unseen testing data. Generally, the more complex (i.e.&nbsp;parameterized) a model is designed to be allows it to achieve higher training-data accuracy. To a point, the gains in training-data accuracy (or loss in training-data error) translate to test-data performance, but as a model is made too complex (i.e.&nbsp;overparameterized), it begins to regress in test-data performance. In general, it is believed that after a certain threshold of training-data improvement, the testing data performance will either plateau or continually decrease. Yet, this need not strictly be the case. While overfitting leads to decreasing generalized behavior at first, it can later observed to produce testing results better than the peak performance prior to overfitting: A phenomenon called Double-Descent.</p>
+<p>In this short study, using a rudimentary, from-scratch linear regression model, I aim to investigate the results of overparameterization and they relate to initial overfitting followed by the double-descent phenomenon. To conduct my analysis of these topics, I will first explore the mathematical properties related to an overprameterized linear regression model. I will then construct an overparamterized model and evaluate its performance on generated, non-linear preprocessed data after applying a feature map. Finally, I will apply my overparamterized model to a more complex dataset of corrupted images and explore how the model performance (measured in ability to predict the number of corruptions in an image) changes with adding more features to the model, with the intention of uncovering an instance of double-descent.</p>
+<p>As discussed further in the sections below, for the generated, nonlinear data, I found that a more complex model produced a more accurate regression line and lower MSE. Upon evaluating the model performance on the corrupted image dataset, I found that the model’s testing performance did indeed exhibit an instance of double-descent, and the model’s peak testing data performance occurred at a point of model complexity well beyond the interpolation threshold.</p>
+<p>For more information on my overparameterized linear regression model and random feature map implementation, check out <a href="">OPLinearRegression.py</a> and <a href="">RandFeatures.py</a></p>
+<div id="7d64313d" class="cell" data-execution_count="282">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_sample_images</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.ndimage <span class="im">import</span> zoom</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch <span class="im">as</span> tch</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Porting over linear regression and feature map implementation</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> OPLinearRegression <span class="im">import</span> LinearRegression, OPLinearRegressionOptimizer</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> RandFeatures <span class="im">import</span> RandomFeatures</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>tch.manual_seed(<span class="dv">50</span>) <span class="co"># For consistent data generation</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>) <span class="co"># For consistent plotting</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload</code></pre>
+</div>
+</div>
+<section id="implementing-an-overparameterized-linear-regression-model" class="level2">
+<h2 class="anchored" data-anchor-id="implementing-an-overparameterized-linear-regression-model">Implementing an Overparameterized Linear Regression Model</h2>
+<section id="mathematics-behind-overparameterization" class="level3">
+<h3 class="anchored" data-anchor-id="mathematics-behind-overparameterization">Mathematics Behind Overparameterization</h3>
+<p>Prior to constructing an overparameterized model, it is important to analyze the mathematical properties that prevent or need to be changed in order to allow for overparameterization to exist. When constructing a standard linear regression model, the weights vector <span class="math inline">\(\mathbf{w}\)</span> is optimized to minimize the standard, unregularized mean-squared-error loss function:</p>
+<p><span class="math display">\[
+L(\mathbf{w}) = \frac{1}{n}\sum_{i=1}^{n}(\langle\mathbf{w}, \phi(x_i)\rangle - y_i)^2
+\]</span></p>
+<p>Note that <span class="math inline">\(\phi(\mathbf{X})\)</span> represents the application of the feature map <span class="math inline">\(\phi\)</span> to the original feature matrix <span class="math inline">\(\mathbf{X}\)</span>. The optimal weights vector <span class="math inline">\(\mathbf{w}\)</span> can be solved using <span class="math inline">\(\hat{\mathbf{w}} = \text{argmin}_{\mathbf{w}}\|\mathbf{X}\mathbf{w} - \mathbf{y}\|^2\)</span>. This expression takes the closed form of:</p>
+<p><span class="math display">\[
+\hat{\mathbf{w}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+\]</span></p>
+<p>Overparameterization occurs when the number of features in the model exceeds the number of data points. That is, when elements in <span class="math inline">\(\mathbf{w}\)</span> exceed the number of rows in <span class="math inline">\(\mathbf{X}\)</span>, a model is overparameterized. Note that when this occurs, the above formula for the optimal <span class="math inline">\(\mathbf{w}\)</span> becomes mathematically impossible when the number of features <span class="math inline">\(p\)</span> is greater than the number of data points <span class="math inline">\(n\)</span> (given that <span class="math inline">\(\mathbf{X}: n \times p\)</span>). The reason for this is that when <span class="math inline">\(\mathbf{X}: n \times p\)</span> and <span class="math inline">\(p &gt; n\)</span>, the matrix <span class="math inline">\(\mathbf{X}\)</span> is strictly rank-deficient. That is, the columns of <span class="math inline">\(\mathbf{X}\)</span> cannot be linearly-independent. It follows from this that <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> is also rank-deficient because the rank of <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> is at most the rank of <span class="math inline">\(\mathbf{X}\)</span>. Thus, <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> is a singular matrix in this case and is therefore not invertible (i.e.&nbsp;<span class="math inline">\(\mathbf{X}^T\mathbf{X})^{-1}\)</span> is undefined). This ultimately breaks down the above formula used to solve <span class="math inline">\(\mathbf{w}\)</span>.</p>
+<p>However, the optimal weights vector <span class="math inline">\(\mathbf{w}\)</span> can still be found even when a model is overparameterized. The formula for finding the optimal <span class="math inline">\(\mathbf{w}\)</span> uses the Moore-Penrose pseudoinverse <span class="math inline">\(\mathbf{X}^+\)</span> of <span class="math inline">\(\mathbf{X}\)</span>:</p>
+<p><span class="math display">\[
+\begin{align}
+\hat{\mathbf{w}} &amp;= \mathbf{X}^+\mathbf{y} \\
+\hat{\mathbf{w}} &amp;= \mathbf{X}^T(\mathbf{X}\mathbf{X}^T)^{-1}\mathbf{y}
+\end{align}
+\]</span></p>
+<p>The above equation is used to find the optimal <span class="math inline">\(\mathbf{w}\)</span> for my implementation of an overparameterized linear regression model.</p>
+</section>
+<section id="overparameterized-model" class="level3">
+<h3 class="anchored" data-anchor-id="overparameterized-model">Overparameterized Model</h3>
+<p>My implementation of an overparameterized linear model involves three class definitions: <code>LinearModel</code>, <code>LinearRegression</code>, and <code>OPLinearRegressionOptimizer</code>.</p>
+<p><strong><code>LinearModel</code></strong>:</p>
+<ul>
+<li><code>self.w</code>: An instance variable to store the weights vector <span class="math inline">\(\mathbf{w}\)</span> of a linear model.</li>
+<li><code>score(X)</code>: A method to compute the score <span class="math inline">\(s_i\)</span> for each data point in the feature matrix <strong><span class="math inline">\(X\)</span></strong> using:</li>
+</ul>
+<p><span class="math display">\[
+s_i = \langle\mathbf{w}, x_i\rangle
+\]</span></p>
+<p><strong><code>LinearRegression</code></strong> (inherits from <strong><code>LinearModel</code></strong>):</p>
+<ul>
+<li><code>predict(X)</code>: A method that returns the vector of model predictions <span class="math inline">\(\mathbf{y}\)</span>. The model predictions are simply the scores <span class="math inline">\(\mathbf{s}\)</span> from the linear model.</li>
+<li><code>loss(X, y)</code>: A method to compute the mean-squared-error (MSE) between the model scores <span class="math inline">\(\mathbf{s}\)</span> and the targets <span class="math inline">\(\mathbf{y}\)</span>. The MSE is computed with (note that <span class="math inline">\(\phi(\mathbf{X})\)</span> represents the application of the feature map <span class="math inline">\(\phi\)</span> to the original feature matrix <span class="math inline">\(\mathbf{X}\)</span>):</li>
+</ul>
+<p><span class="math display">\[
+L(\mathbf{w}) = \mathbf{MSE} = \frac{1}{n}\sum_{i=1}^{n}(\langle\mathbf{w}, \phi(x_i)\rangle - y_i)^2
+\]</span></p>
+<p><strong><code>OPLinearRegressionOptimizer</code></strong>:</p>
+<ul>
+<li><code>self.lr</code>: An instance variable of a <code>LinearRegression</code> object.</li>
+<li><code>fit(X, y)</code>: A method that computes the optimal weights vector <span class="math inline">\(\mathbf{w}\)</span> using the Moore-Penrose pseudoinverse of <span class="math inline">\(\mathbf{X}\)</span>:</li>
+</ul>
+<p><span class="math display">\[
+\begin{align*}
+\hat{\mathbf{w}} &amp;= \mathbf{X}^+\mathbf{y} \\
+\hat{\mathbf{w}} &amp;= \mathbf{X}^T(\mathbf{X}\mathbf{X}^T)^{-1}\mathbf{y}
+\end{align*}
+\]</span></p>
+</section>
+<section id="random-feature-map" class="level3">
+<h3 class="anchored" data-anchor-id="random-feature-map">Random Feature Map</h3>
+<p>In order to create overparameterized versions of my linear regression model, I will be using a (slightly edited) random feature map implementation provided by Prof.&nbsp;Chodrow. This feature map implementation involves a single class definition: <code>RandomFeatures</code>. Upon constructing a <code>RandomFeatures</code> object, the number of features (<code>n_features</code>) present after data transformation transformation and the activation function can be manually adjusted. Note that the default activation function is the logistic sigmoid function (<span class="math inline">\(1\)</span>), but this parameter can also be set to the simple squaring function (<span class="math inline">\(2\)</span>):</p>
+<p><span class="math display">\[
+\begin{align}
+\sigma(x) &amp;= \frac{1}{1 + e^{-x}} \\
+y &amp;= x^2
+\end{align}
+\]</span></p>
+</section>
+</section>
+<section id="testing-the-overparameterized-linear-regression-model-on-simple-generated-data" class="level2">
+<h2 class="anchored" data-anchor-id="testing-the-overparameterized-linear-regression-model-on-simple-generated-data">Testing the Overparameterized Linear Regression Model on Simple Generated data</h2>
+<p>To evaluate the correctness and performance of my implementation, the overparameterized linear regressison model is fit to and tested on some basic, nonlinear generated data.</p>
+<div id="e24cb6b7" class="cell" data-execution_count="283">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating data - code provided by Prof. Chodrow</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> tch.tensor(np.linspace(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">100</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), dtype <span class="op">=</span> tch.float64)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> (X <span class="op">**</span> <span class="dv">4</span>) <span class="op">-</span> (<span class="dv">4</span> <span class="op">*</span> X) <span class="op">+</span> tch.normal(<span class="dv">0</span>, <span class="dv">5</span>, size<span class="op">=</span>X.shape)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing Linear Regression models</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>LinR1 <span class="op">=</span> LinearRegression()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>opt1 <span class="op">=</span> OPLinearRegressionOptimizer(LinR1)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>LinR2 <span class="op">=</span> LinearRegression()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>opt2 <span class="op">=</span> OPLinearRegressionOptimizer(LinR2)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>LinR3 <span class="op">=</span> LinearRegression()</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>opt3 <span class="op">=</span> OPLinearRegressionOptimizer(LinR3)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Applying random feature maps</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>phi1 <span class="op">=</span> RandomFeatures(<span class="dv">5</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>phi1.fit(X)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>X_map1 <span class="op">=</span> phi1.transform(X)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>opt1.fit(X_map1, y)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>y_hat1 <span class="op">=</span> LinR1.predict(X_map1)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>mse1 <span class="op">=</span> LinR1.loss(X_map1, y)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>phi2 <span class="op">=</span> RandomFeatures(<span class="dv">7</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>phi2.fit(X)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>X_map2 <span class="op">=</span> phi2.transform(X)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>opt2.fit(X_map2, y)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>y_hat2 <span class="op">=</span> LinR2.predict(X_map2)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>mse2 <span class="op">=</span> LinR2.loss(X_map2, y)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>phi3 <span class="op">=</span> RandomFeatures(<span class="dv">9</span>)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>phi3.fit(X)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>X_map3 <span class="op">=</span> phi3.transform(X)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>opt3.fit(X_map3, y)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>y_hat3 <span class="op">=</span> LinR3.predict(X_map3)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>mse3 <span class="op">=</span> LinR3.loss(X_map3, y)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the data and regression lines</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="dv">15</span>, <span class="fl">7.5</span>))</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter(X, y, color <span class="op">=</span> <span class="st">"darkcyan"</span>, label <span class="op">=</span> <span class="st">"Data"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"x"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yticks([<span class="op">-</span><span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>])</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yticklabels([<span class="bu">str</span>(i) <span class="cf">for</span> i <span class="kw">in</span> [<span class="op">-</span><span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>]], fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xticks([<span class="op">-</span><span class="dv">3</span>, <span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xticklabels([<span class="bu">str</span>(i) <span class="cf">for</span> i <span class="kw">in</span> [<span class="op">-</span><span class="dv">3</span>, <span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]], fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].plot(X, y_hat1, color <span class="op">=</span> <span class="st">"#A46AAE"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].legend([<span class="st">"Data"</span>, <span class="st">"Model Predictions"</span>], fontsize <span class="op">=</span> <span class="dv">12</span>, frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="ss">f"5-Parameter Model (MSE = </span><span class="sc">{</span><span class="bu">round</span>(mse1, <span class="dv">3</span>)<span class="sc">}</span><span class="ss">)"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].scatter(X, y, color <span class="op">=</span> <span class="st">"darkcyan"</span>, label <span class="op">=</span> <span class="st">"Data"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"x"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"y"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yticks([<span class="op">-</span><span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>])</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yticklabels([<span class="bu">str</span>(i) <span class="cf">for</span> i <span class="kw">in</span> [<span class="op">-</span><span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>]], fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xticks([<span class="op">-</span><span class="dv">3</span>, <span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xticklabels([<span class="bu">str</span>(i) <span class="cf">for</span> i <span class="kw">in</span> [<span class="op">-</span><span class="dv">3</span>, <span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]], fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].plot(X, y_hat2, color <span class="op">=</span> <span class="st">"#A46AAE"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].legend([<span class="st">"Data"</span>, <span class="st">"Model Predictions"</span>], frameon <span class="op">=</span> <span class="va">True</span>, fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="ss">f"7-Parameter Model (MSE = </span><span class="sc">{</span><span class="bu">round</span>(mse2, <span class="dv">3</span>)<span class="sc">}</span><span class="ss">)"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].scatter(X, y, color <span class="op">=</span> <span class="st">"darkcyan"</span>, label <span class="op">=</span> <span class="st">"Data"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>)</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"x"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_ylabel(<span class="st">"y"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_yticks([<span class="op">-</span><span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>])</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_yticklabels([<span class="bu">str</span>(i) <span class="cf">for</span> i <span class="kw">in</span> [<span class="op">-</span><span class="dv">20</span>, <span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>]], fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xticks([<span class="op">-</span><span class="dv">3</span>, <span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xticklabels([<span class="bu">str</span>(i) <span class="cf">for</span> i <span class="kw">in</span> [<span class="op">-</span><span class="dv">3</span>, <span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]], fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].plot(X, y_hat3, color <span class="op">=</span> <span class="st">"#A46AAE"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].legend([<span class="st">"Data"</span>, <span class="st">"Model Predictions"</span>], frameon <span class="op">=</span> <span class="va">True</span>, fontsize <span class="op">=</span> <span class="dv">12</span>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_title(<span class="ss">f"9-Parameter Model (MSE = </span><span class="sc">{</span><span class="bu">round</span>(mse3, <span class="dv">3</span>)<span class="sc">}</span><span class="ss">)"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Regression Data and Model Predictions (Regression Lines)"</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above generates some 1D regression data, fits a 5-, 7-, and 9-parameter, <code>LinearRegression</code> model to the generated data, and plots the data along with the model predictions (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Figure 1</strong></p>
+<p>Above shows the plots of some generated 1D, nonlinear data along with the corresponding regression line for a <span class="math inline">\(5\)</span>-, <span class="math inline">\(7\)</span>-, and <span class="math inline">\(9\)</span>-parameter linear regression model (initialized using feature-map transformed data with the logistic sigmoid activation function). Prior to plotting the model regression lines, the data is transformed with a random feature map of <span class="math inline">\(5\)</span>, <span class="math inline">\(7\)</span>, and <span class="math inline">\(9\)</span> features. As expected, as the number of parameters per model increases, the corresponding regression line appears to follow the trend of the data more accurately. In support of this, the MSE strictly decreases as the number of model parameters increases in this simple example: the lowest MSE corresponds to the highest-parameter model. This aligns with the visual representation of the <span class="math inline">\(9\)</span>-parameter model yielding the most accurate regression line.</p>
+</section>
+<section id="testing-the-overparameterized-linear-regression-model-on-a-more-complex-dataset---observing-double-descent" class="level2">
+<h2 class="anchored" data-anchor-id="testing-the-overparameterized-linear-regression-model-on-a-more-complex-dataset---observing-double-descent">Testing the Overparameterized Linear Regression Model on a More Complex Dataset - Observing Double-Descent</h2>
+<section id="retrieving-and-processing-image-data" class="level3">
+<h3 class="anchored" data-anchor-id="retrieving-and-processing-image-data">Retrieving and Processing Image Data</h3>
+<p>To further evaluate the performance and properties of my implementation, the overperameterized linear regression model is fit and tested on a much more complex data set. In this case, the data is a greyscale pixelated image of a flower (from the <code>sklearn.datasets</code> library). The data, or image rather, will be “corrupted” (where contiguous groups of pixels are greyed out) to varying degrees, and the task of the model with given this data will be to predict the number of “corruptions” found in the given version of the image using just the image alone. Specifically, a random dataset of <span class="math inline">\(300\)</span> corrupted images (including the corresponding number of corrections for each image) is created to fit and test the overparameterized regression model. Below are references to the original, uncorrupted image used in this experiment and an example of a corrupted version of the image:</p>
+<div id="eed50f77" class="cell" data-execution_count="284">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieving the image data for this experiment - code provided by Prof. Chodrow</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_sample_images()     </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> dataset.images[<span class="dv">1</span>]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> zoom(X,<span class="fl">.2</span>) <span class="co"># Decimate resolution</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> X.<span class="bu">sum</span>(axis <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> X.<span class="bu">max</span>() <span class="op">-</span> X </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> X <span class="op">/</span> X.<span class="bu">max</span>()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>flower <span class="op">=</span> tch.tensor(X, dtype <span class="op">=</span> tch.float64)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax.imshow(flower)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>off <span class="op">=</span> ax.axis(<span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above retrieves and displays the image data for this experiment (code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Image 1</strong></p>
+<div id="312b9d87" class="cell" data-execution_count="285">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Code used to corrupt the image data with random groups of greyed-out pixels - code provided by prof. Chodrow</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> corrupted_image(im, mean_patches <span class="op">=</span> <span class="dv">5</span>): </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    n_pixels <span class="op">=</span> im.size()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    num_pixels_to_corrupt <span class="op">=</span> tch.<span class="bu">round</span>(mean_patches <span class="op">*</span> tch.rand(<span class="dv">1</span>))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    num_added <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> im.clone()</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> tch.arange(num_pixels_to_corrupt.item()): </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>: </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> tch.randint(<span class="dv">0</span>, n_pixels[<span class="dv">0</span>], (<span class="dv">2</span>,))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> tch.randint(<span class="dv">0</span>, n_pixels[<span class="dv">0</span>], (<span class="dv">1</span>,))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            y <span class="op">=</span> tch.randint(<span class="dv">0</span>, n_pixels[<span class="dv">1</span>], (<span class="dv">1</span>,))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            s <span class="op">=</span> tch.randint(<span class="dv">5</span>, <span class="dv">10</span>, (<span class="dv">1</span>,))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            patch <span class="op">=</span> tch.zeros((s.item(), s.item()), dtype <span class="op">=</span> tch.float64) <span class="op">+</span> <span class="fl">0.5</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Place patch in base image X</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            X[x: x <span class="op">+</span> s.item(), y: y <span class="op">+</span> s.item()] <span class="op">=</span> patch</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>            num_added <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span>: </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X, num_added</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Providing an example of a corrupted version of the image - code provided by Prof. Chodrow</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>X, y <span class="op">=</span> corrupted_image(flower, mean_patches <span class="op">=</span> <span class="dv">50</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>ax.imshow(X.numpy(), vmin <span class="op">=</span> <span class="dv">0</span>, vmax <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(title <span class="op">=</span> <span class="ss">f"Corrupted Image: </span><span class="sc">{</span>y<span class="sc">}</span><span class="ss"> Patches"</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>off <span class="op">=</span> plt.gca().axis(<span class="st">"off"</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating a data set of random corrupted versions of the image - code provided by Prof. Chodrow</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">300</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> tch.zeros((n_samples, flower.size()[<span class="dv">0</span>], flower.size()[<span class="dv">1</span>]), dtype <span class="op">=</span> tch.float64)</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> tch.zeros(n_samples, dtype <span class="op">=</span> tch.float64)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_samples): </span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    X[i], y[i] <span class="op">=</span> corrupted_image(flower, mean_patches <span class="op">=</span> <span class="dv">100</span>)</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Reshaping the data for training</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> X.reshape(n_samples, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size <span class="op">=</span> <span class="fl">0.5</span>, random_state <span class="op">=</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above defines a function used to corrupt the image data by randomly creating patches of grey pixels and provides an example of corrupting an image using this function. Code above also generates a data set of 300 random corrupted images and conducts a train-test-split (<span class="math inline">\(50\%\)</span> each) on the data set(code provided by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Image 2</strong></p>
+</section>
+<section id="fitting-a-model-to-the-corrupted-image-data" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-a-model-to-the-corrupted-image-data">Fitting A Model to the Corrupted Image Data</h3>
+<p>Now with a complex data set, the overparameterized linear regression model can be fit to and evaluated on its performance. Further, the evolution of the MSE for both the training and testing data can be observed as the number of parameters in the model is increased.</p>
+<div id="6ed9c8ac" class="cell" data-execution_count="286">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assessing model performance across applying a few feature maps to the training data</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>num_feats <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">75</span>, <span class="dv">150</span>, <span class="dv">225</span>]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluating model performance at the 4 different feature map sizes</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> num_feat <span class="kw">in</span> num_feats:</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> RandomFeatures(num_feat, activation <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    phi.fit(X_train)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    X_map_tr <span class="op">=</span> phi.transform(X_train)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    X_map_tst <span class="op">=</span> phi.transform(X_test)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    LinR <span class="op">=</span> LinearRegression()</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> OPLinearRegressionOptimizer(LinR)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    opt.fit(X_map_tr, y_train)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    mse_tr <span class="op">=</span> LinR.loss(X_map_tr, y_train)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    mse_tst <span class="op">=</span> LinR.loss(X_map_tst, y_test)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> num_feat <span class="op">==</span> <span class="dv">150</span>:</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"----------"</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Mean Squared Error (Training, </span><span class="sc">{</span>num_feat<span class="sc">}</span><span class="ss">-Feature Map Applied | Interpolation Threshold): </span><span class="sc">{</span><span class="bu">round</span>(mse_tr, <span class="dv">3</span>) <span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Mean Squared Error (Testing, </span><span class="sc">{</span>num_feat<span class="sc">}</span><span class="ss">-Feature Map Applied | Interpolation Threshold): </span><span class="sc">{</span><span class="bu">round</span>(mse_tst, <span class="dv">3</span>) <span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:    </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"----------"</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Mean Squared Error (Training, </span><span class="sc">{</span>num_feat<span class="sc">}</span><span class="ss">-Feature Map Applied): </span><span class="sc">{</span><span class="bu">round</span>(mse_tr, <span class="dv">3</span>) <span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Mean Squared Error (Testing, </span><span class="sc">{</span>num_feat<span class="sc">}</span><span class="ss">-Feature Map Applied): </span><span class="sc">{</span><span class="bu">round</span>(mse_tst, <span class="dv">3</span>) <span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>----------
+Mean Squared Error (Training, 0-Feature Map Applied): 2474.420
+Mean Squared Error (Testing, 0-Feature Map Applied): 2633.267
+----------
+Mean Squared Error (Training, 75-Feature Map Applied): 65.882
+Mean Squared Error (Testing, 75-Feature Map Applied): 455.639
+----------
+Mean Squared Error (Training, 150-Feature Map Applied | Interpolation Threshold): 0.000
+Mean Squared Error (Testing, 150-Feature Map Applied | Interpolation Threshold): 27062.819
+----------
+Mean Squared Error (Training, 225-Feature Map Applied): 0.000
+Mean Squared Error (Testing, 225-Feature Map Applied): 437.820</code></pre>
+</div>
+</div>
+<p><em>Code above fits a <code>LinearRegression</code> model to the corrupted image data with several example feature maps applied (using the squaring activation function) and computes the MSE for both the training and testing data.</em></p>
+<p>The output above displays the MSE for both the training and testing data when the model is fit to the corrupted image data with a 0-feature, 75-feature, 150-feature (this is the interpolation threshold), and 225-feature feature map applied. As expected, the MSE for the training data is lower than that of the testing data for each model, and the training data MSE strictly decreases. As expected the training data MSE becomes <span class="math inline">\(0.0\)</span> once the model meets and exceeds the interpolation threshold. The testing data MSE is shown to decrease as the training data MSE decreases and before the model complexity meets the interpolation threshold. At the interpolation threshold, the testing data MSE significantly increases, strongly suggesting that the model notably overfits to the training data. However, when the model complexity exceeds the interpolation threshold, the testing data MSE appears to drop back down again. This is indicative of an instance of double-descent, suggesting that the minimal testing data MSE might be produced by an overparameterized model. The figure below investigates this double-descent phenomenon further.</p>
+<div id="4e2dd2a9" class="cell" data-execution_count="287">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitting many models with increasing feature sizes and assessing the training/testing performance</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Book keeping arrays for future plotting</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>mses_tr <span class="op">=</span> []</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>mses_tst <span class="op">=</span> []</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>num_feats <span class="op">=</span> []</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>int_thrsh <span class="op">=</span> X_train.size()[<span class="dv">0</span>]</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>min_mse_tr <span class="op">=</span> sys.float_info.<span class="bu">max</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>bst_tr_feats <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>min_mse_tst <span class="op">=</span> sys.float_info.<span class="bu">max</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>bst_tst_feats <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitting models with increasing feature sizes</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">301</span>):</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Applying the increasingly complex feature maps - using the squaring activation function</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> RandomFeatures(i, activation <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    phi.fit(X_train)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    X_map_tr <span class="op">=</span> phi.transform(X_train)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    X_map_tst <span class="op">=</span> phi.transform(X_test)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing/fitting a model</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    LinR <span class="op">=</span> LinearRegression()</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> OPLinearRegressionOptimizer(LinR)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    opt.fit(X_map_tr, y_train)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Computing the training/testing performance and updating the best training/testing MSE</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    mse_tr <span class="op">=</span> LinR.loss(X_map_tr, y_train)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    mse_tst <span class="op">=</span> LinR.loss(X_map_tst, y_test)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> mse_tr <span class="op">&lt;</span> min_mse_tr:</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        min_mse_tr <span class="op">=</span> mse_tr</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        bst_tr_feats <span class="op">=</span> i</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> mse_tst <span class="op">&lt;</span> min_mse_tst:</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        min_mse_tst <span class="op">=</span> mse_tst</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        bst_tst_feats <span class="op">=</span> i</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recording current performance</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    mses_tr.append(mse_tr)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    mses_tst.append(mse_tst)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    num_feats.append(i)</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the training/testing performance of each model</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="fl">12.5</span>, <span class="fl">7.5</span>))</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Training performance</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter(num_feats, mses_tr, color <span class="op">=</span> <span class="st">"#A46AAE"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>)</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].scatter(num_feats[bst_tr_feats], min_mse_tr, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Min MSE"</span>)</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].axvline(x <span class="op">=</span> int_thrsh, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="st">"Interpolation Threshold"</span>)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"Number of Features"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"Mean Squared Error (Training)"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Training Performance"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].legend(frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing performance</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].scatter(num_feats, mses_tst, color <span class="op">=</span> <span class="st">"darkcyan"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>)</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].scatter(num_feats[bst_tst_feats], min_mse_tst, color <span class="op">=</span> <span class="st">"black"</span>, label <span class="op">=</span> <span class="st">"Min MSE"</span>)</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].axvline(x <span class="op">=</span> int_thrsh, color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>, label <span class="op">=</span> <span class="st">"Interpolation Threshold"</span>)</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Number of Features"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Mean Squared Error (Testing)"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"Testing Performance"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].legend(frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Training and Testing Performance on Corrupted Image Data</span><span class="ch">\n</span><span class="st">With Increasing Model Complexity (0-300 Features)"</span>, fontsize <span class="op">=</span> <span class="dv">18</span>)</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above evaluates and stores the performance of the overparameterized linear regression model on the training and testing corrupted image data as the number of model features is increased from <span class="math inline">\([0, 300]\)</span>. Code then plots the respective training and testing performances for each model, displaying the interpolation threshold and identifying the model/feature number corresponding to the minimum training and testing MSE (some code suggested by Prof.&nbsp;Chodrow).</em></p>
+<p><strong>Figure 2</strong></p>
+<p>The plots above illustrate the evolution of the MSE for both the training and testing data as the overparameterized linear regression model complexity (i.e.&nbsp;number of features) increases. Prior to exceeding the interpolation threshold, the training data MSE appears to steadily drop, which is expected as the model is gradually becoming more complex. At the same time, the testing data MSE begins to drop, but soon starts to increase as the model complexity approaches the interpolation threshold. This is also expected as the model is beginning to overfit to the training data more. Once the number of features in the model exceeds the interpolation threshold, the model begins to notably overfit to the training data, ultimately bringing the training data MSE down to essentially <span class="math inline">\(0.0\)</span>. Aligning with this, the testing data MSE seems to be maximized when the model complexity is very close or equal to the interpolation threshold, indicating where the negative effects of training-data overfitting are most pronounced. However, as the model complexity continues past the interpolation threshold, the testing data MSE begins to decrease again. This is an instance of the double-descent phenomenon.</p>
+<div id="dab33c69" class="cell" data-execution_count="288">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Displaying the peak testing performance and corresponding number of features</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Minimum MSE for Testing Data: </span><span class="sc">{</span><span class="bu">round</span>(min_mse_tst, <span class="dv">3</span>)<span class="sc">}</span><span class="ss"> | Number of Features: </span><span class="sc">{</span>bst_tst_feats<span class="sc">}</span><span class="ss"> (Interpolation Threshold: </span><span class="sc">{</span>int_thrsh<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Minimum MSE for Training Data: </span><span class="sc">{</span><span class="bu">round</span>(min_mse_tr, <span class="dv">3</span>)<span class="sc">}</span><span class="ss"> | Number of Features: </span><span class="sc">{</span>bst_tr_feats<span class="sc">}</span><span class="ss"> (Interpolation Threshold: </span><span class="sc">{</span>int_thrsh<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Minimum MSE for Testing Data: 252.059 | Number of Features: 257 (Interpolation Threshold: 150)
+Minimum MSE for Training Data: 0.0 | Number of Features: 282 (Interpolation Threshold: 150)</code></pre>
+</div>
+</div>
+<p><em>Code above displays the minimum MSE and the number of features in the corresponding model for both the training and testing corrupted image data. The numbers of features in the corresponding models are compared to the interpolation threshold.</em></p>
+<p>The output above depicts the minimum (best) MSE values for the training and testing data along with the number of features in the corresponding models and a comparison to the interpolation threshold. As expected, the minimum training data MSE is <span class="math inline">\(0.0\)</span> and occurs when the model has <span class="math inline">\(282\)</span> features; which is greater than the interpolation threshold at <span class="math inline">\(150\)</span>. The minimum testing data MSE occurs when the model has <span class="math inline">\(257\)</span> features; which is also greater than the interpolation threshold at <span class="math inline">\(150\)</span>. Interestingly, the best training and testing performances are produced by models with distinctly different complexities. Yet overall, the information depicted above aligns with the double-descent occurrence shown in the previous plots.</p>
+</section>
+</section>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>The primary goals of this brief analysis were to investigate the concepts of overfitting, overparameterization, and the phenomenon of double-descent. To explore these widely-recognized ML concepts, I implemented a basic linear regression model from scratch, that handles overparameterization using properties of the Moore-Penrose pseudoinverse of the feature matrix. Additionally, to manually adjust the complexity of my linear regression model, I incorporated a random feature map implementation from Prof.&nbsp;Chodrow to transform training data and increase model complexity. With this model and feature map framework, I conducted two primary experiments:</p>
+<ol type="1">
+<li>I fit the model to some generated, nonlinear data and observed the MSE performance of three different models with increasing complexity (number of features).</li>
+<li>I fit the model to a more complex dataset of corrupted image data and observed the model’s performance, through tracking the evolution of the MSE, as the model complexity was increased. In particular, I assessed the MSE individually for the training and testing data from models containing <span class="math inline">\(0\)</span> up to <span class="math inline">\(300\)</span> features. Note that this experiment included many models under-parameterized models, a model with a complexity equal to the interpolation threshold, and many overparameterized models.</li>
+</ol>
+<p>In the first experiment, I used the three random feature maps (using the logistic sigmoid activation function) to transform the generated data and create three models each with a different complexity. I found that the model’s MSE got progressively lower as the models got progressively more complex. Coupled with this, upon plotting the original data and each of the model’s regression lines, I found that the more complex model produced regression lines that seemed to more closely follow the non-linear trend of the data.</p>
+<p>In the second experiment, I began by retrieving a greyscale image of a flower from the <code>sklearn.datasets</code> library and corrupting it through creating patches of grey pixels randomly dispersed across the original image. I then created a dataset of <span class="math inline">\(300\)</span> corrupted images and the corresponding number of corruptions for each image. After transforming the corrupted image data with many random feature maps (this time using the squaring activation function), I then fit many versions of the overparametrized linear regression model to the image data. Each model was tasked with predicting the number of corruptions found in a given image. Specifically, I tracked the MSE of both the training and testing data produced by 300 different linear regression models, where each successive model became increasingly more complex (i.e., the numbers of features in the models increased in the range of <span class="math inline">\([0, 300]\)</span>). To observe the trends in MSE and model complexity, I plotted the evolution of the training and testing MSE for each model as the complexity increased. For the training data, I found that the model’s performance slowly improved as the complexity increased, but once the model’s complexity matched or exceeded the interpolation threshold of the training data, the training data MSE essentially dropped and remained at <span class="math inline">\(0.0\)</span>. Overall, I was not surprised to find this as it is expected that the model’s training performance would be nearly perfect when it overfits to the training data. For the testing data, I found that the models’ performance initially improved (MSE dropped) as the model complexity increased, then sharply decreased (MSE spiked) once the model complexity approached and matched the interpolation threshold, but once again continued to improve and actually display peak performance (MSE dropped again and minimized) as the models’ complexity grew beyond the interpolation threshold. Overall, I found a clear example of the double-descent phenomenon to arise given my overparameterized linear regression model and the complex, corrupted image data.</p>
+<p>In completing this study, I learned several key characteristics about crucial topics related to ML model design and overfitting. In implementing my own overparametized linear regression model, I had the hands-on opportunity to explore the mathematical properties behind overparamterization and practice translating these properties into code. I was also able to develop a more concrete understanding of randomized feature maps and how they can be used to transform training data to create more complex models. Lastly, this study allowed me to explore and directly observe the causes of and results from model overfitting. Following my experiments, I have a more well-rounded conception of both the implications behind the classical approach and understanding of overfitting and the counter-intuitive nature of double-descent. Overall, this study stands as a valuable example of how certain classical beliefs in ML can be, and possibly should be, challenged, especially as the topics addressed in this analysis are some of the fundamental drivers of the most powerful modern ML models found today.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
