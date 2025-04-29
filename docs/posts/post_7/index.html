@@ -250,11 +250,11 @@ window.Quarto = {
 <li>Comparing convergence rates, through the lens of empirical risk minimization, with standard minibatch stochastic gradient descent using a fixed batch size and altering the step size <span class="math inline">\(\alpha\)</span>.</li>
 </ol>
 <p>Following the experiments outlined above, I have compared the performance of <strong>Newton’s Method</strong> and <strong>Adam</strong>. Since these techniques employ considerably different computational steps, the comparison of these two advanced optimization methods is conducted as a convergence rate analysis with respect to runtime.</p>
-<p>For the implementation and documentation of the advanced optimization methods outlined above, check out <a href="">advanced_logistic.py</a>.</p>
+<p>For the implementation and documentation of the advanced optimization methods outlined above, check out <a href="https://github.com/Col-McDermott/Col-McDermott.github.io/blob/main/posts/post_7/advanced_logistic.py">advanced_logistic.py</a>.</p>
 <section id="sourcing-data" class="level2">
 <h2 class="anchored" data-anchor-id="sourcing-data">Sourcing Data</h2>
 <p>In order to test, evaluate, compare, and experiment with the advanced optimization methods explored in this study, it is necessary to have some binary classification data. For this analysis, I will be using the same generated data set from my previous study on <a href="https://col-mcdermott.github.io/posts/post_5/">logistic regression</a> and the Palmer Penguins data set from my first study on <a href="https://col-mcdermott.github.io/posts/post_1/">classification</a>. To briefly recap, the first data set is randomly generated 2D binary classification data used to test the correctness of the implementation for each advanced optimization method and the second data set is the widely used penguins classification data set from the Palmer Station collected by Dr.&nbsp;Kristen Gorman. Rather than trying to classify penguin species, I opted to have my models classify penguin sex (which in this data is a binary classification task). The penguins data is preprocessed by subsetting out only the numerical-value columns and standardizing each data point (using <span class="math inline">\(\frac{\mathbf{x} - \mu}{\sigma}\)</span> where <span class="math inline">\(\mu, \sigma\)</span> are the mean and STD. of the data).</p>
-<div id="3a414496" class="cell" data-execution_count="638">
+<div id="3a414496" class="cell" data-execution_count="668">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
@@ -282,7 +282,7 @@ window.Quarto = {
 </div>
 </div>
 <p><em>Code above imports all necessary packages/libraries and ports over the implementation of my logistic regression model and the advanced optimizers <code>NewtonOptimizer</code> and <code>AdamOptimizer</code>.</em></p>
-<div id="9f48126c" class="cell" data-execution_count="639">
+<div id="9f48126c" class="cell" data-execution_count="669">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating data for binary classification - code provided by Prof. Chodrow</span></span>
@@ -325,7 +325,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>Code above generates the simulated data (generated with fairly low-noise to ensure linear separability) and imports, preprocess (feature subsetting and standardization), the empirical (real-world) data (some code provided by Prof.&nbsp;Chodrow).</em></p>
-<div id="5f8a669e" class="cell" data-execution_count="640">
+<div id="5f8a669e" class="cell" data-execution_count="670">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model interpretation helper methods</span></span>
@@ -432,7 +432,7 @@ w_{k + 1} = w_{k} - \alpha \mathbf{H^{-1}}(\mathbf{w_{k}})\nabla L(\mathbf{w_{k}
 <section id="experiment-1-testing-the-implementation-of-newtons-method" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-1-testing-the-implementation-of-newtons-method">Experiment 1: Testing The Implementation of Newton’s Method</h3>
 <p>To test my implementation of Newton’s method, I will evaluate its performance on the generated data in comparison to the standard gradient descent method I implemented in a previous study.</p>
-<div id="3789f3d1" class="cell" data-execution_count="641">
+<div id="3789f3d1" class="cell" data-execution_count="671">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing the correctness of Newton's method implementation</span></span>
@@ -472,7 +472,7 @@ w_{k + 1} = w_{k} - \alpha \mathbf{H^{-1}}(\mathbf{w_{k}})\nabla L(\mathbf{w_{k}
 </div>
 </div>
 <p><strong>Figure 1</strong></p>
-<div id="b8a68721" class="cell" data-execution_count="642">
+<div id="b8a68721" class="cell" data-execution_count="672">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Displaying the weights vectors of both models</span></span>
@@ -491,7 +491,7 @@ Newton's Method Optimizer           | w_n = tensor([ 251.7622,  222.9369, -252.3
 <section id="experiment-2-comparing-convergence-rates" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-2-comparing-convergence-rates">Experiment 2: Comparing Convergence Rates</h3>
 <p>For this experiment, I will compare the convergence rates of two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Each model will be trained and tested on the empirical, real-world data set.</p>
-<div id="81c9486e" class="cell" data-execution_count="643">
+<div id="81c9486e" class="cell" data-execution_count="673">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing convergence rates of standard gradient descent and Newton's method</span></span>
@@ -582,7 +582,7 @@ Newton's Method Converges at           36 Iterations</code></pre>
 </div>
 <p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Each model is optimized until its empirical loss value is less than the tolerance of <span class="math inline">\(0.325\)</span>. Note that the learning rate <span class="math inline">\(\alpha\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span> and the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>. The learning rate <span class="math inline">\(\alpha\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>.</em></p>
 <p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Note that the learning rate <span class="math inline">\(\alpha_s\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span>, the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>, and the learning rate <span class="math inline">\(\alpha_n\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized until its empirical loss value was less than the tolerance of <span class="math inline">\(0.315\)</span>. As illustrated above, the model optimized with Newton’s method converged much faster (~<span class="math inline">\(46\times\)</span> quicker) than the model optimized with standard gradient descent.</p>
-<div id="81a610e8" class="cell" data-execution_count="644">
+<div id="81a610e8" class="cell" data-execution_count="674">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the loss values of both models</span></span>
@@ -607,7 +607,7 @@ Newton's Method Converges at           36 Iterations</code></pre>
 <section id="experiment-3-investigating-the-limitation-of-convergence" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-3-investigating-the-limitation-of-convergence">Experiment 3: Investigating the Limitation of Convergence</h3>
 <p>In this experiment, I will investigate the limitations of convergence of Newton’s method when the learning rate <span class="math inline">\(\alpha\)</span> is set too large.</p>
-<div id="7c1c5c87" class="cell" data-execution_count="645">
+<div id="7c1c5c87" class="cell" data-execution_count="675">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Investigating the limitations of convergence of Newton's method</span></span>
@@ -662,12 +662,12 @@ Newton's Method Converges at           36 Iterations</code></pre>
 <li><p><code>optimize(X, y, tol, batch_size, alpha, beta_1, beta_2, w_0 = None)</code>: A method that runs the Adam algorithm on the data until the model’s empirical loss value reaches the desired tolerance (<code>tol</code>).</p></li>
 </ul>
 <p>The Adam algorithm is a more efficient stochastic gradient descent technique that only uses first-order information. The Adam method leverages several efficiency-promoting concepts including the incorporation of adaptive learning rates <span class="math inline">\(-\)</span> using the first and second moments of the gradient to give parameters with larger gradient magnitudes smaller updates and the opposite for parameters with smaller gradient magnitudes. My implementation of the Adam algorithm is defined below (adapted from Kingma, Diederik P, and Jimmy Lei Ba):</p>
-<div id="83b9e4d6" class="cell" data-execution_count="646">
+<div id="83b9e4d6" class="cell" data-execution_count="676">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Image(filename <span class="op">=</span> <span class="st">"adam.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="646">
+<div class="cell-output cell-output-display" data-execution_count="676">
 <div>
 <figure class="figure">
 <p><img src="index_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
@@ -680,7 +680,7 @@ Newton's Method Converges at           36 Iterations</code></pre>
 <section id="experiment-1-testing-the-implementation-of-adam" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-1-testing-the-implementation-of-adam">Experiment 1: Testing the Implementation of Adam</h3>
 <p>To examine the correctness of my implementation of the Adam algorithm, I will again evaluate its performance on the generated data in comparison to the standard gradient descent method from my previous study.</p>
-<div id="04dd5b7d" class="cell" data-execution_count="647">
+<div id="04dd5b7d" class="cell" data-execution_count="677">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing the correctness of Adam implementation</span></span>
@@ -724,7 +724,7 @@ Newton's Method Converges at           36 Iterations</code></pre>
 </div>
 </div>
 <p><strong>Figure 4</strong></p>
-<div id="c1799e9e" class="cell" data-execution_count="648">
+<div id="c1799e9e" class="cell" data-execution_count="678">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Displaying the weights vectors of both models</span></span>
@@ -743,7 +743,7 @@ Adam Optimizer                      | w_a = tensor([ 4.0078,  3.5353, -3.4335])<
 <section id="experiment-2-comparing-convergence-rates-between-adam-and-standard-sgd-stochastic-gradient-descent" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-2-comparing-convergence-rates-between-adam-and-standard-sgd-stochastic-gradient-descent">Experiment 2: Comparing Convergence Rates Between Adam and Standard SGD (Stochastic Gradient Descent)</h3>
 <p>This experiment aims to display the efficiency-promoting characteristics of the Adam algorithm in comparing the rate of empirical loss value convergence between two logistic regression models where one of them is optimized with SGD and the other employs the Adam algorithm.</p>
-<div id="dc157ea0" class="cell" data-execution_count="649">
+<div id="dc157ea0" class="cell" data-execution_count="679">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing convergence rates of Adam and SGD</span></span>
@@ -832,7 +832,7 @@ Adam Converges at         15 Epochs (~13x Faster)
 </div>
 <p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over three different learning rates. Each model is optimized until the empirical loss value reaches a tolerance of <span class="math inline">\(0.45, 0.325, 0.315\)</span> depending respectively on the learning rates <span class="math inline">\(0.001, 0.01, 0.1\)</span>. Note that the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span> for the <code>GradientDescentOptimizer</code> the other hyperparameters were set to the recommendations of Kingma, Diederik P, and Jimmy Lei Ba for the <code>AdamOptimizer</code>.</em></p>
 <p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over the learning rates <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized until its empirical loss value was less than the tolerance of <span class="math inline">\(0.45, 0.325, 0.315\)</span> depending respectively on the given learning rate. As illustrated above, the model optimized with the Adam method converged significantly faster (~<span class="math inline">\(10\times\)</span> quicker on average) than the model optimized with standard SGD for each of the three different learning rates of this experiment.</p>
-<div id="33735c65" class="cell" data-execution_count="650">
+<div id="33735c65" class="cell" data-execution_count="680">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the loss values of both models</span></span>
@@ -868,7 +868,7 @@ Adam Converges at         15 Epochs (~13x Faster)
 <section id="comparing-newtons-method-and-the-adam-algorithm" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-newtons-method-and-the-adam-algorithm">Comparing Newton’s Method and the Adam Algorithm</h2>
 <p>After experimenting individually with each of these advanced optimization methods, it is useful to compare their performances to each other to understand how each method might outperform the other under certain circumstances. Considering that these two methods involve notably different computational procedures, I will opt to compare their convergence rates with respect to overall runtime. Specifically, I will examine the differences in runtime it takes each method to converge (i.e.&nbsp;minimize the empirical loss value) over three different learning rates (similarly to <strong>Experiment 2</strong> from above). In this comparison, I will again use a pre-selected loss-value tolerance to determine convergence (note that there will be a different tolerance for each learning rate)</p>
-<div id="03177b5c" class="cell" data-execution_count="651">
+<div id="03177b5c" class="cell" data-execution_count="681">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing the convergence rates of Newton's method and Adam with respect to runtime</span></span>
@@ -913,17 +913,17 @@ Adam Converges at         15 Epochs (~13x Faster)
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>When alpha = 0.001
-Newton's Method converges in 1.90 s (~2.8x Faster)
-Adam Converges in            5.35 s
+Newton's Method converges in 1.83 s (~2.9x Faster)
+Adam Converges in            5.36 s
 ----------
 
 When alpha = 0.01
-Newton's Method converges in 0.22 s (~19.1x Faster)
-Adam Converges in            4.17 s
+Newton's Method converges in 0.22 s (~19.3x Faster)
+Adam Converges in            4.22 s
 ----------
 
 When alpha = 0.1
-Newton's Method converges in 0.02 s (~8.9x Faster)
+Newton's Method converges in 0.02 s (~9.3x Faster)
 Adam Converges in            0.15 s
 ----------
 </code></pre>
@@ -931,7 +931,7 @@ Adam Converges in            0.15 s
 </div>
 <p><em>Code above displays the runtime til convergence for a logistic regression model optimized with Newton’s method and a logistic regression model optimized with the Adam algorithm. Each model is optimized until the empirical loss value reaches a specified tolerance. The runtimes are compared across three different learning rate step sizes. The training data used is the empirical penguins classification data.</em></p>
 <p>The output above compares the runtime between logistic regression models, one optimized with Newton’s method and the other with the Adam algorithm. In this comparison, each model is optimized over the empirical penguins classification data. The runtime required for each model to yield an empirical loss value of a specified tolerance is tracked and compared across three selected learning rates. The learning rates of this comparison are <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>, and the corresponding tolerances for each model given the current learning rates are <span class="math inline">\(0.304, 0.30377, 0.304\)</span>. As clearly depicted above, the model employing Newton’s method considerably outperforms the model using the Adam algorithm across all three tested learning rates. Based on this comparison alone, it would appear that Newton’s method is far more efficient than the Adam algorithm for optimization. However, note that the training data used in this comparison has relatively few features, which likely favors Newton’s method over Adam (primarily due to the fact that the expensive computation of Newton’s method is not amplified by a vast number of features). Thus, it is useful to recreate this comparison on data with many more features, and observe any notable similarities or differences <span class="math inline">\(-\)</span> leading into the comparison below:</p>
-<div id="d49e4e6e" class="cell" data-execution_count="652">
+<div id="d49e4e6e" class="cell" data-execution_count="682">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing the convergence rates of Newton's method and Adam with respect to runtime - part 2</span></span>
@@ -986,18 +986,18 @@ Adam Converges in            0.15 s
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>When alpha = 0.001
-Newton's Method converges in 5.92 s 
-Adam Converges in            0.24 s (~24x Faster)
+Newton's Method converges in 6.27 s 
+Adam Converges in            0.25 s (~24x Faster)
 ----------
 
 When alpha = 0.01
-Newton's Method converges in 0.96 s 
-Adam Converges in            0.04 s (~26x Faster)
+Newton's Method converges in 0.90 s 
+Adam Converges in            0.04 s (~25x Faster)
 ----------
 
 When alpha = 0.1
-Newton's Method converges in 0.61 s 
-Adam Converges in            0.01 s (~72x Faster)
+Newton's Method converges in 0.66 s 
+Adam Converges in            0.01 s (~80x Faster)
 ----------
 </code></pre>
 </div>
