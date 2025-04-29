@@ -1,5 +1,5 @@
 # Col McDermott
-# Implementation of  logistic regression - Some code provided by Prof. Chodrow
+# Implementation of logistic regression - Some code provided by Prof. Chodrow
 
 import torch as tch
 

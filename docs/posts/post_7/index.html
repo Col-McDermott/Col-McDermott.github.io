@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Col McDermott">
+<meta name="dcterms.date" content="2025-05-05">
+<meta name="description" content="An introductory examination of two advanced optimization methods, Newton’s Method and Adam, in basic logistic regression">
+
+<title>Post 7 - Exploring Advanced Optimization Methods – Middlebury College CSCI 0451 Blog - Col McDermott</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-6943a74fafdbf25ea2a644024beb669f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: white;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: white;
+background-image: url(../../img/landscape.png);
+background-size: cover;
+      }
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Middlebury College CSCI 0451 Blog - Col McDermott</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Blog Info</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/Col-McDermott"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Post 7 - Exploring Advanced Optimization Methods</h1>
+                  <div>
+        <div class="description">
+          An introductory examination of two advanced optimization methods, Newton’s Method and Adam, in basic logistic regression
+        </div>
+      </div>
+                </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Col McDermott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 5, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>In a previous short study, I implemented a basic logistic regression model using two rudimentary versions of gradient descent: standard gradient descent and gradient descent with momentum. The goals of this past study were to investigate the more basic, fundamental procedures under-the-hood of logistic regression. Building on my previous work, in this brief study, I will explore more advanced model optimization methods, apply these methods to my preexisting logistic regression implementation, and evaluate/compare their performances. The two advanced optimization methods I will investigate are <strong>Newton’s Method</strong> and <strong>Adam</strong>.</p>
+<p>One of the most crucial components of model construction of many ML tools and algorithms (especially linear models) is effective, fast optimization. Typically, real-world applications of ML models involve massive data sets often containing complex trends and relationships. Thus, effective model training and fitting can require significant computational resources and time. Establishing the most efficient (as appropriate) optimization methods is critical in designing practical, functional, and generalizable ML models. It should be noted that the versions of the optimization methods examined in this study primarily apply to linear models (hence the revisiting of logistic regression), yet the underlying concept of advanced, fast optimization extends to highly complex, non-linear models and algorithms as well.</p>
+<p>To explore and compare <strong>Newton’s Method</strong> and <strong>Adam</strong> for optimizing a logistic regression model, I have implemented each advanced procedure in my previous logistic regression implementation. To evaluate the performance and unique properties of each optimization method, I have conducted the following experiments:</p>
+<p>Experiments with <strong>Newton’s Method</strong>:</p>
+<ol type="1">
+<li>Displaying the convergence to the correct choice of the weights vector <span class="math inline">\(\mathbf{w}\)</span> with an appropriately selected learning rate <span class="math inline">\(\alpha\)</span>.</li>
+<li>Comparing convergence rates, through the lens of empirical risk minimization, with my previously implemented basic gradient descent methods</li>
+<li>Investigating the limitation of convergence when the learning rate <span class="math inline">\(\alpha\)</span> is set too large.</li>
+</ol>
+<p>Experiments with <strong>Adam</strong>:</p>
+<ol type="1">
+<li>Displaying the convergence to the correct choice of the weights vector <span class="math inline">\(\mathbf{w} -\)</span> General convergence testing.</li>
+<li>Comparing convergence rates, through the lens of empirical risk minimization, with standard minibatch stochastic gradient descent using a fixed batch size and altering the step size <span class="math inline">\(\alpha\)</span>.</li>
+</ol>
+<p>Following the experiments outlined above, I have compared the performance of <strong>Newton’s Method</strong> and <strong>Adam</strong>. Since these techniques employ considerably different computational steps, the comparison of these two advanced optimization methods is conducted as a convergence rate analysis with respect to runtime.</p>
+<p>For the implementation and documentation of the advanced optimization methods outlined above, check out <a href="">advanced_logistic.py</a>.</p>
+<section id="sourcing-data" class="level2">
+<h2 class="anchored" data-anchor-id="sourcing-data">Sourcing Data</h2>
+<p>In order to test, evaluate, compare, and experiment with the advanced optimization methods explored in this study, it is necessary to have some binary classification data. For this analysis, I will be using the same generated data set from my previous study on <a href="https://col-mcdermott.github.io/posts/post_5/">logistic regression</a> and the Palmer Penguins data set from my first study on <a href="https://col-mcdermott.github.io/posts/post_1/">classification</a>. To briefly recap, the first data set is randomly generated 2D binary classification data used to test the correctness of the implementation for each advanced optimization method and the second data set is the widely used penguins classification data set from the Palmer Station collected by Dr.&nbsp;Kristen Gorman. Rather than trying to classify penguin species, I opted to have my models classify penguin sex (which in this data is a binary classification task). The penguins data is preprocessed by subsetting out only the numerical-value columns and standardizing each data point (using <span class="math inline">\(\frac{\mathbf{x} - \mu}{\sigma}\)</span> where <span class="math inline">\(\mu, \sigma\)</span> are the mean and STD. of the data).</p>
+<div id="3a414496" class="cell" data-execution_count="638">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> LinearSegmentedColormap</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pdf2image <span class="im">import</span> convert_from_path</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch <span class="im">as</span> tch</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Porting over logistic regression implementation</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> advanced_logistic <span class="im">import</span> LogisticRegression, GradientDescentOptimizer, NewtonOptimizer, AdamOptimizer</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>tch.manual_seed(<span class="dv">100</span>) <span class="co"># For consistent data generation</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>) <span class="co"># For consistent plotting</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload</code></pre>
+</div>
+</div>
+<p><em>Code above imports all necessary packages/libraries and ports over the implementation of my logistic regression model and the advanced optimizers <code>NewtonOptimizer</code> and <code>AdamOptimizer</code>.</em></p>
+<div id="9f48126c" class="cell" data-execution_count="639">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating data for binary classification - code provided by Prof. Chodrow</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> classification_data(n_points <span class="op">=</span> <span class="dv">300</span>, noise <span class="op">=</span> <span class="fl">0.2</span>, p_dims <span class="op">=</span> <span class="dv">2</span>):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> tch.arange(n_points) <span class="op">&gt;=</span> <span class="bu">int</span>(n_points <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="fl">1.0</span> <span class="op">*</span> y</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> y[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, noise, size <span class="op">=</span> (n_points,p_dims))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> tch.cat((X, tch.ones((X.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X, y</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>X_sim, y_sim <span class="op">=</span> classification_data(noise <span class="op">=</span> <span class="fl">0.25</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Accessing penguins data - data and (edited) method provided by Prof. Chodrow</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prepare_data(df):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Preprocessing data</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  le <span class="op">=</span> LabelEncoder()</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> df.drop([<span class="st">"studyName"</span>, <span class="st">"Sample Number"</span>, <span class="st">"Individual ID"</span>, <span class="st">"Date Egg"</span>, <span class="st">"Comments"</span>, <span class="st">"Region"</span>], axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> df[df[<span class="st">"Sex"</span>] <span class="op">!=</span> <span class="st">"."</span>]</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  le.fit(train[<span class="st">"Sex"</span>])</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> df.dropna()</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  y <span class="op">=</span> le.transform(df[<span class="st">"Sex"</span>])</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> df.drop([<span class="st">"Sex"</span>, <span class="st">"Species"</span>, <span class="st">"Island"</span>, <span class="st">"Stage"</span>, <span class="st">"Clutch Completion"</span>], axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Converting to torch tensors</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  X <span class="op">=</span> tch.tensor(df.values).<span class="bu">float</span>()</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  y_ <span class="op">=</span> tch.tensor(y <span class="op">==</span> <span class="dv">1</span>).<span class="bu">float</span>()</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standardizing the data</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  mean <span class="op">=</span> tch.mean(X, dim <span class="op">=</span> <span class="dv">0</span>, keepdim <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  std <span class="op">=</span> tch.std(X, dim <span class="op">=</span> <span class="dv">0</span>, keepdim <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  X_s <span class="op">=</span> (X <span class="op">-</span> mean) <span class="op">/</span> std</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Adding a col of 1s to feature matrix</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  X_s <span class="op">=</span> tch.cat((X_s, tch.ones(X_s.size(<span class="dv">0</span>), <span class="dv">1</span>)), dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> X_s, y_</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>train <span class="op">=</span> pd.read_csv(<span class="st">"https://raw.githubusercontent.com/PhilChodrow/ml-notes/main/data/palmer-penguins/train.csv"</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>X_train, y_train <span class="op">=</span> prepare_data(train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><em>Code above generates the simulated data (generated with fairly low-noise to ensure linear separability) and imports, preprocess (feature subsetting and standardization), the empirical (real-world) data (some code provided by Prof.&nbsp;Chodrow).</em></p>
+<div id="5f8a669e" class="cell" data-execution_count="640">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model interpretation helper methods</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Loss value plotter</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_plot(ax, loss_vec1, loss_vec2 <span class="op">=</span> <span class="va">None</span>):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plotting the loss values of the model across each optimization iteration</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    ax.plot(loss_vec1, color <span class="op">=</span> <span class="st">"#A46AAE"</span>, linewidth <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    title <span class="op">=</span> <span class="st">"Evolution of Empirical Loss Value"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loss_vec2 <span class="op">!=</span> <span class="va">None</span>):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"Gradient Descent Method Comparison</span><span class="ch">\n</span><span class="st">of Empirical Loss Value Convergence"</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        ax.plot(loss_vec2, color <span class="op">=</span> <span class="st">"darkcyan"</span>, linewidth <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        ax.legend([<span class="st">"Standard"</span>, <span class="st">"Momentum"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        ax.axhline(loss_vec2[<span class="op">-</span><span class="dv">2</span>], color <span class="op">=</span> <span class="st">"black"</span>, linestyle <span class="op">=</span> <span class="st">"--"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Optimization Iteration"</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"Loss"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Model accuracy plotter</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> acc_plot(accs1, accs2 <span class="op">=</span> <span class="va">None</span>):</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plotting the accuracies of the model across each optimization iteration</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="dv">5</span>, <span class="dv">5</span>))</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    ax.plot(accs1, color <span class="op">=</span> <span class="st">"purple"</span>, linewidth <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (accs2 <span class="op">!=</span> <span class="va">None</span>):</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        ax.plot(accs2, color <span class="op">=</span> <span class="st">"darkcyan"</span>, linewidth <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        ax.legend([<span class="st">"Training Accuracy"</span>, <span class="st">"Testing Accuracy"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="st">"Model Accuracy Across Optimization Iteration"</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="vs">r"Gradient Descent Iteration"</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"Accuarcy"</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Decision line plotting helper method - code provided by Prof. Chodrow</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw_line(X, w, x_min, x_max, ax, <span class="op">**</span>kwargs):</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    w_ <span class="op">=</span> w.flatten()</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> tch.linspace(x_min, x_max, X.shape[<span class="dv">0</span>])</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="op">-</span><span class="dv">1</span> <span class="op">*</span> (((w_[<span class="dv">0</span>] <span class="op">*</span> x) <span class="op">+</span> w_[<span class="dv">2</span>])<span class="op">/</span>w_[<span class="dv">1</span>])</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    ax.plot(x, y, <span class="op">**</span>kwargs)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Decision region plotter</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decision_bound(model, X, y, ax):</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Creating a mesh grid</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    x_min, x_max <span class="op">=</span> X[:, <span class="dv">0</span>].<span class="bu">min</span>(), X[:, <span class="dv">0</span>].<span class="bu">max</span>()</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Drawing the decision line</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    draw_line(X, model.w, x_min, x_max, ax, color <span class="op">=</span> <span class="st">"black"</span>, linewidth <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    targets <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>]</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    markers <span class="op">=</span> [<span class="st">"o"</span> , <span class="st">","</span>]</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Custom color map</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    colors <span class="op">=</span> [<span class="st">"#A46AAE"</span>, <span class="st">"darkcyan"</span>]  </span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    cmap <span class="op">=</span> LinearSegmentedColormap.from_list(<span class="st">"my_cmap"</span>, colors, N<span class="op">=</span><span class="dv">256</span>)</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Some code below provided by Prof. Chodrow</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>        ix <span class="op">=</span> y <span class="op">==</span> targets[i]</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        ax.scatter(X[ix, <span class="dv">0</span>], X[ix, <span class="dv">1</span>], s <span class="op">=</span> <span class="dv">20</span>,  c <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> y[ix] <span class="op">-</span> <span class="dv">1</span>, facecolors <span class="op">=</span> <span class="st">"none"</span>, edgecolors <span class="op">=</span> <span class="st">"none"</span>, cmap <span class="op">=</span> cmap, vmin <span class="op">=</span> <span class="op">-</span><span class="dv">2</span>, vmax <span class="op">=</span> <span class="dv">2</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>, marker <span class="op">=</span> markers[i])</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(xlabel <span class="op">=</span> <span class="vs">r"$x_1$"</span>, ylabel <span class="op">=</span> <span class="vs">r"$x_2$"</span>)</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="st">"Decision Regions of Logistic Regression Model"</span>)</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    ax.text(X[:, <span class="dv">0</span>].<span class="bu">max</span>() <span class="op">*</span> <span class="fl">0.8</span>, X[:, <span class="dv">1</span>].<span class="bu">max</span>() <span class="op">*</span> <span class="fl">0.85</span>, <span class="ss">f"Model Accuracy:</span><span class="ch">\n</span><span class="sc">{</span><span class="bu">round</span>(acc(model, X, y), <span class="dv">4</span>) <span class="op">*</span> <span class="dv">100</span><span class="sc">}</span><span class="ss">%"</span>, fontsize <span class="op">=</span> <span class="dv">10</span>, ha <span class="op">=</span> <span class="st">"center"</span>, bbox <span class="op">=</span> <span class="bu">dict</span>(facecolor <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">0.75</span>, edgecolor <span class="op">=</span> <span class="st">"gray"</span>, boxstyle <span class="op">=</span> <span class="st">"round,pad = 0.3"</span>))</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate model accuracy</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> acc(model, X, y):</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute model predictions</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    preds <span class="op">=</span> model.predict(X)</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Determine the number of correct predictions</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    correct_preds <span class="op">=</span> ((preds <span class="op">==</span> y) <span class="op">*</span> <span class="dv">1</span>).<span class="bu">float</span>()</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return the rate of correct predictions</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tch.mean(correct_preds).item()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><em>Code above defines plotting methods for observing the model’s empirical loss value evolution, the model’s accuracy, and the model’s classification decision boundaries (some code provided by Prof.&nbsp;Chodrow).</em></p>
+</section>
+<section id="implementing-newtons-method" class="level2">
+<h2 class="anchored" data-anchor-id="implementing-newtons-method">Implementing Newton’s Method</h2>
+<p>The implementation of Newton’s method incorporates the <code>LinearModel</code> and extends the <code>LogisticRegression</code> class implementations from my <a href="https://col-mcdermott.github.io/posts/post_5/">previous study</a>. Extending the <code>LogisticRegression</code> class:</p>
+<ul>
+<li><code>hessian(X)</code>: A method that computes the Hessian matrix <span class="math inline">\(H(\mathbf{w})\)</span> of the empirical loss function <span class="math inline">\(L(\mathbf{w})\)</span> with respect to the weights vector <span class="math inline">\(\mathbf{w}\)</span>. This Hessian matrix is a key component of Newton’s method which is a second-order optimization technique. The Hessian can be computed using matrix multiplication involving the feature matrix <span class="math inline">\(\mathbf{X}\)</span> and diagonal matrix <span class="math inline">\(\mathbf{D}\)</span> where the diagonal entries of <span class="math inline">\(\mathbf{D}\)</span> are <span class="math inline">\(d_{k, k} = \sigma(s_k)(1 - \sigma(s_k))\)</span> (where <span class="math inline">\(s_k\)</span> is the score of the kth data point). Note that to ensure numerical stability and matrix singularity, the Hessian <span class="math inline">\(H(\mathbf{w})\)</span> is normalized by the <span class="math inline">\(n\)</span> (the number of data points <span class="math inline">\(\mathbf{X}\)</span>) and has diagonal entries padded by a value <span class="math inline">\(\epsilon = 1\times10^-10\)</span>. I found that these precautionary additions made for better experimentation. Below is the explicit definition of <span class="math inline">\(H(\mathbf{w})\)</span> along with the formula defining each entry <span class="math inline">\(h_{i, j}(\mathbf{w})\)</span>:</li>
+</ul>
+<p><span class="math display">\[
+\begin{align*}
+\mathbf{H}(\mathbf{w}) &amp;= \mathbf{X}^T\mathbf{D}\mathbf{X} \\
+h_{i, j}(\mathbf{w}) &amp;= \sum_{k = 1}^{n}{x_{k, i}x_{k, j}\sigma(s_k)(1 - \sigma(s_k))}
+\end{align*}
+\]</span></p>
+<p>The actual implementation of Newton’s method resides in the following class:</p>
+<p><strong><code>NewtonOptimizer</code></strong>:</p>
+<ul>
+<li><p><code>self.lr</code>: An instance variable of a <code>LogisticRegression</code> object. This is used to reference the current weights vector <span class="math inline">\(\mathbf{w}\)</span> during an optimization step.</p></li>
+<li><p><code>step(X, y, alpha)</code>: A method that computes an optimization step of Newton’s method. Note that <span class="math inline">\(\mathbf{X}, \mathbf{y}\)</span> are needed to compute the gradient and Hessian matrix of the loss function <span class="math inline">\(L(\mathbf{w})\)</span>. The hyperparameter <code>alpha</code> (denoted as <span class="math inline">\(\alpha\)</span> below) is used to set the learning rate for the gradient descent process. Note that this method technically takes the Moore-Penrose pseudoinverse of the Hessian <span class="math inline">\(\mathbf{H(w)}\)</span> to avoid computational failure in the event <span class="math inline">\(\mathbf{H(w)}\)</span> is somehow non-singular (likely due to finite numerical precision). I again found that this precautionary change made for better experimentation. This method updates the weights vector <span class="math inline">\(\mathbf{w_k}\)</span> using the following:</p></li>
+</ul>
+<p><span class="math display">\[
+w_{k + 1} = w_{k} - \alpha \mathbf{H^{-1}}(\mathbf{w_{k}})\nabla L(\mathbf{w_{k}})
+\]</span></p>
+<ul>
+<li><code>optimize(X, y, alpha, tol)</code>: A method to optimize a model with Newton’s method (repeatedly calling the <code>step(X, y, alpha)</code> method above) until the model’s empirical loss value reaches the desired loss-value tolerance (<code>tol</code>).</li>
+</ul>
+<section id="experiment-1-testing-the-implementation-of-newtons-method" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-1-testing-the-implementation-of-newtons-method">Experiment 1: Testing The Implementation of Newton’s Method</h3>
+<p>To test my implementation of Newton’s method, I will evaluate its performance on the generated data in comparison to the standard gradient descent method I implemented in a previous study.</p>
+<div id="3789f3d1" class="cell" data-execution_count="641">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing the correctness of Newton's method implementation</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Logistic regression model for Standard gradient descent</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>LR_s <span class="op">=</span> LogisticRegression()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>opt_s <span class="op">=</span> GradientDescentOptimizer(LR_s)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Logistic regression model for Newton's method</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>LR_n <span class="op">=</span> LogisticRegression()</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>opt_n <span class="op">=</span> NewtonOptimizer(LR_n)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing an equal weights vector for each model</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>LR_s.w <span class="op">=</span> tch.rand((X_sim.size()[<span class="dv">1</span>]))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>LR_n.w <span class="op">=</span> LR_s.w</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimizing both models</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5000</span>):</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    opt_s.step(X_sim, y_sim, alpha <span class="op">=</span> <span class="fl">0.1</span>, beta <span class="op">=</span> <span class="fl">0.0</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    opt_n.step(X_sim, y_sim, alpha <span class="op">=</span> <span class="fl">0.1</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the decision regions of both models</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>decision_bound(LR_s, X_sim, y_sim, ax[<span class="dv">0</span>])</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>decision_bound(LR_n, X_sim, y_sim, ax[<span class="dv">1</span>])</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Standard Gradient Descent"</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"Newton's Method"</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Comparing Logistic Regression Model Performance using</span><span class="ch">\n</span><span class="st">Newton's Method and Gradient Descent"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Figure 1</strong></p>
+<div id="b8a68721" class="cell" data-execution_count="642">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Displaying the weights vectors of both models</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Standard Gradient Descent Optimizer | w_s = </span><span class="sc">{</span>LR_s<span class="sc">.</span>w<span class="sc">.</span>flatten()<span class="sc">}</span><span class="ch">\n</span><span class="ss">----------"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Newton's Method Optimizer           | w_n = </span><span class="sc">{</span>LR_n<span class="sc">.</span>w<span class="sc">.</span>flatten()<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Standard Gradient Descent Optimizer | w_s = tensor([ 5.6146,  5.3198, -5.3680])
+----------
+Newton's Method Optimizer           | w_n = tensor([ 251.7622,  222.9369, -252.3581])</code></pre>
+</div>
+</div>
+<p><em>Code cells above optimize two logistic regression models using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>, plot the corresponding decision boundaries, and display the weights vectors <span class="math inline">\(w_s\)</span> (for standard gradient descent) and <span class="math inline">\(w_n\)</span> (for Newton’s method).</em></p>
+<p>The figure above shows the decision boundaries for the two logistic regression models fit to the simulated classification data. One model was optimized using standard gradient descent and the other was optimized using Newton’s method. As shown in the plots above, the decision boundaries for each model appear essentially identical and both models were able to achieve <span class="math inline">\(100\%\)</span> classification accuracy. This is expected as the data is generated to be linearly separable. Interestingly though, the output above shows that the weights vectors <span class="math inline">\(\mathbf{w_s}\)</span> (for standard gradient descent) and <span class="math inline">\(\mathbf{w_n}\)</span> (for Newton’s method) are notably different for each entry. This is likely attributable to the fact standard gradient descent and Newton’s method involve similarly-formatted by considerably differently-valued calculations. Nonetheless, each model was still able to converge to a “correct” weights vector <span class="math inline">\(\mathbf{w}\)</span>. Note that for both the standard gradient descent and Newton’s method optimizers, the learning rate <span class="math inline">\(\alpha\)</span> was set to <span class="math inline">\(0.1\)</span> (for the standard gradient descent optimizer, the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>). This shows that with a sufficiently small learning rate, both optimizers can converge to the same weights vector <span class="math inline">\(\mathbf{w}\)</span> and yield the same model accuracy.</p>
+</section>
+<section id="experiment-2-comparing-convergence-rates" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-2-comparing-convergence-rates">Experiment 2: Comparing Convergence Rates</h3>
+<p>For this experiment, I will compare the convergence rates of two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Each model will be trained and tested on the empirical, real-world data set.</p>
+<div id="81c9486e" class="cell" data-execution_count="643">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing convergence rates of standard gradient descent and Newton's method</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Logistic regression model for Standard gradient descent</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>LR_s <span class="op">=</span> LogisticRegression()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>opt_s <span class="op">=</span> GradientDescentOptimizer(LR_s)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Logistic regression model for Newton's method</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>LR_n <span class="op">=</span> LogisticRegression()</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>opt_n <span class="op">=</span> NewtonOptimizer(LR_n)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing an equal weights vector for each model</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>LR_s.w <span class="op">=</span> tch.rand((X_train.size()[<span class="dv">1</span>]))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>LR_n.w <span class="op">=</span> LR_s.w</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrays to store the loss values of the models optimized with grad. descent and Newton's method</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>losses_s <span class="op">=</span> []</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>losses_n <span class="op">=</span> []</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>tol <span class="op">=</span> <span class="fl">0.315</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>at_tol <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Iteration counters to track convergence</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>s_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>n_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (at_tol <span class="op">!=</span> <span class="va">True</span>):</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recording current loss values</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    loss_s <span class="op">=</span> LR_s.loss(X_train, y_train)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    loss_n <span class="op">=</span> LR_n.loss(X_train, y_train)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loss_s <span class="op">&gt;</span> tol):</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        losses_s.append(loss_s)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        opt_s.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">0.1</span>, beta <span class="op">=</span> <span class="fl">0.0</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> (s_i <span class="op">&gt;</span> i):</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        s_i <span class="op">=</span> i</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loss_n <span class="op">&gt;</span> tol):</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        losses_n.append(loss_n)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        opt_n.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">0.1</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> (n_i <span class="op">&gt;</span> i):</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>        n_i <span class="op">=</span> i</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Terminating condition</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loss_s <span class="op">&lt;</span> tol) <span class="op">&amp;</span> (loss_n <span class="op">&lt;</span> tol):</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        at_tol <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Displaying gradient descent progress for 5 iterations</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (i <span class="op">%</span> <span class="dv">20</span> <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (i <span class="op">&lt;</span> <span class="dv">100</span>):</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Iteration </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">:"</span>)</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Current Loss value (Standard Gradient Descent): </span><span class="sc">{</span><span class="bu">round</span>(losses_s[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Current Loss value (Newton's Method):           </span><span class="sc">{</span><span class="bu">round</span>(losses_n[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"...</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Standard Gradient Descent Converges at </span><span class="sc">{</span>s_i<span class="sc">}</span><span class="ss"> Iterations"</span>)</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Newton's Method Converges at           </span><span class="sc">{</span>n_i<span class="sc">}</span><span class="ss"> Iterations"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Iteration 0:
+Current Loss value (Standard Gradient Descent): 2.071
+Current Loss value (Newton's Method):           2.071
+----------
+
+Iteration 20:
+Current Loss value (Standard Gradient Descent): 1.18
+Current Loss value (Newton's Method):           0.405
+----------
+
+Iteration 40:
+Current Loss value (Standard Gradient Descent): 0.826
+Current Loss value (Newton's Method):           0.316
+----------
+
+Iteration 60:
+Current Loss value (Standard Gradient Descent): 0.685
+Current Loss value (Newton's Method):           0.316
+----------
+
+Iteration 80:
+Current Loss value (Standard Gradient Descent): 0.61
+Current Loss value (Newton's Method):           0.316
+----------
+
+...
+
+Standard Gradient Descent Converges at 1666 Iterations
+Newton's Method Converges at           36 Iterations</code></pre>
+</div>
+</div>
+<p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Each model is optimized until its empirical loss value is less than the tolerance of <span class="math inline">\(0.325\)</span>. Note that the learning rate <span class="math inline">\(\alpha\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span> and the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>. The learning rate <span class="math inline">\(\alpha\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>.</em></p>
+<p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Note that the learning rate <span class="math inline">\(\alpha_s\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span>, the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>, and the learning rate <span class="math inline">\(\alpha_n\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized until its empirical loss value was less than the tolerance of <span class="math inline">\(0.315\)</span>. As illustrated above, the model optimized with Newton’s method converged much faster (~<span class="math inline">\(46\times\)</span> quicker) than the model optimized with standard gradient descent.</p>
+<div id="81a610e8" class="cell" data-execution_count="644">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the loss values of both models</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="fl">7.5</span>, <span class="dv">5</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>loss_plot(ax, losses_s, losses_n)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.legend([<span class="st">"Std. Grad. Descent"</span>, <span class="st">"Newton's Method"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Optimization Method Comparison of</span><span class="ch">\n</span><span class="st">Empirical Loss Value Convergence"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above plots the empirical loss value convergence rates for each of the logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>.</em></p>
+<p><strong>Figure 2</strong></p>
+<p>The plot above provides a visual accompaniment to the output produced by the previous code cell. As shown, the model optimized with Newton’s method converges significantly faster than the model optimized with standard gradient descent. This result is evidence that under certain circumstances (i.e.&nbsp;when the learning rates <span class="math inline">\(\alpha_n, \alpha_s\)</span> are appropriately/independently set), Newton’s method can achieve convergence (in the context of decreasing empirical loss value) considerably faster than standard gradient descent. Overall this experiment provides strong justification for why Newton’s method is considered significantly more efficient for optimization over standard gradient descent (under the right circumstances that is).</p>
+</section>
+<section id="experiment-3-investigating-the-limitation-of-convergence" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-3-investigating-the-limitation-of-convergence">Experiment 3: Investigating the Limitation of Convergence</h3>
+<p>In this experiment, I will investigate the limitations of convergence of Newton’s method when the learning rate <span class="math inline">\(\alpha\)</span> is set too large.</p>
+<div id="7c1c5c87" class="cell" data-execution_count="645">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Investigating the limitations of convergence of Newton's method</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Logistic regression models with Newton's method using a large and small learning rate</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>LR_lg <span class="op">=</span> LogisticRegression()</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>opt_lg <span class="op">=</span> NewtonOptimizer(LR_lg)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>LR_sm <span class="op">=</span> LogisticRegression()</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>opt_sm <span class="op">=</span> NewtonOptimizer(LR_sm)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrays to store the loss values of the model optimized with Newton's method</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>losses_lg <span class="op">=</span> []</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>losses_sm <span class="op">=</span> []</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recording current loss value</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    loss_lg <span class="op">=</span> LR_lg.loss(X_train, y_train)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    loss_sm <span class="op">=</span> LR_sm.loss(X_train, y_train)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    losses_lg.append(loss_lg)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    losses_sm.append(loss_sm)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    opt_lg.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">1.1</span>)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    opt_sm.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">1.0</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the loss values of both models</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="fl">7.5</span>, <span class="dv">5</span>))</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>loss_plot(ax, losses_sm, losses_lg)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Displaying The Limitations of Newton's Method</span><span class="ch">\n</span><span class="st">Empirical Loss Value Convergence"</span>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>ax.legend([<span class="st">"alpha = 1.1"</span>, <span class="st">"alpha = 1.0"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above optimizes two logistic regression models with a <code>NewtonOptimizer</code> and plots the evolution of the empirical loss values over <span class="math inline">\(1000\)</span> iterations. The learning rates are set to <span class="math inline">\(\alpha_{sm} = 1.0, \alpha_{lg} = 1.1\)</span>.</em></p>
+<p><strong>Figure 3</strong></p>
+<p>The figure above illustrates the limitations of convergence of Newton’s method when the learning rate <span class="math inline">\(\alpha\)</span> is set to large. In the plot, the evolution of the empirical loss values of two logistic regression models optimized with Newton’s method is displayed. One of the models has a learning rate of <span class="math inline">\(\alpha_{sm} = 1.0\)</span>, while the other has a learning rate of <span class="math inline">\(\alpha_{lg} = 1.1\)</span>. When the learning rate is set to <span class="math inline">\(1.0\)</span>, the model is able to converge to the minimal empirical loss value in very few iterations. However, when the learning rate is slightly increased to just <span class="math inline">\(1.1\)</span>, the model fails to converge to neither the minimal nor a consistent empirical loss value. Overall, it is clear that with a poorly/too-large selected learning rate, a model optimized with Newton’s method will fail to converge (with respect to decreasing empirical loss). This experiment stands as evidence that while Newton’s method can strongly outperform less efficient optimization methods under some circumstances, this will not strictly be the case as Newton’s method risks failing to optimize overall in some scenarios.</p>
+</section>
+</section>
+<section id="implementing-the-adam-optimization-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="implementing-the-adam-optimization-algorithm">Implementing The Adam Optimization Algorithm</h2>
+<p>Like the implementation of Newton’s method, the implementation of the Adam algorithm incorporates the <code>LinearModel</code> and the <code>LogisticRegression</code> class implementations from my previous study. The Adam algorithm is defined in the following class:</p>
+<p><strong><code>AdamOptimizer</code></strong>:</p>
+<ul>
+<li><p><code>self.lr</code>: An instance variable of a <code>LogisticRegression</code> object. This is used to reference the current weights vector <span class="math inline">\(\mathbf{w}\)</span> during an optimization step.</p></li>
+<li><p><code>optimizeEpoch(X, y, batch_size, alpha, beta_1, beta_2, w_0 = None)</code>: A method that computes runs the Adam algorithm on the data over one epoch. The <code>batch_size</code> argument specifies the size of the subset of data from the feature matrix <span class="math inline">\(\mathbf{X}\)</span> used in the improved stochastic gradient descent processed. The arguments <code>beta_1</code>, <code>beta_2</code> determine the decay rates of the first moment (the mean of the gradient) and the second raw moment (the un-centered variance of the gradient) respectively. The <code>w_0</code> argument is the initial guess for the weights vector <span class="math inline">\(\mathbf{w}\)</span> (implicitly set to <code>None</code>).</p></li>
+<li><p><code>optimize(X, y, tol, batch_size, alpha, beta_1, beta_2, w_0 = None)</code>: A method that runs the Adam algorithm on the data until the model’s empirical loss value reaches the desired tolerance (<code>tol</code>).</p></li>
+</ul>
+<p>The Adam algorithm is a more efficient stochastic gradient descent technique that only uses first-order information. The Adam method leverages several efficiency-promoting concepts including the incorporation of adaptive learning rates <span class="math inline">\(-\)</span> using the first and second moments of the gradient to give parameters with larger gradient magnitudes smaller updates and the opposite for parameters with smaller gradient magnitudes. My implementation of the Adam algorithm is defined below (adapted from Kingma, Diederik P, and Jimmy Lei Ba):</p>
+<div id="83b9e4d6" class="cell" data-execution_count="646">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Image(filename <span class="op">=</span> <span class="st">"adam.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="646">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Image 1</strong></p>
+<p>Above is the pseudocode for my implementation of the Adam algorithm which is a slightly edited version of the original algorithm designed by Kingma, Diederik P, and Jimmy Lei Ba.</p>
+<section id="experiment-1-testing-the-implementation-of-adam" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-1-testing-the-implementation-of-adam">Experiment 1: Testing the Implementation of Adam</h3>
+<p>To examine the correctness of my implementation of the Adam algorithm, I will again evaluate its performance on the generated data in comparison to the standard gradient descent method from my previous study.</p>
+<div id="04dd5b7d" class="cell" data-execution_count="647">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing the correctness of Adam implementation</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Logistic regression model for Standard gradient descent</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>LR_s <span class="op">=</span> LogisticRegression()</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>opt_s <span class="op">=</span> GradientDescentOptimizer(LR_s)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Logistic regression model for adam</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>LR_a <span class="op">=</span> LogisticRegression()</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>opt_a <span class="op">=</span> AdamOptimizer(LR_a)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing an equal weights vector for each model</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>LR_s.w <span class="op">=</span> tch.rand((X_sim.size()[<span class="dv">1</span>]))</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>LR_a.w <span class="op">=</span> LR_s.w</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimizing both models</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    opt_s.step(X_sim, y_sim, alpha <span class="op">=</span> <span class="fl">0.1</span>, beta <span class="op">=</span> <span class="fl">0.0</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># # Optimizing with Adam for 3 epochs</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (i <span class="op">%</span> <span class="dv">333</span> <span class="op">==</span> <span class="dv">0</span>):</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Using a batchsize of (n/10) and the other suggested default argument settings</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        opt_a.optimizeEpoch(X_sim, y_sim, batch_size <span class="op">=</span> <span class="bu">int</span>(X_sim.size(<span class="dv">0</span>) <span class="op">/</span> <span class="dv">10</span>), alpha <span class="op">=</span> <span class="fl">0.1</span>, beta_1 <span class="op">=</span> <span class="fl">0.9</span>, beta_2 <span class="op">=</span> <span class="fl">0.9</span>, w_0 <span class="op">=</span> LR_a.w)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the decision regions of both models</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>decision_bound(LR_s, X_sim, y_sim, ax[<span class="dv">0</span>])</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>decision_bound(LR_a, X_sim, y_sim, ax[<span class="dv">1</span>])</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Standard Gradient Descent"</span>)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"Adam"</span>)</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Comparing Logistic Regression Model Performance using Adam</span><span class="ch">\n</span><span class="st">and Gradient Descent"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Figure 4</strong></p>
+<div id="c1799e9e" class="cell" data-execution_count="648">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Displaying the weights vectors of both models</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Standard Gradient Descent Optimizer | w_s = </span><span class="sc">{</span>LR_s<span class="sc">.</span>w<span class="sc">.</span>flatten()<span class="sc">}</span><span class="ch">\n</span><span class="ss">----------"</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Adam Optimizer                      | w_a = </span><span class="sc">{</span>LR_a<span class="sc">.</span>w<span class="sc">.</span>flatten()<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Standard Gradient Descent Optimizer | w_s = tensor([ 3.4320,  3.4643, -3.2607])
+----------
+Adam Optimizer                      | w_a = tensor([ 4.0078,  3.5353, -3.4335])</code></pre>
+</div>
+</div>
+<p><em>Code cells above optimize two logistic regression models using the <code>GradientDescentOptimizer</code> and <code>AdamOptimizer</code>, plot the corresponding decision boundaries, and display the weights vectors <span class="math inline">\(w_s\)</span> (for standard gradient descent) and <span class="math inline">\(w_a\)</span> (for Adam).</em></p>
+<p>Similarly to <strong>Figure 1</strong>, the figure above shows the decision boundaries for two logistic regression models fit to the simulated classification data. One model was optimized using standard gradient descent and the other was optimized using the Adam algorithm. As shown in the plots above, the decision boundaries for each model appear essentially identical and both models were able to achieve <span class="math inline">\(100\%\)</span> classification accuracy. This is expected as the data is generated to be linearly separable. In this experiment, the model optimized with standard gradient descent was optimized over <span class="math inline">\(1000\)</span> iterations while the model optimized with the Adam algorithm was run for <span class="math inline">\(3\)</span> epochs. Additionally, the output above shows that the weights vectors <span class="math inline">\(\mathbf{w_s}\)</span> (for standard gradient descent) and <span class="math inline">\(\mathbf{w_a}\)</span> (for the Adam algorithm) have very similar corresponding entries. Interestingly, the weights vectors <span class="math inline">\(\mathbf{w_s}, \mathbf{w_a}\)</span> are not identical, yet they both yield models with flawless classification ability on the generated data. Note that for both the standard gradient descent and Adam algorithm optimizers, the learning rate <span class="math inline">\(\alpha\)</span> was set to <span class="math inline">\(0.1\)</span>, and the initial weights vector <span class="math inline">\(\mathbf{w_0}\)</span> was set randomly and assigned to each model. For the standard gradient descent optimizer, the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>. For the Adam optimizer, the remaining parameters were set to: <code>batch_size</code> = <span class="math inline">\(\frac{n}{10}\)</span>, and <span class="math inline">\(\beta_1, \beta_2 = 0.9\)</span>. This shows that with adequately chosen learning rates and other hyperparameters, both optimizers can converge to the same weights vector <span class="math inline">\(\mathbf{w}\)</span> and yield the same model accuracy.</p>
+</section>
+<section id="experiment-2-comparing-convergence-rates-between-adam-and-standard-sgd-stochastic-gradient-descent" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-2-comparing-convergence-rates-between-adam-and-standard-sgd-stochastic-gradient-descent">Experiment 2: Comparing Convergence Rates Between Adam and Standard SGD (Stochastic Gradient Descent)</h3>
+<p>This experiment aims to display the efficiency-promoting characteristics of the Adam algorithm in comparing the rate of empirical loss value convergence between two logistic regression models where one of them is optimized with SGD and the other employs the Adam algorithm.</p>
+<div id="dc157ea0" class="cell" data-execution_count="649">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing convergence rates of Adam and SGD</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Array to store different step sizes to compare convergence rates with</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>alphas <span class="op">=</span> [<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>]</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Array to store different tolerance values</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>tols <span class="op">=</span> [<span class="fl">0.45</span>, <span class="fl">0.325</span>, <span class="fl">0.315</span>] </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># dictionaries to track decreasing loss value</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>losses_s_full <span class="op">=</span> {}</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>losses_a_full <span class="op">=</span> {}</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(alphas)):</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Logistic regression model for standard stochastic gradient descent</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    LR_s <span class="op">=</span> LogisticRegression()</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    opt_s <span class="op">=</span> GradientDescentOptimizer(LR_s)</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logistic regression model for Adam</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    LR_a <span class="op">=</span> LogisticRegression()</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    opt_a <span class="op">=</span> AdamOptimizer(LR_a)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing an equal weights vector for each model</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    LR_s.w <span class="op">=</span> tch.rand((X_train.size()[<span class="dv">1</span>]))</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_s.w</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Arrays to track decreasing loss value</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    losses_s <span class="op">=</span> []</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    losses_a <span class="op">=</span> []</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    tol <span class="op">=</span> tols[j]</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    at_tol <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Iteration counters to track convergence</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    s_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>    a_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (at_tol <span class="op">!=</span> <span class="va">True</span>):</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Using a batchsize of (n/8) and the other suggested default argument settings</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> <span class="bu">int</span>(X_train.size(<span class="dv">0</span>) <span class="op">/</span> <span class="dv">8</span>)</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Recording current loss value</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>        loss_s <span class="op">=</span> LR_s.loss(X_train, y_train)</span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>        loss_a <span class="op">=</span> LR_a.loss(X_train, y_train)</span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (loss_s <span class="op">&gt;</span> tol):</span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>            losses_s.append(loss_s)</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>            opt_s.optimizeSGD(X_train, y_train, batch_size <span class="op">=</span> b, alpha <span class="op">=</span> alphas[j], beta <span class="op">=</span> <span class="fl">0.0</span>)</span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> (s_i <span class="op">&gt;</span> i):</span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>            s_i <span class="op">=</span> i</span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (loss_a <span class="op">&gt;</span> tol):</span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a>            losses_a.append(loss_a)</span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a>            opt_a.optimizeEpoch(X_train, y_train, batch_size <span class="op">=</span> b, alpha <span class="op">=</span> alphas[j], beta_1 <span class="op">=</span> <span class="fl">0.9</span>, beta_2 <span class="op">=</span> <span class="fl">0.9</span>, w_0 <span class="op">=</span> LR_a.w)</span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> (a_i <span class="op">&gt;</span> i):</span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a>            a_i <span class="op">=</span> i</span>
+<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Terminating condition</span></span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (loss_s <span class="op">&lt;</span> tol) <span class="op">&amp;</span> (loss_a <span class="op">&lt;</span> tol):</span>
+<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a>            at_tol <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a>        i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a>    losses_s_full[alphas[j]] <span class="op">=</span> losses_s</span>
+<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a>    losses_a_full[alphas[j]] <span class="op">=</span> losses_a</span>
+<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"When alpha = </span><span class="sc">{</span>alphas[j]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Standard SGD Converges at </span><span class="sc">{</span>s_i<span class="sc">}</span><span class="ss"> Epochs"</span>)</span>
+<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Adam Converges at         </span><span class="sc">{</span>a_i<span class="sc">}</span><span class="ss"> Epochs (~</span><span class="sc">{</span><span class="bu">int</span>(s_i <span class="op">/</span> a_i)<span class="sc">}</span><span class="ss">x Faster)</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>When alpha = 0.001
+Standard SGD Converges at 2463 Epochs
+Adam Converges at         297 Epochs (~8x Faster)
+----------
+
+When alpha = 0.01
+Standard SGD Converges at 1285 Epochs
+Adam Converges at         68 Epochs (~18x Faster)
+----------
+
+When alpha = 0.1
+Standard SGD Converges at 208 Epochs
+Adam Converges at         15 Epochs (~13x Faster)
+----------
+</code></pre>
+</div>
+</div>
+<p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over three different learning rates. Each model is optimized until the empirical loss value reaches a tolerance of <span class="math inline">\(0.45, 0.325, 0.315\)</span> depending respectively on the learning rates <span class="math inline">\(0.001, 0.01, 0.1\)</span>. Note that the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span> for the <code>GradientDescentOptimizer</code> the other hyperparameters were set to the recommendations of Kingma, Diederik P, and Jimmy Lei Ba for the <code>AdamOptimizer</code>.</em></p>
+<p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over the learning rates <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized until its empirical loss value was less than the tolerance of <span class="math inline">\(0.45, 0.325, 0.315\)</span> depending respectively on the given learning rate. As illustrated above, the model optimized with the Adam method converged significantly faster (~<span class="math inline">\(10\times\)</span> quicker on average) than the model optimized with standard SGD for each of the three different learning rates of this experiment.</p>
+<div id="33735c65" class="cell" data-execution_count="650">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the loss values of both models</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="fl">12.5</span>, <span class="dv">5</span>))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">0</span>], losses_s_full[alphas[<span class="dv">0</span>]], losses_a_full[alphas[<span class="dv">0</span>]])</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">1</span>], losses_s_full[alphas[<span class="dv">1</span>]], losses_a_full[alphas[<span class="dv">1</span>]])</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">2</span>], losses_s_full[alphas[<span class="dv">2</span>]], losses_a_full[alphas[<span class="dv">2</span>]])</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="ss">f"Optimization Method Comparison of Empirical Loss Value</span><span class="ch">\n</span><span class="ss">Convergence When Alpha = </span><span class="sc">{</span>alphas[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>alphas[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>alphas[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-14-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Code above plots the empirical loss value convergence rates for each of the logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> for each of the tested learning rates.</em></p>
+<p><strong>Figure 5</strong></p>
+<p>Similarly to <strong>Figure 2</strong>, the plot above provides a visual accompaniment to the output produced by the previous code cell. As shown, the model optimized with the Adam algorithm converges considerably quicker than the model optimized with standard SGD (i.e.&nbsp;it needed many fewer epochs) for each of the tested learning rates. This result is evidence that under certain circumstances (i.e.&nbsp;when the learning rates <span class="math inline">\(\alpha_a, \alpha_s\)</span> are appropriately set), the Adam algorithm method can achieve convergence (in the context of decreasing empirical loss value) significantly faster than standard SGD. The results of this experiment stand as a representation of Adam’s boosted efficiencies, displaying how Adam’s performance can vastly exceed that of standard SGD even with several choices of the learning rate.</p>
+</section>
+</section>
+<section id="comparing-newtons-method-and-the-adam-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-newtons-method-and-the-adam-algorithm">Comparing Newton’s Method and the Adam Algorithm</h2>
+<p>After experimenting individually with each of these advanced optimization methods, it is useful to compare their performances to each other to understand how each method might outperform the other under certain circumstances. Considering that these two methods involve notably different computational procedures, I will opt to compare their convergence rates with respect to overall runtime. Specifically, I will examine the differences in runtime it takes each method to converge (i.e.&nbsp;minimize the empirical loss value) over three different learning rates (similarly to <strong>Experiment 2</strong> from above). In this comparison, I will again use a pre-selected loss-value tolerance to determine convergence (note that there will be a different tolerance for each learning rate)</p>
+<div id="03177b5c" class="cell" data-execution_count="651">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing the convergence rates of Newton's method and Adam with respect to runtime</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Array to store different step sizes and tolerances to compare convergence rates with</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>alphas <span class="op">=</span> [<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>]</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>tols <span class="op">=</span> [<span class="fl">0.304</span>, <span class="fl">0.30377</span>, <span class="fl">0.3045</span>]</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrays to store the convergence runtimes</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>rt_n <span class="op">=</span> []</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>rt_a <span class="op">=</span> []</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(alphas)):</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing each model</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    LR_n <span class="op">=</span> LogisticRegression()</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    opt_n <span class="op">=</span> NewtonOptimizer(LR_n)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    LR_a <span class="op">=</span> LogisticRegression()</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    opt_a <span class="op">=</span> AdamOptimizer(LR_a)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing the weights vectors</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    LR_n.w <span class="op">=</span> tch.rand((X_train.size()[<span class="dv">1</span>]))</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_n.w</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Running Newton's method</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    start_time_n <span class="op">=</span> time.time()</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    opt_n.optimize(X_train, y_train, alphas[i], tols[i])</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    rt_n.append(time.time() <span class="op">-</span> start_time_n)</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Running Adam</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    start_time_a <span class="op">=</span> time.time()</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>    opt_a.optimize(X_train, y_train, tols[i], <span class="bu">int</span>(X_train.size(<span class="dv">0</span>) <span class="op">/</span> <span class="dv">8</span>), alphas[i], beta_1 <span class="op">=</span> <span class="fl">0.9</span>, beta_2 <span class="op">=</span> <span class="fl">0.9</span>, w_0 <span class="op">=</span> LR_a.w) <span class="co"># Using a batch size of (n/8)</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>    rt_a.append(time.time() <span class="op">-</span> start_time_a)</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Comparison</span></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"When alpha = </span><span class="sc">{</span>alphas[i]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="op">&lt;</span> rt_a[<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Newton's Method converges in </span><span class="sc">{</span>rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s (~</span><span class="sc">{</span><span class="bu">round</span>((rt_a[<span class="op">-</span><span class="dv">1</span>] <span class="op">/</span> rt_n[<span class="op">-</span><span class="dv">1</span>]), <span class="dv">1</span>)<span class="sc">}</span><span class="ss">x Faster)"</span>)</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Adam Converges in            </span><span class="sc">{</span>rt_a[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Newton's Method converges in </span><span class="sc">{</span>rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s "</span>)</span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Adam Converges in            </span><span class="sc">{</span>rt_a[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s (~</span><span class="sc">{</span><span class="bu">int</span>(rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="op">/</span> rt_a[<span class="op">-</span><span class="dv">1</span>])<span class="sc">}</span><span class="ss">x Faster)</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>When alpha = 0.001
+Newton's Method converges in 1.90 s (~2.8x Faster)
+Adam Converges in            5.35 s
+----------
+
+When alpha = 0.01
+Newton's Method converges in 0.22 s (~19.1x Faster)
+Adam Converges in            4.17 s
+----------
+
+When alpha = 0.1
+Newton's Method converges in 0.02 s (~8.9x Faster)
+Adam Converges in            0.15 s
+----------
+</code></pre>
+</div>
+</div>
+<p><em>Code above displays the runtime til convergence for a logistic regression model optimized with Newton’s method and a logistic regression model optimized with the Adam algorithm. Each model is optimized until the empirical loss value reaches a specified tolerance. The runtimes are compared across three different learning rate step sizes. The training data used is the empirical penguins classification data.</em></p>
+<p>The output above compares the runtime between logistic regression models, one optimized with Newton’s method and the other with the Adam algorithm. In this comparison, each model is optimized over the empirical penguins classification data. The runtime required for each model to yield an empirical loss value of a specified tolerance is tracked and compared across three selected learning rates. The learning rates of this comparison are <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>, and the corresponding tolerances for each model given the current learning rates are <span class="math inline">\(0.304, 0.30377, 0.304\)</span>. As clearly depicted above, the model employing Newton’s method considerably outperforms the model using the Adam algorithm across all three tested learning rates. Based on this comparison alone, it would appear that Newton’s method is far more efficient than the Adam algorithm for optimization. However, note that the training data used in this comparison has relatively few features, which likely favors Newton’s method over Adam (primarily due to the fact that the expensive computation of Newton’s method is not amplified by a vast number of features). Thus, it is useful to recreate this comparison on data with many more features, and observe any notable similarities or differences <span class="math inline">\(-\)</span> leading into the comparison below:</p>
+<div id="d49e4e6e" class="cell" data-execution_count="652">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing the convergence rates of Newton's method and Adam with respect to runtime - part 2</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Generating high-dimensional data for binary classification - code provided by Prof. Chodrow</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> classification_data(n_points <span class="op">=</span> <span class="dv">500</span>, noise <span class="op">=</span> <span class="fl">0.2</span>, p_dims <span class="op">=</span> <span class="dv">250</span>):</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> tch.arange(n_points) <span class="op">&gt;=</span> <span class="bu">int</span>(n_points <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="fl">1.0</span> <span class="op">*</span> y</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> y[:, <span class="va">None</span>] <span class="op">+</span> tch.normal(<span class="fl">0.0</span>, noise, size <span class="op">=</span> (n_points,p_dims))</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> tch.cat((X, tch.ones((X.shape[<span class="dv">0</span>], <span class="dv">1</span>))), <span class="dv">1</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X, y</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>X_sim, y_sim <span class="op">=</span> classification_data(noise <span class="op">=</span> <span class="fl">0.3</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Array to store different step sizes and tolerances to compare convergence rates with</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>alphas <span class="op">=</span> [<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>]</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>tols <span class="op">=</span> [<span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>]</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrays to store the convergence runtimes</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>rt_n <span class="op">=</span> []</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>rt_a <span class="op">=</span> []</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(alphas)):</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing each model</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    LR_n <span class="op">=</span> LogisticRegression()</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    opt_n <span class="op">=</span> NewtonOptimizer(LR_n)</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    LR_a <span class="op">=</span> LogisticRegression()</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    opt_a <span class="op">=</span> AdamOptimizer(LR_a)</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing the weights vectors</span></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    LR_n.w <span class="op">=</span> tch.rand((X_sim.size()[<span class="dv">1</span>]))</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_n.w</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Running Newton's method</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    start_time_n <span class="op">=</span> time.time()</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>    opt_n.optimize(X_sim, y_sim, alphas[i], tols[i])</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>    rt_n.append(time.time() <span class="op">-</span> start_time_n)</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Running Adam</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>    start_time_a <span class="op">=</span> time.time()</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>    opt_a.optimize(X_sim, y_sim, tols[i], <span class="bu">int</span>(X_train.size(<span class="dv">0</span>) <span class="op">/</span> <span class="dv">8</span>), alphas[i], beta_1 <span class="op">=</span> <span class="fl">0.9</span>, beta_2 <span class="op">=</span> <span class="fl">0.9</span>, w_0 <span class="op">=</span> LR_a.w) <span class="co"># Using a batch size of (n/8)</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>    rt_a.append(time.time() <span class="op">-</span> start_time_a)</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Comparison</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"When alpha = </span><span class="sc">{</span>alphas[i]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="op">&lt;</span> rt_a[<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Newton's Method converges in </span><span class="sc">{</span>rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s (~</span><span class="sc">{</span><span class="bu">round</span>((rt_a[<span class="op">-</span><span class="dv">1</span>] <span class="op">/</span> rt_n[<span class="op">-</span><span class="dv">1</span>]), <span class="dv">1</span>)<span class="sc">}</span><span class="ss">x Faster)"</span>)</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Adam Converges in            </span><span class="sc">{</span>rt_a[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Newton's Method converges in </span><span class="sc">{</span>rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s "</span>)</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Adam Converges in            </span><span class="sc">{</span>rt_a[<span class="op">-</span><span class="dv">1</span>] <span class="sc">:.2f}</span><span class="ss"> s (~</span><span class="sc">{</span><span class="bu">int</span>(rt_n[<span class="op">-</span><span class="dv">1</span>] <span class="op">/</span> rt_a[<span class="op">-</span><span class="dv">1</span>])<span class="sc">}</span><span class="ss">x Faster)</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>When alpha = 0.001
+Newton's Method converges in 5.92 s 
+Adam Converges in            0.24 s (~24x Faster)
+----------
+
+When alpha = 0.01
+Newton's Method converges in 0.96 s 
+Adam Converges in            0.04 s (~26x Faster)
+----------
+
+When alpha = 0.1
+Newton's Method converges in 0.61 s 
+Adam Converges in            0.01 s (~72x Faster)
+----------
+</code></pre>
+</div>
+</div>
+<p><em>Code above displays the runtime til convergence for a logistic regression model optimized with Newton’s method and a logistic regression model optimized with the Adam algorithm. Each model is optimized until the empirical loss value reaches a specified tolerance. The runtimes are compared across three different learning rate step sizes. The training data used in generated classification data with <span class="math inline">\(250\)</span> features.</em></p>
+<p>The output above again compares the runtime between logistic regression models, one optimized with Newton’s method and the other with the Adam algorithm. Note that the training data used in this comparison is another generated binary classification data set. In this data set, each data point has <span class="math inline">\(250\)</span> features, much more than each data point from the empirical penguins classification data set. The runtime required for each model to yield an empirical loss value of a specified tolerance is tracked and compared across three selected learning rates. The learning rates of this comparison are again <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>, and the corresponding tolerances for each model given the current learning rates are now <span class="math inline">\(0.4, 0.3, 0.32\)</span>. This time, as clearly depicted above, the model employing the Adam algorithm method considerably outperforms the model using Newton’s method across all three tested learning rates. In this comparison, the performances of each optimization method have completely swapped with respect to the first runtime comparison. This is likely due to the fact the higher-dimensional generated data makes for expensive Hessian matrix/Hessian inversion computation for Newton’s method that the Adam algorithm does not experience. Thus, it appears that the performance of each optimization method over the other depends significantly on the number of features found in the data.</p>
+</section>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>The primary goals of this brief analysis were to investigate, implement, and experiment with advanced optimization methods. The two particular advanced optimization techniques explored in this study are <strong>Newton’s Method</strong> and the <strong>Adam</strong> optimization algorithm. Each of these advanced, boosted-efficiency optimization techniques incorporates extra mathematical/statistical information that is not computed/considered in basic optimization schemes (i.e.&nbsp;standard gradient descent). In Newton’s method, the gradient descent procedure is sped up using 2nd order information <span class="math inline">\(-\)</span> the Hessian matrix <span class="math inline">\(\mathbf{H(w)}\)</span> of the empirical loss function <span class="math inline">\(L(\mathbf{w})\)</span> with respect to the weights vector <span class="math inline">\(\mathbf{w}\)</span>. This 2nd order information allows Newton’s method to achieve faster optimization as it considers the curvature of the empirical loss/objective function. The Adam algorithm boosts optimization efficiency through the computation and use of the 1st and 2nd moments of the empirical loss/objective function. In using these gradient moments, the Adam algorithm is able to conduct rapid optimization with dynamic, powerful momentum exploitation while also pushing past/through saddle points, plateaus, or local minima in the empirical loss function. The Adam algorithm also achieves faster optimization through leveraging stochastic processes. Compared to their respective counterparts of standard gradient descent and standard stochastic gradient descent (SGD), both Newton’s method and Adam can significantly outperform basic optimization methods under many circumstances. Yet, while in many cases their advanced techniques are preferable, they each possess some key limitations and will not always yield the peak performance across the board.</p>
+<p>To investigate the advantages and limitations of Newton’s method and Adam, I conducted several experiments with each individual optimization technique as well as compared the two techniques to each other.</p>
+<p><u>Analyzing Newton’s method</u>:</p>
+<p>I found that on linearly separable, low-dimensional generated data, this method was easily able to minimize the empirical loss function and achieve <span class="math inline">\(100\%\)</span> classification accuracy. Further,(on the empirical penguins classification data) with an appropriately selected learning rate <span class="math inline">\(\alpha\)</span>, Newton’s method was able to minimize the empirical loss value (achieve convergence) in significantly fewer iterations than standard gradient descent. Specifically, Newton’s method converged roughly <span class="math inline">\(15\times\)</span> faster than standard gradient descent. However, while Newton’s method strongly outperforms standard gradient descent with an appropriate learning rate, if the learning rate is set too high, Newton’s method fails to converge entirely. Thus, the benefits of Newton’s method are limited by the choice of <span class="math inline">\(\alpha\)</span>, which may suggest that in some scenarios, standard gradient descent is the desirable approach.</p>
+<p><u>Analyzing the Adam algorithm</u>:</p>
+<p>Similarly to Newton’s method, I found that the Adam algorithm was again able to easily minimize the empirical loss function and achieve <span class="math inline">\(100\%\)</span> classification accuracy on the low-dimensional generated data. Additionally (on the empirical penguins classification data), across several selected learning rates, the Adam algorithm was able to minimize the empirical loss function (i.e.&nbsp;achieve convergence) considerably faster (i.e.&nbsp;in far fewer iterations) than standard stochastic gradient descent.</p>
+<p><u>Comparing Newton’s method and the Adam algorithm</u>:</p>
+<p>Given the fact that Newton’s method and the Adam algorithm perform quite different computation procedures, simply comparing each method optimization iteration-for-optimization iteration is not the most effective method of comparison. Thus, these methods were compared in terms of the overall runtime required to achieve convergence. Specifically, the runtime necessary for each method to yield an empirical loss value of a certain loss-value tolerance was tracked over several selected learning rates. This was likely due to the fact that the 2nd order information of Newton’s method had a more significant impact on optimization than the momentum components of Adam with lower-dimensional data. Interestingly though, I found that the better-performing optimization method depended heavily on the nature of the training data used for optimization. Trained on the empirical penguins classification data, which has relatively few data points and features, I found that Newton’s method was able to minimize the empirical loss function (achieve convergence) exceptionally faster than the Adam algorithm. However, when trained on a new set of generated data with a much larger number of features, the Adam algorithm substantially outperformed Newton’s method on the basis of convergence runtime. I suspect that this reversal of optimization method performance is attributable to the computationally expensive processes of computing/inverting the Hessian matrix <span class="math inline">\(\mathbf{H(w)}\)</span> in Newton’s method, which the Adam algorithm does not employ.</p>
+<p>Lastly, from this study, I’ve had the opportunity to dive into the complex mathematical and algorithmic properties under the hood of two famous advanced optimization techniques. Exploring these methods of advanced optimization provides some valuable insight into how various types of optimization problems can be efficiently solved simply by following a different set of steps. Also, one of the most crucial insights about these advanced optimization strategies derived from this study is understanding the specific, yet plausible, circumstances in which these high-efficiency methods actually break down or lose their beneficial qualities. Overall, in exploring Newton’s method and the Adam algorithm, I’ve been able to develop my understanding of the complexity and diversity of optimization processes in machine learning, gaining new knowledge into how the specific characteristics of a given ML task and the available data resources strongly influence the best choice of model-fitting/optimization technique.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<p>Kingma, Diederik P, and Jimmy Lei Ba. 2015. “Adam: A Method for Stochastic Gradient Descent.” In ICLR: ‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍International ‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍Conference ‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍on ‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍Learning ‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍Representations, 1–15. ICLR US.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
