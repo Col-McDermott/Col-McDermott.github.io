@@ -254,7 +254,7 @@ window.Quarto = {
 <section id="sourcing-data" class="level2">
 <h2 class="anchored" data-anchor-id="sourcing-data">Sourcing Data</h2>
 <p>In order to test, evaluate, compare, and experiment with the advanced optimization methods explored in this study, it is necessary to have some binary classification data. For this analysis, I will be using the same generated data set from my previous study on <a href="https://col-mcdermott.github.io/posts/post_5/">logistic regression</a> and the Palmer Penguins data set from my first study on <a href="https://col-mcdermott.github.io/posts/post_1/">classification</a>. To briefly recap, the first data set is randomly generated 2D binary classification data used to test the correctness of the implementation for each advanced optimization method and the second data set is the widely used penguins classification data set from the Palmer Station collected by Dr.&nbsp;Kristen Gorman. Rather than trying to classify penguin species, I opted to have my models classify penguin sex (which in this data is a binary classification task). The penguins data is preprocessed by subsetting out only the numerical-value columns and standardizing each data point (using <span class="math inline">\(\frac{\mathbf{x} - \mu}{\sigma}\)</span> where <span class="math inline">\(\mu, \sigma\)</span> are the mean and STD. of the data).</p>
-<div id="3a414496" class="cell" data-execution_count="668">
+<div id="3a414496" class="cell" data-execution_count="303">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Including all additional imports</span></span>
@@ -282,7 +282,7 @@ window.Quarto = {
 </div>
 </div>
 <p><em>Code above imports all necessary packages/libraries and ports over the implementation of my logistic regression model and the advanced optimizers <code>NewtonOptimizer</code> and <code>AdamOptimizer</code>.</em></p>
-<div id="9f48126c" class="cell" data-execution_count="669">
+<div id="9f48126c" class="cell" data-execution_count="304">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating data for binary classification - code provided by Prof. Chodrow</span></span>
@@ -325,7 +325,7 @@ window.Quarto = {
 </details>
 </div>
 <p><em>Code above generates the simulated data (generated with fairly low-noise to ensure linear separability) and imports, preprocess (feature subsetting and standardization), the empirical (real-world) data (some code provided by Prof.&nbsp;Chodrow).</em></p>
-<div id="5f8a669e" class="cell" data-execution_count="670">
+<div id="5f8a669e" class="cell" data-execution_count="305">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model interpretation helper methods</span></span>
@@ -432,7 +432,7 @@ w_{k + 1} = w_{k} - \alpha \mathbf{H^{-1}}(\mathbf{w_{k}})\nabla L(\mathbf{w_{k}
 <section id="experiment-1-testing-the-implementation-of-newtons-method" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-1-testing-the-implementation-of-newtons-method">Experiment 1: Testing The Implementation of Newton’s Method</h3>
 <p>To test my implementation of Newton’s method, I will evaluate its performance on the generated data in comparison to the standard gradient descent method I implemented in a previous study.</p>
-<div id="3789f3d1" class="cell" data-execution_count="671">
+<div id="3789f3d1" class="cell" data-execution_count="306">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing the correctness of Newton's method implementation</span></span>
@@ -446,7 +446,7 @@ w_{k + 1} = w_{k} - \alpha \mathbf{H^{-1}}(\mathbf{w_{k}})\nabla L(\mathbf{w_{k}
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing an equal weights vector for each model</span></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>LR_s.w <span class="op">=</span> tch.rand((X_sim.size()[<span class="dv">1</span>]))</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>LR_n.w <span class="op">=</span> LR_s.w</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>LR_n.w <span class="op">=</span> LR_s.w.clone()</span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimizing both models</span></span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5000</span>):</span>
@@ -472,7 +472,7 @@ w_{k + 1} = w_{k} - \alpha \mathbf{H^{-1}}(\mathbf{w_{k}})\nabla L(\mathbf{w_{k}
 </div>
 </div>
 <p><strong>Figure 1</strong></p>
-<div id="b8a68721" class="cell" data-execution_count="672">
+<div id="b8a68721" class="cell" data-execution_count="307">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Displaying the weights vectors of both models</span></span>
@@ -491,7 +491,7 @@ Newton's Method Optimizer           | w_n = tensor([ 251.7622,  222.9369, -252.3
 <section id="experiment-2-comparing-convergence-rates" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-2-comparing-convergence-rates">Experiment 2: Comparing Convergence Rates</h3>
 <p>For this experiment, I will compare the convergence rates of two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Each model will be trained and tested on the empirical, real-world data set.</p>
-<div id="81c9486e" class="cell" data-execution_count="673">
+<div id="81c9486e" class="cell" data-execution_count="308">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing convergence rates of standard gradient descent and Newton's method</span></span>
@@ -505,53 +505,39 @@ Newton's Method Optimizer           | w_n = tensor([ 251.7622,  222.9369, -252.3
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing an equal weights vector for each model</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>LR_s.w <span class="op">=</span> tch.rand((X_train.size()[<span class="dv">1</span>]))</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>LR_n.w <span class="op">=</span> LR_s.w</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>LR_n.w <span class="op">=</span> LR_s.w.clone()</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrays to store the loss values of the models optimized with grad. descent and Newton's method</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>losses_s <span class="op">=</span> []</span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>losses_n <span class="op">=</span> []</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>tol <span class="op">=</span> <span class="fl">0.315</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>at_tol <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Iteration counters to track convergence</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>s_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>n_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (at_tol <span class="op">!=</span> <span class="va">True</span>):</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recording current loss values</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    loss_s <span class="op">=</span> LR_s.loss(X_train, y_train)</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    loss_n <span class="op">=</span> LR_n.loss(X_train, y_train)</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loss_s <span class="op">&gt;</span> tol):</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        losses_s.append(loss_s)</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        opt_s.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">0.1</span>, beta <span class="op">=</span> <span class="fl">0.0</span>)</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> (s_i <span class="op">&gt;</span> i):</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        s_i <span class="op">=</span> i</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loss_n <span class="op">&gt;</span> tol):</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        losses_n.append(loss_n)</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        opt_n.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">0.1</span>)</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> (n_i <span class="op">&gt;</span> i):</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>        n_i <span class="op">=</span> i</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Terminating condition</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loss_s <span class="op">&lt;</span> tol) <span class="op">&amp;</span> (loss_n <span class="op">&lt;</span> tol):</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        at_tol <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Displaying gradient descent progress for 5 iterations</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (i <span class="op">%</span> <span class="dv">20</span> <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (i <span class="op">&lt;</span> <span class="dv">100</span>):</span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Iteration </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">:"</span>)</span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Current Loss value (Standard Gradient Descent): </span><span class="sc">{</span><span class="bu">round</span>(losses_s[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Current Loss value (Newton's Method):           </span><span class="sc">{</span><span class="bu">round</span>(losses_n[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    i <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"...</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Standard Gradient Descent Converges at </span><span class="sc">{</span>s_i<span class="sc">}</span><span class="ss"> Iterations"</span>)</span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Newton's Method Converges at           </span><span class="sc">{</span>n_i<span class="sc">}</span><span class="ss"> Iterations"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimization loop</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recording current loss values</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    loss_s <span class="op">=</span> LR_s.loss(X_train, y_train)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    loss_n <span class="op">=</span> LR_n.loss(X_train, y_train)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    losses_s.append(loss_s)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    losses_n.append(loss_n)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Optimize each model</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    opt_s.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">0.1</span>, beta <span class="op">=</span> <span class="fl">0.0</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    opt_n.step(X_train, y_train, alpha <span class="op">=</span> <span class="fl">0.1</span>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Displaying gradient descent progress for 5 iterations</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (i <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (i <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (i <span class="op">&lt;</span> <span class="dv">60</span>):</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Iteration </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">:"</span>)</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Current Loss value (Standard Gradient Descent): </span><span class="sc">{</span><span class="bu">round</span>(losses_s[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Current Loss value (Newton's Method):           </span><span class="sc">{</span><span class="bu">round</span>(losses_n[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"...</span><span class="ch">\n</span><span class="st">After 100000 Iterations"</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Standard Gradient Descent Loss Value: </span><span class="sc">{</span><span class="bu">round</span>(losses_s[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Newton's Method Loss Value:           </span><span class="sc">{</span><span class="bu">round</span>(losses_n[<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Iteration 0:
-Current Loss value (Standard Gradient Descent): 2.071
-Current Loss value (Newton's Method):           2.071
+<pre><code>Iteration 10:
+Current Loss value (Standard Gradient Descent): 1.542
+Current Loss value (Newton's Method):           0.618
 ----------
 
 Iteration 20:
@@ -559,38 +545,40 @@ Current Loss value (Standard Gradient Descent): 1.18
 Current Loss value (Newton's Method):           0.405
 ----------
 
+Iteration 30:
+Current Loss value (Standard Gradient Descent): 0.958
+Current Loss value (Newton's Method):           0.331
+----------
+
 Iteration 40:
 Current Loss value (Standard Gradient Descent): 0.826
-Current Loss value (Newton's Method):           0.316
+Current Loss value (Newton's Method):           0.309
 ----------
 
-Iteration 60:
-Current Loss value (Standard Gradient Descent): 0.685
-Current Loss value (Newton's Method):           0.316
-----------
-
-Iteration 80:
-Current Loss value (Standard Gradient Descent): 0.61
-Current Loss value (Newton's Method):           0.316
+Iteration 50:
+Current Loss value (Standard Gradient Descent): 0.743
+Current Loss value (Newton's Method):           0.305
 ----------
 
 ...
-
-Standard Gradient Descent Converges at 1666 Iterations
-Newton's Method Converges at           36 Iterations</code></pre>
+After 100000 Iterations
+Standard Gradient Descent Loss Value: 0.329
+Newton's Method Loss Value:           0.304</code></pre>
 </div>
 </div>
-<p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Each model is optimized until its empirical loss value is less than the tolerance of <span class="math inline">\(0.325\)</span>. Note that the learning rate <span class="math inline">\(\alpha\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span> and the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>. The learning rate <span class="math inline">\(\alpha\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>.</em></p>
-<p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Note that the learning rate <span class="math inline">\(\alpha_s\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span>, the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>, and the learning rate <span class="math inline">\(\alpha_n\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized until its empirical loss value was less than the tolerance of <span class="math inline">\(0.315\)</span>. As illustrated above, the model optimized with Newton’s method converged much faster (~<span class="math inline">\(46\times\)</span> quicker) than the model optimized with standard gradient descent.</p>
-<div id="81a610e8" class="cell" data-execution_count="674">
+<p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Each model is optimized for <span class="math inline">\(1000\)</span> iterations. Note that the learning rate <span class="math inline">\(\alpha\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span> and the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>. The learning rate <span class="math inline">\(\alpha\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>.</em></p>
+<p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>. Note that the learning rate <span class="math inline">\(\alpha_s\)</span> for the <code>GradientDescentOptimizer</code> was set to <span class="math inline">\(0.1\)</span>, the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span>, and the learning rate <span class="math inline">\(\alpha_n\)</span> for the <code>NewtonOptimizer</code> was set to <span class="math inline">\(0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized for <span class="math inline">\(1000\)</span> iterations. As illustrated above, the model optimized with Newton’s method achieved a lower empirical loss value than the model optimized with standard gradient descent at every optimization iteration.</p>
+<div id="81a610e8" class="cell" data-execution_count="309">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the loss values of both models</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">1</span>, figsize <span class="op">=</span> (<span class="fl">7.5</span>, <span class="dv">5</span>))</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>loss_plot(ax, losses_s, losses_n)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.legend([<span class="st">"Std. Grad. Descent"</span>, <span class="st">"Newton's Method"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Optimization Method Comparison of</span><span class="ch">\n</span><span class="st">Empirical Loss Value Convergence"</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>ax.legend([<span class="st">"Std. Grad. Descent"</span>, <span class="st">"Newton's Method"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Optimization Method Comparison of Empirical Loss Value Convergence</span><span class="ch">\n</span><span class="st">(log-log Scale)"</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -602,12 +590,12 @@ Newton's Method Converges at           36 Iterations</code></pre>
 </div>
 <p><em>Code above plots the empirical loss value convergence rates for each of the logistic regression models optimized using the <code>NewtonOptimizer</code> and <code>GradientDescentOptimizer</code>.</em></p>
 <p><strong>Figure 2</strong></p>
-<p>The plot above provides a visual accompaniment to the output produced by the previous code cell. As shown, the model optimized with Newton’s method converges significantly faster than the model optimized with standard gradient descent. This result is evidence that under certain circumstances (i.e.&nbsp;when the learning rates <span class="math inline">\(\alpha_n, \alpha_s\)</span> are appropriately/independently set), Newton’s method can achieve convergence (in the context of decreasing empirical loss value) considerably faster than standard gradient descent. Overall this experiment provides strong justification for why Newton’s method is considered significantly more efficient for optimization over standard gradient descent (under the right circumstances that is).</p>
+<p>The plot above provides a visual accompaniment to the output produced by the previous code cell. As shown, the model optimized with Newton’s method converges significantly faster than the model optimized with standard gradient descent. That is, the empirical loss value of the model employing Newton’s method clearly “levels out” in considerably fewer iterations that empirical loss value of the model using standard gradient descent. This result is evidence that under certain circumstances (i.e.&nbsp;when the learning rates <span class="math inline">\(\alpha_n, \alpha_s\)</span> are appropriately/independently set), Newton’s method can achieve convergence (in the context of decreasing empirical loss value) considerably faster than standard gradient descent. Overall this experiment provides strong justification for why Newton’s method is considered significantly more efficient for optimization over standard gradient descent (under the right circumstances that is).</p>
 </section>
 <section id="experiment-3-investigating-the-limitation-of-convergence" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-3-investigating-the-limitation-of-convergence">Experiment 3: Investigating the Limitation of Convergence</h3>
 <p>In this experiment, I will investigate the limitations of convergence of Newton’s method when the learning rate <span class="math inline">\(\alpha\)</span> is set too large.</p>
-<div id="7c1c5c87" class="cell" data-execution_count="675">
+<div id="7c1c5c87" class="cell" data-execution_count="310">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Investigating the limitations of convergence of Newton's method</span></span>
@@ -662,12 +650,12 @@ Newton's Method Converges at           36 Iterations</code></pre>
 <li><p><code>optimize(X, y, tol, batch_size, alpha, beta_1, beta_2, w_0 = None)</code>: A method that runs the Adam algorithm on the data until the model’s empirical loss value reaches the desired tolerance (<code>tol</code>).</p></li>
 </ul>
 <p>The Adam algorithm is a more efficient stochastic gradient descent technique that only uses first-order information. The Adam method leverages several efficiency-promoting concepts including the incorporation of adaptive learning rates <span class="math inline">\(-\)</span> using the first and second moments of the gradient to give parameters with larger gradient magnitudes smaller updates and the opposite for parameters with smaller gradient magnitudes. My implementation of the Adam algorithm is defined below (adapted from Kingma, Diederik P, and Jimmy Lei Ba):</p>
-<div id="83b9e4d6" class="cell" data-execution_count="676">
+<div id="83b9e4d6" class="cell" data-execution_count="311">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Image(filename <span class="op">=</span> <span class="st">"adam.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="676">
+<div class="cell-output cell-output-display" data-execution_count="311">
 <div>
 <figure class="figure">
 <p><img src="index_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
@@ -680,7 +668,7 @@ Newton's Method Converges at           36 Iterations</code></pre>
 <section id="experiment-1-testing-the-implementation-of-adam" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-1-testing-the-implementation-of-adam">Experiment 1: Testing the Implementation of Adam</h3>
 <p>To examine the correctness of my implementation of the Adam algorithm, I will again evaluate its performance on the generated data in comparison to the standard gradient descent method from my previous study.</p>
-<div id="04dd5b7d" class="cell" data-execution_count="677">
+<div id="04dd5b7d" class="cell" data-execution_count="312">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing the correctness of Adam implementation</span></span>
@@ -694,7 +682,7 @@ Newton's Method Converges at           36 Iterations</code></pre>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing an equal weights vector for each model</span></span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>LR_s.w <span class="op">=</span> tch.rand((X_sim.size()[<span class="dv">1</span>]))</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>LR_a.w <span class="op">=</span> LR_s.w</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>LR_a.w <span class="op">=</span> LR_s.w.clone()</span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimizing both models</span></span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
@@ -710,9 +698,9 @@ Newton's Method Converges at           36 Iterations</code></pre>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize <span class="op">=</span> (<span class="dv">10</span>, <span class="dv">5</span>))</span>
 <span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>decision_bound(LR_s, X_sim, y_sim, ax[<span class="dv">0</span>])</span>
 <span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>decision_bound(LR_a, X_sim, y_sim, ax[<span class="dv">1</span>])</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Standard Gradient Descent"</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Standard SGD"</span>)</span>
 <span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="st">"Adam"</span>)</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Comparing Logistic Regression Model Performance using Adam</span><span class="ch">\n</span><span class="st">and Gradient Descent"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Comparing Logistic Regression Model Performance using Adam</span><span class="ch">\n</span><span class="st">and Standard SGD"</span>, fontsize <span class="op">=</span> <span class="dv">16</span>)</span>
 <span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
@@ -724,7 +712,7 @@ Newton's Method Converges at           36 Iterations</code></pre>
 </div>
 </div>
 <p><strong>Figure 4</strong></p>
-<div id="c1799e9e" class="cell" data-execution_count="678">
+<div id="c1799e9e" class="cell" data-execution_count="313">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Displaying the weights vectors of both models</span></span>
@@ -743,114 +731,102 @@ Adam Optimizer                      | w_a = tensor([ 4.0078,  3.5353, -3.4335])<
 <section id="experiment-2-comparing-convergence-rates-between-adam-and-standard-sgd-stochastic-gradient-descent" class="level3">
 <h3 class="anchored" data-anchor-id="experiment-2-comparing-convergence-rates-between-adam-and-standard-sgd-stochastic-gradient-descent">Experiment 2: Comparing Convergence Rates Between Adam and Standard SGD (Stochastic Gradient Descent)</h3>
 <p>This experiment aims to display the efficiency-promoting characteristics of the Adam algorithm in comparing the rate of empirical loss value convergence between two logistic regression models where one of them is optimized with SGD and the other employs the Adam algorithm.</p>
-<div id="dc157ea0" class="cell" data-execution_count="679">
+<div id="dc157ea0" class="cell" data-execution_count="314">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing convergence rates of Adam and SGD</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Array to store different step sizes to compare convergence rates with</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>alphas <span class="op">=</span> [<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>]</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Array to store different tolerance values</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>tols <span class="op">=</span> [<span class="fl">0.45</span>, <span class="fl">0.325</span>, <span class="fl">0.315</span>] </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Array to store the number of epochs to run for depending on step size</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>epochs <span class="op">=</span> [<span class="dv">10000</span>, <span class="dv">1000</span>, <span class="dv">100</span>]</span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># dictionaries to track decreasing loss value</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Dictionaries to track decreasing loss value</span></span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>losses_s_full <span class="op">=</span> {}</span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>losses_a_full <span class="op">=</span> {}</span>
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(alphas)):</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Logistic regression model for standard stochastic gradient descent</span></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    LR_s <span class="op">=</span> LogisticRegression()</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    opt_s <span class="op">=</span> GradientDescentOptimizer(LR_s)</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logistic regression model for Adam</span></span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    LR_a <span class="op">=</span> LogisticRegression()</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    opt_a <span class="op">=</span> AdamOptimizer(LR_a)</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing an equal weights vector for each model</span></span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    LR_s.w <span class="op">=</span> tch.rand((X_train.size()[<span class="dv">1</span>]))</span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_s.w</span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Arrays to track decreasing loss value</span></span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    losses_s <span class="op">=</span> []</span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    losses_a <span class="op">=</span> []</span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    tol <span class="op">=</span> tols[j]</span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    at_tol <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Iteration counters to track convergence</span></span>
-<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    s_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
-<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>    a_i <span class="op">=</span> np.iinfo(np.int64).<span class="bu">max</span></span>
-<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (at_tol <span class="op">!=</span> <span class="va">True</span>):</span>
-<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Using a batchsize of (n/8) and the other suggested default argument settings</span></span>
-<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> <span class="bu">int</span>(X_train.size(<span class="dv">0</span>) <span class="op">/</span> <span class="dv">8</span>)</span>
-<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Recording current loss value</span></span>
-<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>        loss_s <span class="op">=</span> LR_s.loss(X_train, y_train)</span>
-<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>        loss_a <span class="op">=</span> LR_a.loss(X_train, y_train)</span>
-<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (loss_s <span class="op">&gt;</span> tol):</span>
-<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>            losses_s.append(loss_s)</span>
-<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>            opt_s.optimizeSGD(X_train, y_train, batch_size <span class="op">=</span> b, alpha <span class="op">=</span> alphas[j], beta <span class="op">=</span> <span class="fl">0.0</span>)</span>
-<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> (s_i <span class="op">&gt;</span> i):</span>
-<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>            s_i <span class="op">=</span> i</span>
-<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (loss_a <span class="op">&gt;</span> tol):</span>
-<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a>            losses_a.append(loss_a)</span>
-<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a>            opt_a.optimizeEpoch(X_train, y_train, batch_size <span class="op">=</span> b, alpha <span class="op">=</span> alphas[j], beta_1 <span class="op">=</span> <span class="fl">0.9</span>, beta_2 <span class="op">=</span> <span class="fl">0.9</span>, w_0 <span class="op">=</span> LR_a.w)</span>
-<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> (a_i <span class="op">&gt;</span> i):</span>
-<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a>            a_i <span class="op">=</span> i</span>
-<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Terminating condition</span></span>
-<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (loss_s <span class="op">&lt;</span> tol) <span class="op">&amp;</span> (loss_a <span class="op">&lt;</span> tol):</span>
-<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a>            at_tol <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a>        i <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a>    losses_s_full[alphas[j]] <span class="op">=</span> losses_s</span>
-<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a>    losses_a_full[alphas[j]] <span class="op">=</span> losses_a</span>
-<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"When alpha = </span><span class="sc">{</span>alphas[j]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Standard SGD Converges at </span><span class="sc">{</span>s_i<span class="sc">}</span><span class="ss"> Epochs"</span>)</span>
-<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Adam Converges at         </span><span class="sc">{</span>a_i<span class="sc">}</span><span class="ss"> Epochs (~</span><span class="sc">{</span><span class="bu">int</span>(s_i <span class="op">/</span> a_i)<span class="sc">}</span><span class="ss">x Faster)</span><span class="ch">\n</span><span class="ss">----------</span><span class="ch">\n</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># For each step size</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(alphas)):</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Logistic regression model for standard stochastic gradient descent</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    LR_s <span class="op">=</span> LogisticRegression()</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    opt_s <span class="op">=</span> GradientDescentOptimizer(LR_s)</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logistic regression model for Adam</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    LR_a <span class="op">=</span> LogisticRegression()</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    opt_a <span class="op">=</span> AdamOptimizer(LR_a)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing an equal weights vector for each model</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    LR_s.w <span class="op">=</span> tch.rand((X_train.size()[<span class="dv">1</span>]))</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_s.w.clone()</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Arrays to track decreasing loss value</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    losses_s <span class="op">=</span> []</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    losses_a <span class="op">=</span> []</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Optimization loop</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(epochs[j]):</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Using a batchsize of (n/8) and the other suggested default argument settings</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> <span class="bu">int</span>(X_train.size(<span class="dv">0</span>) <span class="op">/</span> <span class="dv">8</span>)</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Recording current loss value</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>        loss_s <span class="op">=</span> LR_s.loss(X_train, y_train)</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        loss_a <span class="op">=</span> LR_a.loss(X_train, y_train)</span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>        losses_s.append(loss_s)</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>        losses_a.append(loss_a)</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>        opt_s.optimizeSGD(X_train, y_train, batch_size <span class="op">=</span> b, alpha <span class="op">=</span> alphas[j], beta <span class="op">=</span> <span class="fl">0.0</span>)            </span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>        opt_a.optimizeEpoch(X_train, y_train, batch_size <span class="op">=</span> b, alpha <span class="op">=</span> alphas[j], beta_1 <span class="op">=</span> <span class="fl">0.9</span>, beta_2 <span class="op">=</span> <span class="fl">0.9</span>, w_0 <span class="op">=</span> LR_a.w)</span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>    losses_s_full[alphas[j]] <span class="op">=</span> losses_s</span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>    losses_a_full[alphas[j]] <span class="op">=</span> losses_a</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"----------</span><span class="ch">\n</span><span class="ss">When alpha = </span><span class="sc">{</span>alphas[j]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Standard SGD Loss Value at </span><span class="sc">{</span>epochs[j]<span class="sc">}</span><span class="ss"> Epochs: </span><span class="sc">{</span><span class="bu">round</span>(losses_s_full[alphas[j]][<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Adam Loss Value at </span><span class="sc">{</span>epochs[j]<span class="sc">}</span><span class="ss"> Epochs:         </span><span class="sc">{</span><span class="bu">round</span>(losses_a_full[alphas[j]][<span class="op">-</span><span class="dv">1</span>], <span class="dv">3</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>When alpha = 0.001
-Standard SGD Converges at 2463 Epochs
-Adam Converges at         297 Epochs (~8x Faster)
+<pre><code>----------
+When alpha = 0.001
+Standard SGD Loss Value at 10000 Epochs: 0.337
+Adam Loss Value at 10000 Epochs:         0.304
 ----------
-
 When alpha = 0.01
-Standard SGD Converges at 1285 Epochs
-Adam Converges at         68 Epochs (~18x Faster)
+Standard SGD Loss Value at 1000 Epochs: 0.338
+Adam Loss Value at 1000 Epochs:         0.305
 ----------
-
 When alpha = 0.1
-Standard SGD Converges at 208 Epochs
-Adam Converges at         15 Epochs (~13x Faster)
-----------
-</code></pre>
+Standard SGD Loss Value at 100 Epochs: 0.336
+Adam Loss Value at 100 Epochs:         0.306</code></pre>
 </div>
 </div>
-<p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over three different learning rates. Each model is optimized until the empirical loss value reaches a tolerance of <span class="math inline">\(0.45, 0.325, 0.315\)</span> depending respectively on the learning rates <span class="math inline">\(0.001, 0.01, 0.1\)</span>. Note that the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span> for the <code>GradientDescentOptimizer</code> the other hyperparameters were set to the recommendations of Kingma, Diederik P, and Jimmy Lei Ba for the <code>AdamOptimizer</code>.</em></p>
-<p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over the learning rates <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized until its empirical loss value was less than the tolerance of <span class="math inline">\(0.45, 0.325, 0.315\)</span> depending respectively on the given learning rate. As illustrated above, the model optimized with the Adam method converged significantly faster (~<span class="math inline">\(10\times\)</span> quicker on average) than the model optimized with standard SGD for each of the three different learning rates of this experiment.</p>
-<div id="33735c65" class="cell" data-execution_count="680">
+<p><em>Code above compares the convergence rates of the empirical loss value of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over three different learning rates. Each model is optimized for <span class="math inline">\(10000, 1000, 100\)</span> epochs depending respectively on the learning rates <span class="math inline">\(0.001, 0.01, 0.1\)</span>. Note that the momentum scalar <span class="math inline">\(\beta\)</span> was set to <span class="math inline">\(0.0\)</span> for the <code>GradientDescentOptimizer</code> the other hyperparameters were set to the recommendations of Kingma, Diederik P, and Jimmy Lei Ba for the <code>AdamOptimizer</code>.</em></p>
+<p>The output above displays a comparison of the convergence rates of the two logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> over the learning rates <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>. To compare the convergence of the empirical loss value, each model was optimized for <span class="math inline">\(10000, 1000, 100\)</span> epochs depending respectively on the given learning rate. As illustrated above, the model optimized with the Adam method produces a lower empirical loss value than the model employing standard SGD for each selected step size after the corresponding number of epochs.</p>
+<div id="33735c65" class="cell" data-execution_count="315">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the loss values of both models</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="fl">12.5</span>, <span class="dv">5</span>))</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">0</span>], losses_s_full[alphas[<span class="dv">0</span>]], losses_a_full[alphas[<span class="dv">0</span>]])</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">1</span>], losses_s_full[alphas[<span class="dv">1</span>]], losses_a_full[alphas[<span class="dv">1</span>]])</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">2</span>], losses_s_full[alphas[<span class="dv">2</span>]], losses_a_full[alphas[<span class="dv">2</span>]])</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="ss">f"Optimization Method Comparison of Empirical Loss Value</span><span class="ch">\n</span><span class="ss">Convergence When Alpha = </span><span class="sc">{</span>alphas[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>alphas[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>alphas[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">1</span>], losses_s_full[alphas[<span class="dv">1</span>]], losses_a_full[alphas[<span class="dv">1</span>]])</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>loss_plot(ax[<span class="dv">2</span>], losses_s_full[alphas[<span class="dv">2</span>]], losses_a_full[alphas[<span class="dv">2</span>]])</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"Epochs"</span>)</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xscale(<span class="st">"log"</span>)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].legend([<span class="st">"Std. SGD"</span>, <span class="st">"Adam"</span>], frameon <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_title(<span class="ss">f"Alpha = </span><span class="sc">{</span>alphas[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="ss">f"Optimization Method Comparison of Empirical Loss Value Convergence</span><span class="ch">\n</span><span class="ss">When Alpha = </span><span class="sc">{</span>alphas[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>alphas[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>alphas[<span class="dv">2</span>]<span class="sc">}</span><span class="ss"> (log-log Scale)"</span>, fontsize <span class="op">=</span> <span class="dv">14</span>)</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -862,13 +838,13 @@ Adam Converges at         15 Epochs (~13x Faster)
 </div>
 <p><em>Code above plots the empirical loss value convergence rates for each of the logistic regression models optimized using the <code>AdamOptimizer</code> and <code>GradientDescentOptimizer</code> for each of the tested learning rates.</em></p>
 <p><strong>Figure 5</strong></p>
-<p>Similarly to <strong>Figure 2</strong>, the plot above provides a visual accompaniment to the output produced by the previous code cell. As shown, the model optimized with the Adam algorithm converges considerably quicker than the model optimized with standard SGD (i.e.&nbsp;it needed many fewer epochs) for each of the tested learning rates. This result is evidence that under certain circumstances (i.e.&nbsp;when the learning rates <span class="math inline">\(\alpha_a, \alpha_s\)</span> are appropriately set), the Adam algorithm method can achieve convergence (in the context of decreasing empirical loss value) significantly faster than standard SGD. The results of this experiment stand as a representation of Adam’s boosted efficiencies, displaying how Adam’s performance can vastly exceed that of standard SGD even with several choices of the learning rate.</p>
+<p>Similarly to <strong>Figure 2</strong>, the plot above provides a visual accompaniment to the output produced by the previous code cell. As shown, the model optimized with the Adam algorithm converges considerably quicker than the model optimized with standard SGD for each of the tested learning rates. That is, when running for the same number of epochs (which varies depending on the selected step size) the loss value of model using the Adam algorithm “levels out” in many fewer epochs than the loss value of the model optimized with standard SGD. It is important to note that the empirical loss value appears to slightly fluctuate about some minimum threshold for the model using Adam when the step size is set to <span class="math inline">\(0.1\)</span>. It is possible that this “noisiness” in the loss-epochs plot for the model using Adam could indicate a failure to converge over many more epochs. However, in the number of allotted epochs, the model using Adam still clearly achieves a lower empirical loss value than that using standard SGD. The results of this experiment are evident that under certain circumstances (i.e.&nbsp;when the learning rates <span class="math inline">\(\alpha_a, \alpha_s\)</span> are appropriately set), the Adam algorithm method can achieve convergence (in the context of decreasing empirical loss value) significantly faster than standard SGD. Further, these results stand as a representation of Adam’s boosted efficiencies, displaying how Adam’s performance can vastly exceed that of standard SGD even with several choices of the learning rate.</p>
 </section>
 </section>
 <section id="comparing-newtons-method-and-the-adam-algorithm" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-newtons-method-and-the-adam-algorithm">Comparing Newton’s Method and the Adam Algorithm</h2>
 <p>After experimenting individually with each of these advanced optimization methods, it is useful to compare their performances to each other to understand how each method might outperform the other under certain circumstances. Considering that these two methods involve notably different computational procedures, I will opt to compare their convergence rates with respect to overall runtime. Specifically, I will examine the differences in runtime it takes each method to converge (i.e.&nbsp;minimize the empirical loss value) over three different learning rates (similarly to <strong>Experiment 2</strong> from above). In this comparison, I will again use a pre-selected loss-value tolerance to determine convergence (note that there will be a different tolerance for each learning rate)</p>
-<div id="03177b5c" class="cell" data-execution_count="681">
+<div id="03177b5c" class="cell" data-execution_count="316">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing the convergence rates of Newton's method and Adam with respect to runtime</span></span>
@@ -890,7 +866,7 @@ Adam Converges at         15 Epochs (~13x Faster)
 <span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing the weights vectors</span></span>
 <span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    LR_n.w <span class="op">=</span> tch.rand((X_train.size()[<span class="dv">1</span>]))</span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_n.w</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_n.w.clone()</span>
 <span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Running Newton's method</span></span>
 <span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    start_time_n <span class="op">=</span> time.time()</span>
@@ -913,25 +889,25 @@ Adam Converges at         15 Epochs (~13x Faster)
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>When alpha = 0.001
-Newton's Method converges in 1.83 s (~2.9x Faster)
-Adam Converges in            5.36 s
+Newton's Method converges in 1.78 s (~2.8x Faster)
+Adam Converges in            4.89 s
 ----------
 
 When alpha = 0.01
-Newton's Method converges in 0.22 s (~19.3x Faster)
-Adam Converges in            4.22 s
+Newton's Method converges in 0.21 s (~44.5x Faster)
+Adam Converges in            9.42 s
 ----------
 
 When alpha = 0.1
-Newton's Method converges in 0.02 s (~9.3x Faster)
-Adam Converges in            0.15 s
+Newton's Method converges in 0.02 s (~17.1x Faster)
+Adam Converges in            0.26 s
 ----------
 </code></pre>
 </div>
 </div>
 <p><em>Code above displays the runtime til convergence for a logistic regression model optimized with Newton’s method and a logistic regression model optimized with the Adam algorithm. Each model is optimized until the empirical loss value reaches a specified tolerance. The runtimes are compared across three different learning rate step sizes. The training data used is the empirical penguins classification data.</em></p>
 <p>The output above compares the runtime between logistic regression models, one optimized with Newton’s method and the other with the Adam algorithm. In this comparison, each model is optimized over the empirical penguins classification data. The runtime required for each model to yield an empirical loss value of a specified tolerance is tracked and compared across three selected learning rates. The learning rates of this comparison are <span class="math inline">\(\alpha = 0.001, 0.01, 0.1\)</span>, and the corresponding tolerances for each model given the current learning rates are <span class="math inline">\(0.304, 0.30377, 0.304\)</span>. As clearly depicted above, the model employing Newton’s method considerably outperforms the model using the Adam algorithm across all three tested learning rates. Based on this comparison alone, it would appear that Newton’s method is far more efficient than the Adam algorithm for optimization. However, note that the training data used in this comparison has relatively few features, which likely favors Newton’s method over Adam (primarily due to the fact that the expensive computation of Newton’s method is not amplified by a vast number of features). Thus, it is useful to recreate this comparison on data with many more features, and observe any notable similarities or differences <span class="math inline">\(-\)</span> leading into the comparison below:</p>
-<div id="d49e4e6e" class="cell" data-execution_count="682">
+<div id="d49e4e6e" class="cell" data-execution_count="317">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing the convergence rates of Newton's method and Adam with respect to runtime - part 2</span></span>
@@ -963,7 +939,7 @@ Adam Converges in            0.15 s
 <span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initializing the weights vectors</span></span>
 <span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    LR_n.w <span class="op">=</span> tch.rand((X_sim.size()[<span class="dv">1</span>]))</span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_n.w</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    LR_a.w <span class="op">=</span> LR_n.w.clone()</span>
 <span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Running Newton's method</span></span>
 <span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    start_time_n <span class="op">=</span> time.time()</span>
@@ -986,18 +962,18 @@ Adam Converges in            0.15 s
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>When alpha = 0.001
-Newton's Method converges in 6.27 s 
-Adam Converges in            0.25 s (~24x Faster)
+Newton's Method converges in 4.62 s 
+Adam Converges in            0.14 s (~32x Faster)
 ----------
 
 When alpha = 0.01
-Newton's Method converges in 0.90 s 
-Adam Converges in            0.04 s (~25x Faster)
+Newton's Method converges in 0.74 s 
+Adam Converges in            0.02 s (~34x Faster)
 ----------
 
 When alpha = 0.1
-Newton's Method converges in 0.66 s 
-Adam Converges in            0.01 s (~80x Faster)
+Newton's Method converges in 0.37 s 
+Adam Converges in            0.01 s (~59x Faster)
 ----------
 </code></pre>
 </div>
